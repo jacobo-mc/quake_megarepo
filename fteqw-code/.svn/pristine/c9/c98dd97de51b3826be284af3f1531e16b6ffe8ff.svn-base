@@ -1,0 +1,652 @@
+#include "quakedef.h"
+
+//#define COLOURMISSINGSTRINGS		//for english people to more easily see what's not translatable (text still white)
+//#define COLOURUNTRANSLATEDSTRINGS	//show empty translations as alt-text versions of the original string
+
+//client may remap messages from the server to a regional bit of text.
+//server may remap progs messages
+
+//basic language is english (cos that's what (my version of) Quake uses).
+//translate is english->lang
+//untranslate is lang->english for console commands.
+
+
+int com_language;
+char sys_language[64] = "";
+static char langpath[MAX_OSPATH] = "";
+struct language_s languages[MAX_LANGUAGES];
+static struct po_s *com_translations;
+
+static void QDECL TL_LanguageChanged(struct cvar_s *var, char *oldvalue)
+{
+	if (com_translations)
+	{
+		PO_Close(com_translations);
+		com_translations = NULL;
+	}
+	com_language = TL_FindLanguage(var->string);
+}
+
+cvar_t language = CVARAFC("lang", sys_language, "prvm_language", CVAR_USERINFO|CVAR_NORESET/*otherwise gamedir switches will be annoying*/, TL_LanguageChanged);
+
+void TranslateInit(void)
+{
+	Cvar_Register(&language, "Internationalisation");
+}
+
+void TL_Shutdown(void)
+{
+	int j;
+
+	for (j = 0; j < MAX_LANGUAGES; j++)
+	{
+		if (!languages[j].name)
+			continue;
+		free(languages[j].name);
+		languages[j].name = NULL;
+		PO_Close(languages[j].po);
+		languages[j].po = NULL;
+	}
+}
+
+static int TL_LoadLanguage(char *lang)
+{
+	vfsfile_t *f;
+	int j;
+	char *u;
+	for (j = 0; j < MAX_LANGUAGES; j++)
+	{
+		if (!languages[j].name)
+			break;
+		if (!stricmp(languages[j].name, lang))
+			return j;
+	}
+
+	//err... oops, ran out of languages...
+	if (j == MAX_LANGUAGES)
+		return 0;
+
+	if (*lang)
+		f = FS_OpenVFS(va("%sfteqw.%s.po", langpath, lang), "rb", FS_SYSTEM);
+	else
+		f = NULL;
+	if (!f && *lang)
+	{
+		//keep truncating until we can find a name that works
+		u = strrchr(lang, '_');
+		if (u)
+			*u = 0;
+		else
+			lang = "";
+		return TL_LoadLanguage(lang);
+	}
+	languages[j].name = strdup(lang);
+	languages[j].po = NULL;
+	
+#ifndef COLOURUNTRANSLATEDSTRINGS
+	if (f)
+#endif
+	{
+		languages[j].po = PO_Create();
+		PO_Merge(languages[j].po, f);
+	}
+
+	return j;
+}
+int TL_FindLanguage(const char *lang)
+{
+	char trimname[64];
+	Q_strncpyz(trimname, lang, sizeof(trimname));
+	return TL_LoadLanguage(trimname);
+}
+
+//need to set up default languages for any early prints before cvars are inited.
+void TL_InitLanguages(const char *newlangpath)
+{
+	int i;
+	char *lang;
+
+	if (!newlangpath)
+		newlangpath = "";
+
+	Q_strncpyz(langpath, newlangpath, sizeof(langpath));
+
+	//lang can override any environment or system settings.
+	if ((i = COM_CheckParm("-lang")))
+		Q_strncpyz(sys_language, com_argv[i+1], sizeof(sys_language));
+	else
+	{
+		lang = NULL;
+		if (!lang)
+			lang = getenv("LANGUAGE");
+		if (!lang)
+			lang = getenv("LC_ALL");
+		if (!lang)
+			lang = getenv("LC_MESSAGES");
+		if (!lang)
+			lang = getenv("LANG");
+		if (!lang)
+			lang = "";
+		if (!strcmp(lang, "C") || !strcmp(lang, "POSIX"))
+			lang = "";
+
+		//windows will have already set the locale from the windows settings, so only replace it if its actually valid.
+		if (*lang)
+			Q_strncpyz(sys_language, lang, sizeof(sys_language));
+	}
+
+	//clean it up.
+	//takes the form: [language[_territory][.codeset][@modifier]]
+	//we don't understand modifiers
+	lang = strrchr(sys_language, '@');
+	if (lang)
+		*lang = 0;
+	//we don't understand codesets sadly.
+	lang = strrchr(sys_language, '.');
+	if (lang)
+		*lang = 0;
+	//we also only support the single primary locale (no fallbacks, we're just using the language[+territory])
+	lang = strrchr(sys_language, ':');
+	if (lang)
+		*lang = 0;
+	//but we do support territories.
+	
+	com_language = TL_FindLanguage(sys_language);
+
+	//make sure a fallback exists, but not as language 0
+	TL_FindLanguage("");
+}
+
+
+
+
+#ifdef HEXEN2
+//this stuff is for hexen2 translation strings.
+//(hexen2 is uuuuggllyyyy...)
+static char *strings_list;
+static char **strings_table;
+static int strings_count;
+static qboolean strings_loaded;
+void T_FreeStrings(void)
+{	//on map change, following gamedir change
+	if (strings_loaded)
+	{
+		BZ_Free(strings_list);
+		BZ_Free(strings_table);
+		strings_count = 0;
+		strings_loaded = false;
+	}
+}
+void T_LoadString(void)
+{
+	int i;
+	char *s, *s2;
+	//count new lines
+	strings_loaded = true;
+	strings_count = 0;
+	strings_list = FS_LoadMallocFile("strings.txt", NULL);
+	if (!strings_list)
+		return;
+
+	for (s = strings_list; *s; s++)
+	{
+		if (*s == '\n')
+			strings_count++;
+	}
+	strings_table = BZ_Malloc(sizeof(char*)*strings_count);
+
+	s = strings_list;
+	for (i = 0; i < strings_count; i++)
+	{
+		strings_table[i] = s;
+		s2 = strchr(s, '\n');
+		if (!s2)
+			break;
+
+		while (s < s2)
+		{
+			if (*s == '\r')
+				*s = '\0';
+			else if (*s == '^' || *s == '@')	//becomes new line
+				*s = '\n';
+			s++;
+		}
+		s = s2+1;
+		*s2 = '\0';
+	}
+}
+char *T_GetString(int num)
+{
+	if (!strings_loaded)
+	{
+		T_LoadString();
+	}
+	if (num<0 || num >= strings_count)
+		return "BAD STRING";
+
+	return strings_table[num];
+}
+
+#ifdef HAVE_CLIENT
+//for hexen2's objectives and stuff.
+static char *info_strings_list;
+static char **info_strings_table;
+static int info_strings_count;
+static qboolean info_strings_loaded;
+void T_FreeInfoStrings(void)
+{	//on map change, following gamedir change
+	if (info_strings_loaded)
+	{
+		BZ_Free(info_strings_list);
+		BZ_Free(info_strings_table);
+		info_strings_count = 0;
+		info_strings_loaded = false;
+	}
+}
+void T_LoadInfoString(void)
+{
+	int i;
+	char *s, *s2;
+	//count new lines
+	info_strings_loaded = true;
+	info_strings_count = 0;
+	info_strings_list = FS_LoadMallocFile("infolist.txt", NULL);
+	if (!info_strings_list)
+		return;
+
+	for (s = info_strings_list; *s; s++)
+	{
+		if (*s == '\n')
+			info_strings_count++;
+	}
+	info_strings_table = BZ_Malloc(sizeof(char*)*info_strings_count);
+
+	s = info_strings_list;
+	for (i = 0; i < info_strings_count; i++)
+	{
+		info_strings_table[i] = s;
+		s2 = strchr(s, '\n');
+		if (!s2)
+			break;
+
+		while (s < s2)
+		{
+			if (*s == '\r')
+				*s = '\0';
+			else if (*s == '^' || *s == '@')	//becomes new line
+				*s = '\n';
+			s++;
+		}
+		s = s2+1;
+		*s2 = '\0';
+	}
+}
+char *T_GetInfoString(int num)
+{
+	if (!info_strings_loaded)
+	{
+		T_LoadInfoString();
+	}
+	if (num<0 || num >= info_strings_count)
+		return "BAD STRING";
+
+	return info_strings_table[num];
+}
+#endif
+#endif
+
+struct poline_s
+{
+	bucket_t buck;
+	struct poline_s *next;
+	char *orig;
+	char *translated;
+};
+
+struct po_s
+{
+	hashtable_t hash;
+
+	struct poline_s *lines;
+};
+
+static struct poline_s *PO_AddText(struct po_s *po, const char *orig, const char *trans)
+{
+	size_t olen = strlen(orig)+1;
+	size_t tlen = strlen(trans)+1;
+	struct poline_s *line = Z_Malloc(sizeof(*line)+olen+tlen);
+	memcpy(line+1, orig, olen);
+	orig = (const char*)(line+1);
+	line->translated = (char*)(line+1)+olen;
+	memcpy(line->translated, trans, tlen);
+	trans = (const char*)(line->translated);
+	Hash_Add(&po->hash, orig, line, &line->buck);
+
+	line->next = po->lines;
+	po->lines = line;
+	return line;
+}
+void PO_Merge(struct po_s *po, vfsfile_t *file)
+{
+	char *instart, *in, *end;
+	int inlen;
+	char msgid[32768];
+	char msgstr[32768];
+	struct {
+		quint32_t magic;
+		quint32_t revision;
+		quint32_t numstrings;
+		quint32_t offset_orig;
+		quint32_t offset_trans;
+//		quint32_t hashsize;
+//		quint32_t offset_hash;
+	} *moheader;
+
+	qboolean allowblanks = !!COM_CheckParm("-translatetoblank");
+	if (!file)
+		return;
+
+	inlen = file?VFS_GETLEN(file):0;
+	instart = in = BZ_Malloc(inlen+1);
+	if (file)
+		VFS_READ(file, in, inlen);
+	in[inlen] = 0;
+	if (file)
+		VFS_CLOSE(file);
+
+	moheader = (void*)in;
+	if (inlen >= sizeof(*moheader) && moheader->magic == 0x950412de)
+	{
+		struct
+		{
+			quint32_t length;
+			quint32_t offset;
+		} *src = (void*)(in+moheader->offset_orig), *dst = (void*)(in+moheader->offset_trans);
+		quint32_t i;
+		for (i = moheader->numstrings; i-- > 0; src++, dst++)
+			PO_AddText(po, in+src->offset, in+dst->offset);
+	}
+    else
+	{
+		end = in + inlen;
+		while(in < end)
+		{
+			while(*in == ' ' || *in == '\n' || *in == '\r' || *in == '\t')
+				in++;
+			if (*in == '#')
+			{
+				while (*in && *in != '\n')
+					in++;
+			}
+			else if (!strncmp(in, "msgid", 5) && (in[5] == ' ' || in[5] == '\t' || in[5] == '\r' || in[5] == '\n'))
+			{
+				size_t start = 0;
+				size_t ofs = 0;
+				in += 5;
+				while(1)
+				{
+					while(*in == ' ' || *in == '\n' || *in == '\r' || *in == '\t')
+						in++;
+					if (*in == '\"')
+					{
+						in = COM_ParseCString(in, msgid+start, sizeof(msgid) - start, &ofs);
+						start += ofs;
+					}
+					else
+						break;
+				}
+			}
+			else if (!strncmp(in, "msgstr", 6) && (in[6] == ' ' || in[6] == '\t' || in[6] == '\r' || in[6] == '\n'))
+			{
+				size_t start = 0;
+				size_t ofs = 0;
+				in += 6;
+				while(1)
+				{
+					while(*in == ' ' || *in == '\n' || *in == '\r' || *in == '\t')
+						in++;
+					if (*in == '\"')
+					{
+						in = COM_ParseCString(in, msgstr+start, sizeof(msgstr) - start, &ofs);
+						start += ofs;
+					}
+					else
+						break;
+				}
+
+				if ((*msgid && start) || allowblanks)
+					PO_AddText(po, msgid, msgstr);
+#ifdef COLOURUNTRANSLATEDSTRINGS
+				else if (!start)
+				{
+					char temp[1024];
+					int i;
+					Q_snprintfz(temp, sizeof(temp), "%s", *msgstr?msgstr:msgid);
+					for (i = 0; temp[i]; i++)
+					{
+						if (temp[i] == '%')
+						{
+							while (temp[i] > ' ')
+								i++;
+						}
+						else if (temp[i] >= ' ')
+							temp[i] |= 0x80;
+					}
+					PO_AddText(po, msgid, temp);
+				}
+#endif
+			}
+			else
+			{
+				//some sort of junk?
+				in++;
+				while (*in && *in != '\n')
+					in++;
+			}
+		}
+	}
+
+	BZ_Free(instart);
+}
+struct po_s *PO_Create(void)
+{
+	struct po_s *po;
+	unsigned int buckets = 1024;
+
+	po = Z_Malloc(sizeof(*po) + Hash_BytesForBuckets(buckets));
+	Hash_InitTable(&po->hash, buckets, po+1);
+	return po;
+}
+void PO_Close(struct po_s *po)
+{
+	if (!po)
+		return;
+	while(po->lines)
+	{
+		struct poline_s *r = po->lines;
+		po->lines = r->next;
+		Z_Free(r);
+	}
+	Z_Free(po);
+}
+
+const char *PO_GetText(struct po_s *po, const char *msg)
+{
+	struct poline_s *line;
+	if (!po)
+		return msg;
+	line = Hash_Get(&po->hash, msg);
+
+#ifdef COLOURMISSINGSTRINGS
+	if (!line)
+	{
+		char temp[1024];
+		int i;
+		Q_snprintfz(temp, sizeof(temp), "%s", msg);
+		for (i = 0; temp[i]; i++)
+		{
+			if (temp[i] == '%')
+			{
+				while (temp[i] > ' ')
+					i++;
+			}
+			else if (temp[i] >= ' ')
+				temp[i] |= 0x80;
+		}
+		line = PO_AddText(po, msg, temp);
+	}
+#endif
+
+	if (line)
+		return line->translated;
+	return msg;
+}
+
+
+static void PO_Merge_Rerelease(struct po_s *po, const char *fmt)
+{
+	//FOO <plat,plat> = "CString"
+	char line[32768];
+	char key[256];
+	char val[32768];
+	char *s;
+	vfsfile_t *file = NULL;
+
+	if (!file && *language.string)	//use system locale names
+		file = FS_OpenVFS(va(fmt, language.string), "rb", FS_GAME);
+	if (!file)	//make a guess
+	{
+		s = NULL;
+		if (language.string[0] && language.string[1] && (!language.string[2] || language.string[2] == '-' || language.string[2] == '_'))
+		{	//try to map the user's formal locale to the rerelease's arbitrary names (at least from the perspective of anyone who doesn't speak english).
+			if (!strncmp(language.string, "fr", 2))
+				s = "french";
+			else if (!strncmp(language.string, "de", 2))
+				s = "german";
+			else if (!strncmp(language.string, "it", 2))
+				s = "italian";
+			else if (!strncmp(language.string, "ru", 2))
+				s = "russian";
+			else if (!strncmp(language.string, "es", 2))
+				s = "spanish";
+		}
+		if (s)
+			file = FS_OpenVFS(va(fmt, s), "rb", FS_GAME);
+	}
+	if (!file)	//fall back on misnamed american, for lack of a better default.
+		file = FS_OpenVFS(va(fmt, "english"), "rb", FS_GAME);
+	if (file)
+	{
+		*key = '$';
+		while(VFS_GETS(file, line, sizeof(line)))
+		{
+			s = COM_ParseOut(line, key+1, sizeof(key)-1);
+			s = COM_ParseOut(s, val, sizeof(val));
+			if (strcmp(val,"="))
+				continue;
+			s = COM_ParseCString(s, val, sizeof(val), NULL);
+			if (!s)
+				continue;
+			PO_AddText(po, key, val);
+		}
+		VFS_CLOSE(file);
+	}
+}
+
+const char *TL_Translate(const char *src)
+{
+	if (*src == '$')
+	{
+		if (!com_translations)
+		{
+			char lang[64], *h;
+			vfsfile_t *f = NULL;
+			com_translations = PO_Create();
+			PO_Merge_Rerelease(com_translations, "localization/loc_%s.txt");
+
+			Q_strncpyz(lang, language.string, sizeof(lang));
+			while ((h = strchr(lang, '-')))
+				*h = '_';	//standardise it
+			if (*lang)
+				f = FS_OpenVFS(va("localisation/%s.po", lang), "rb", FS_GAME);	//long/specific form
+			if (!f)
+			{
+				if ((h = strchr(lang, '_')))
+				{
+					*h = 0;
+					if (*lang)
+						f = FS_OpenVFS(va("localisation/%s.po", lang), "rb", FS_GAME);	//short/general form
+				}
+			}
+			if (f)
+				PO_Merge(com_translations, f);
+		}
+		src = PO_GetText(com_translations, src);
+	}
+	return src;
+}
+void TL_Reformat(char *out, size_t outsize, size_t numargs, const char **arg)
+{
+	const char *fmt;
+	const char *a;
+	size_t alen;
+
+	fmt = (numargs>0&&arg[0])?arg[0]:"";
+	fmt = TL_Translate(fmt);
+
+	outsize--;
+	while (outsize > 0)
+	{
+		if (!*fmt)
+			break;
+		else if (*fmt == '{' && fmt[1] == '{')
+			*out++ = '{', fmt+=2, outsize--;
+		else if (*fmt == '}' && fmt[1] == '}')
+			*out++ = '}', fmt+=2, outsize--;
+		else if (*fmt == '{')
+		{
+			unsigned int index = strtoul(fmt+1, (char**)&fmt, 10)+1;
+			int size = 0;
+			if (*fmt == ',')
+				size = strtol(fmt+1, (char**)&fmt, 10);
+			if (*fmt == ':')
+			{	//formatting, which we don't support because its all strings.
+				fmt = fmt+1;
+				while (*fmt && *fmt != '}')
+					fmt++;
+			}
+			if (*fmt == '}')
+				fmt++;
+			else
+				break;	//some formatting error
+
+			if (index >= numargs || !arg[index])
+				a = "";
+			else
+				a = TL_Translate(arg[index]);
+
+			alen = strlen(a);
+			if (alen > outsize)
+				alen = outsize;
+			if (size > 0)
+			{	//right aligned
+				if (alen > size)
+					alen = size;
+				memcpy(out, a, alen);
+			}
+			else if (size < 0)
+			{	//left aligned
+				if (alen > -size)
+					alen = -size;
+				memcpy(out, a, alen);
+			}
+			else //no alignment, no padding.
+				memcpy(out, a, alen);
+			out += alen;
+			outsize -= alen;
+		}
+		else
+			*out++ = *fmt++, outsize--;
+	}
+	*out = 0;
+}
