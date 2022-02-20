@@ -1,0 +1,114 @@
+2020-07-26 TyrUtils v.017
+
+* build: build fixes for osx and fix detection of available cc options
+
+2020-07-25 TyrUtils v0.16
+
+* Added 64-bit builds for windows
+* qbsp: fix the coordinate displayed in degenerate edge error message
+* qbsp: fix disksize calculation when compiling in textures from 'wad3' format wads
+* qbsp: fix handling of absolute paths to wad files beginning with '/' (mac/linux)
+* light: fix lightmap extents calculation precision to match old x87 fpu
+* light: add option to generate a lit file without modifying the bsp
+* bsputil: fix bug exporting textures from bsps that have missing textures
+
+2014-02-16 TyrUtils v0.15
+
+* qbsp: Cope with textures names containing '{' or '}' (e.g. for alpha mask)
+* qbsp: Increase MAXEDGES limit from 32 to 64
+* qbsp: Make transparent water the default (same as txqbsp)
+* qbsp: Improve some clip hull errors with map source line numbers
+* qbsp: Ignore func_detail entities on -onlyents compiles
+* light: Fix bug with minglight clamping with coloured lighting
+
+2013-10-03 TyrUtils v0.14
+
+* qbsp: Added Quake 2 map compatibility (extra surface attributes ignored)
+* qbsp: Add -2psb option to output in RMQ compatible BSP2 format
+
+2013-09-30 TyrUtils v0.13
+
+* Fix handling of func_group/detail entities with no solid brushes
+* Fix automatic adding of animated texture frames
+
+2013-09-29 TyrUtils v0.12
+
+* Implement the Darkplaces (LordHavoc) style BSP2 format and use as default
+* Still support the RMQ style BSP2 format (but don't create any new ones)
+* qbsp: Fix bug causing sky brushes to be non-solid
+
+2013-09-24 TyrUtils v0.11
+
+* Support BSP2 format (qbsp requires the "-bsp2" command line option)
+* qbsp: Fix animating texture bug when brushes are textured with alt-animations
+* qbsp: Fix a crash in tjunc calculations
+* qbsp: Exit with error if verticies exceed 65535 (BSP29 limit)
+* qbsp: Add experimental "-forcegoodtree" command line option (thanks Rebb)
+* vis: reduce "leaf recursion" error to a warning and continue processing
+
+2013-04-25 TyrUtils v0.10
+
+* Documentation added for bspinfo and bsputil
+* Fix vis bug due to missing vertex copy in v0.9 portal clip changes
+
+2013-04-24 TyrUtils v0.9
+
+* qbsp: fixed bad pointfile generation
+
+2013-04-23 TyrUtils v0.8
+
+* qbsp: fixed surface edge corruption when using skip surfaces
+* qbsp: fixed portal generation for transparent water and detail nodes
+* qbsp: added "-noskip" option for troubleshooting skip related problems
+* light: reduce "no model has face ###" to a warning
+* vis: fix portal stack corruption in ClipStackWinding
+* bsputil: added a "--check" option (beta!) to check internal data consistency
+
+2013-04-10 TyrUtils v0.7
+
+* Unix man page documentation for the main tools (qbsp, light, vis)
+* HTML and text documentation is generated from the man page sources
+* qbsp: added support for using WAD3 texture wads used by Hammer
+* qbsp: include clip brushes when calculating bmodel bounding box
+* qbsp: enable creation of clip-only bmodels
+* qbsp: recognise and remove *waterskip, *slimeskip and *lavaskip surfaces
+* qbsp: added hintskip texture support
+* qbsp: fixed some bugs parsing empty func_group/func_detail entities
+* light: implemented self shadowing and full shadows for brush models
+* light: implemented the "-soft" command line option
+* light: implemented the "-addmin" command line option
+* light: implemented the "_anglescale" (aka "_anglesense") key and cmdline
+* light: remove support for negative color components (never worked properly)
+* light: removed the "-nominlimit" option (now the default behaviour)
+* light: removed the "-compress" option (a bad idea from long ago)
+* light: make -gate command line affect linear falloff lights as well
+* vis: changed the default testlevel to 4
+* vis: added the '-noambient*' options to disable auto ambient sounds.
+
+2013-03-07 TyrUtils v0.6
+
+* qbsp: respect floating point texture rotation and shift in map files
+* qbsp: support for Valve's 220 map format used in later Worldcraft/Hammer
+* qbsp: support func_group entities used by Radiant and similar editors
+* qbsp: surfaces with the skip texture are now removed from the compiled bsp
+* qbsp: hint brush support similar to Quake 2 for hand-tweaking the PVS
+* qbsp: fixed a problem where leak files were not written for hull0 or hull1
+* light: fixed a race condition in multithreaded coloured light processing
+* light: fixed bug preventing use of all 4 light styles in a common case
+* light: implemented attenutation formulae "delay" 4+5, ala Bengt's tools
+* light: removed old bsp30 support
+* light: lit files now automatically generated when coloured lights detected
+* light: implemented 4x4 oversampling with -extra4 command line
+* light: implemented the -gate option to help speed processing (default 0.001)
+* light: implemented the "_softangle" key for spotlights
+* light: implemented minlighting for brush models
+
+2013-02-25 TyrUtils v0.5
+
+* New changelog to summarise changes going forward
+* light and vis both now multithreaded on Unix and Windows platforms
+* vis now writes a state file every 5 minutes so it can resume if needed
+* qbsp and vis now support a form of detail brushes, similar to Quake 2. See
+  qbsp.txt for further details.
+* added a small optimisation to vis for a minor speedup (usually only 1-2%)
+* build system re-written and lots of cleanups all over the code
