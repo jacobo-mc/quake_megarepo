@@ -1,0 +1,106 @@
+// wendigo.rc v1.2 10/08/97
+// Brian Hess -=- wendigo@virginia.edu
+
+// player info
+name		wendigo  	// player name
+color 		3        	// player color
+hostname 	wendigame	// server name
+scr_conspeed 	2500        	// console appear speed
+vid_mode        15              // resolution (320x240)
+gamma 		.65             // gamma correction
+crosshair       1     		// enable crosshairs
+
+showram         1 	        // show RAM icon when low on memory
+showturtle      1         	// show turtle when FPS<10
+
++speed     	                // always running
+
+// Default shit
+bind TAB +showscores
+bind ESCAPE togglemenu
+bind PAUSE "pause"
+bind ` toggleconsole
+bind ~ toggleconsole
+bind + sizeup
+bind = sizeup
+bind - sizedown
+
+bind 	1 	"impulse 1"
+bind 	2 	"impulse 2"
+bind 	3 	"impulse 3"
+bind 	4 	"impulse 4"
+bind 	5 	"impulse 5"
+bind 	6 	"impulse 6"
+bind 	7 	"impulse 7"
+bind 	8 	"impulse 8"
+bind 	9 	"impulse 9"
+bind 	0 	"impulse 255"
+
+
+// Function keys
+bind 	F1 	help
+bind 	F2 	menu_save
+bind 	F3 	menu_load
+bind 	F4 	menu_options
+bind 	F5 	menu_multiplayer
+bind 	F10 	quit
+bind    F12     screenshot
+
+// mouse settings
++mlook
+bind	mouse1	+attack
+bind	mouse2	+jump
+
+sensitivity 	12
+
+// client speeds
+cl_forwardspeed		500
+cl_backspeed    	500
+cl_sidespeed    	500
+cl_upspeed 		500
+
+// movement
+bind    Z       +moveright
+bind    z       +moveright
+bind    C       +moveleft
+bind    c       +moveleft
+bind    D       +forward
+bind    d       +forward
+bind    X       +back
+bind    x       +back
+bind    SPACE   +jump
+bind    ALT     +movedown
+bind    a       +moveup
+bind    A       +moveup
+
+// shortcuts
+bind    S       status
+bind    s       status
+bind    p       ping
+bind    P       ping
+bind 	t 	messagemode
+bind 	T 	messagemode
+
+// supahfly aliases
+alias +snipe " fov 75 ; wait ; fov 40 ; wait ; fov 25 ; sensitivity 6 "
+alias -snipe " fov 20 ; wait ; fov 65 ; wait ; fov 90 ; sensitivity 12 "
+bind space +snipe
+
+//cheap view tricks
+cl_bob 0
+cl_bobup 0
+v_kickpitch 0
+v_kicktime 0
+v_kickroll 0
+cl_rollangle 0
+cl_rollspeed 0
+
+//GL Stuff
+m_filter 1
+gl_playermip 0
+gl_flashblend 0
+gl_polyblend 0
+_windowed_mouse 1
+gl_keeptjunctions 1
+
+echo *** wendigo.rc has been loaded.

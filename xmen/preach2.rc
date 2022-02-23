@@ -1,0 +1,132 @@
+
+bind mouse1 +attack
+
+bind LEFTARROW +moveleft
+bind RIGHTARROW +moveright
+bind UPARROW +forward
+bind DOWNARROW +back
+
+// Weapon Configuration
+	
+
+alias +primesng "impulse 5;+attack";
+alias -primesng "-attack;";
+
+alias +primegl "impulse 6;+attack";
+alias -primegl "-attack;";
+
+alias +primerl "impulse 7;+attack";
+alias -primerl "-attack;";
+
+
+alias +primetb "impulse 8;+attack";
+alias -primetb "-attack;";
+
+
+alias +primedsg "impulse 3;+attack";
+alias -primedsg "-attack;";
+
+
+alias +primeng "impulse 4;+attack";
+alias -primeng "-attack";
+
+alias -primary "-attack";
+alias -secondary"-attack";
+
+alias prime1 "impulse 7;echo RL Primary;bind HOME prime2;bind mouse1 +primerl;alias lastweapon impulse 7"
+alias prime2 "impulse 6;echo GL Primary;bind HOME prime1;bind mouse1 +primegl;alias lastweapon impulse 6"
+prime1;
+
+alias prime3 "impulse 5;echo SNG Secondary;bind PGUP prime4;bind mouse2 +primesng;alias lastweapon impulse 5"
+alias prime4 "impulse 8;echo TB Secondary;bind PGUP prime3;bind mouse2 +primetb;alias lastweapon impulse 8"
+prime3;
+
+alias prim5 "impulse 1;bind mouse2 +attack;bind 5 prim6;impulse 1;alias lastweapon impulse 1"
+alias prim6 "impulse 2;bind mouse2 +attack;bind 5 prim7;impulse 2;alias lastweapon impulse 2"
+alias prim7 "impulse 3;bind mouse2 +attack;bind 5 prim8;impulse 3;alias lastweapon impulse 3"
+alias prim8 "impulse 4;bind mouse2 +attack;bind 5 prim5;impulse 4;alias lastweapon impulse 4"
+prim5;
+
+
+alias +quickshoot "impulse 2;+attack;wait 1;-attack;lastweapon"
+alias -quickshoot "-attack;lastweapon"
+
+alias +gl "impulse 6; +attack"
+alias -gl "-attack; lastweapon"
+
+bind END +quickshoot;
+bind PGDN +gl
+bind INS "impulse 10"
+impulse 2					//the default weapon(shotgun)
+bind ENTER +jump		
+
+alias imp1 "impulse 1;alias sb imp1"
+alias imp2 "impulse 2;alias sb imp2"
+alias imp3 "impulse 3;alias sb imp3"
+alias imp4 "impulse 4;alias sb imp4"
+alias imp5 "impulse 5;alias sb imp5"
+alias imp6 "impulse 6;alias sb imp6"
+alias imp7 "impulse 7;alias sb imp7"
+alias imp8 "impulse 8;alias sb imp8"
+
+alias st "impulse 7"
+alias sb "impulse 7"
+
+alias ld "cl_pitchspeed 9999;+lookdown;wait"
+alias unld "-lookdown;centerview;cl_pitchspeed 150"
+
+alias wide "fov 150"
+alias unwide "fov 90"
+
+alias rjump "st;+jump;+attack;wait;-attack;-jump;sb"
+alias nsrjump "+jump;+attack;wait;-attack;-jump"
+
+alias widejumpoff "bind f1 rjump1;bind f2 rjump2;bind x rjump3;bind / rjump4;bind f3 widejumpon;echo Wide Jumping Disabled..."
+alias widejumpon "bind f1 +rjump1;bind f2 +rjump2;bind x +rjump3;bind / +rjump4;bind f3 widejumpoff;echo Wide Jumping Enabled..."
+widejumpoff
+bind f3 widejumpon
+
+alias noswitchingon "bind f1 nsrjump1;bind f2 nsrjump2;bind x nsrjump3;bind / nsrjump4;bind f4 noswitchoff;echo No Switching On..."
+alias noswitchingoff "bind f1 rjump1;bind f2 rjump2;bind x rjump3;bind / rjump4;bind f4 noswitchon;echo No Switching Off..."
+noswitchingoff
+bind f4 noswitchon
+
+alias rjump1 "rjump"
+alias +rjump1 "wide;rjump";alias -rjump1 "unwide"
+alias nsrjump1 "nsrjump"
+
+bind - rjump1
+
+alias rjump2 "ld;+speed;+back;rjump;-back;-speed;unld"
+alias +rjump2 "ld;wide;+speed;+back;rjump;-back;-speed;";alias -rjump2 "unwide;unld"
+alias nsrjump2 "ld;+speed;+back;nsrjump;-back;-speed;unld"
+
+bind / rjump2
+
+alias rjump3 "ld;+speed;+forward;rjump;-forward;-speed;unld"
+alias +rjump3 "wide;ld;+speed;+forward;rjump;-forward;-speed";alias -rjump3 "unwide;unld"
+alias nsrjump3 "ld;+speed;+forward;nsrjump;-forward;-speed;unld"
+
+
+
+alias rjump4 "ld;rjump;unld"
+alias +rjump4 "ld;wide;rjump";alias -rjump4 "unwide;unld"
+alias nsrjump4 "ld;nsrjump;unld"
+
+// bind + rjump4
+
+bind * speedjump
+
+  alias speedjump "h1;wait;h2;wait;h3;wait;h4;wait;h5;wait;h6"
+    alias h1 "+jump;wait;-forward;force_centerview;host_framerate 0.06"
+    alias h2 "cl_pitchspeed 1600;+lookdown;+left;impulse 7"
+    alias h3 "-lookdown;-left;host_framerate 0;impulse 7;wait;-jump;impulse 7"
+    alias h4 "impulse 7;impulse 7;+attack;wait;+attack"
+    alias h5 "host_framerate 0.06;wait;+left;-attack"
+    alias h6 "-left;host_framerate 0;-attack;+forward;force_centerview;-forward"
+
+		
+
+
+
+ 

@@ -1,0 +1,155 @@
+alias rocko "+attack ; +jump ; wait ; wait ; wait ; -attack ; wait ; wait ; wait ; wait ; -jump"
+bind mouse3 rocko
+bind h "impulse 137"
+
+pushlatency -300
+setinfo name Avatar
+setinfo topcolor 12
+setinfo bottomcolor 0
+color 4 12
+crosshair 1
++mlook
+fraglimit 20
+sv_aim 500
+cl_forwardspeed 5000
+cl_backspeed 5000
+cl_sidespeed 5000
+cl_upspeed 5000
+sv_maxspeed 320
+bind mouse2 +jump
+rem mouse3 +mlook
+mouse1 +attack
+bind K_SHIFT +jump
+sensitivity 28
+scr_conspeed 3000
+lookspring 5000
+hostname avatar
+alias jk "exec jk.rc"
+alias avatar "exec avatar.rc"
+
+bind shift +ml
+bind space +snipe
+bind r +moveleft 
+bind w +moveright
+bind e +forward
+bind d +back
+bind g +impulse 200
+bind v impulse 200
+bind z "say_team Done, moving on to next objective"
+
+name Avatar
+alias con156 "connect 156.46.216.101"
+alias con206 "connect 206.150.173.169"
+alias con152a "connect 152.15.10.63"
+alias con152b "connect 152.15.70.151"
+alias con36 "connect 36.185.0.83"
+alias con192 "connect 192.77.186.4"
+alias con152c "connect 152.7.14.21"
+alias con168 "connect 168.150.206.14"
+alias con128 "connect 128.187.30.168"
+alias con152d "connect 152.15.13.18"
+alias con152e "connect 152.15.10.63"
+
+alias connects "echo 156,206,152abcde,36,192,168,128"
+
+// bind    F1   "viewleft"
+// bind    F2   "viewright"
+// bind    F3   "viewtop"
+// bind    F4   "viewbottom"
+// bind    F5   "viewcenter"
+// bind    F6   "r_speeds 0"
+// bind    F7   "r_speeds 1"
+// bind    F8   "notarget"
+// bind    F9   "noclip"
+// bind    F10  "god"
+
+team 137
+bind    q	 "say_team Rocket Launcher"
+
+bind    F1   "say_team Health"
+bind    F2   "say_team Rockets"
+bind    F3   "say_team Armor-RED"
+bind    F4   "say_team Armor-YELLOW"
+bind    F5   "say_team Super Nail Gun"
+bind    F6   "say_team Lightning gun"
+bind    F7   "say_team MegaHealth-ONE (by super nail gun)"
+bind    F8   "say_team MegaHealth-TWO (by pentagram)"
+bind    F9   "say_team MegaHealth-THREE (on hill)"
+bind    F10  "say Skinned by the Newskin Twins!"
+
+
+bind    F11  "screenshot"
+bind    y      "y1"
+bind    h      "h2"
+bind    n      "n3"
+bind    u      "u4"
+bind    j      "j5"
+bind    m      "m6"
+alias   y1      "+sv_gravity 3000"
+alias   h2      "+sv_gravity 800"
+alias   n3      "+sv_gravity -3000"
+alias   u4      "+sv_maxvelocity 30000"
+alias   j5      "+sv_maxvelocity 800"
+alias   m6      "+sv_maxvelocity -3000"
+
+alias   3button    "mouse1 +forward2 ; mouse2 +strafe ; mouse3 +mlook ; echo mouse1 = forward, mouse2 = strafe, mouse3 = look"
+alias   viewleft   "scr_ofsx -100; scr_ofsy -100; scr_ofsz 0"
+alias   viewright  "scr_ofsx -100; scr_ofsy 100; scr_ofsz 0"
+alias   viewtop    "scr_ofsx -200; scr_ofsy 0; scr_ofsz 100"
+alias   viewbottom "scr_ofsx -20; scr_ofsy 0; scr_ofsz -20"
+alias   viewcenter "scr_ofsx 0; scr_ofsy 0; scr_ofsz 0"
+
+gamma .5
+
+alias rock1 "impulse 7 ; +attack ; wait; impulse 1 ; -attack"
+alias rock2 "impulse 7 ; +attack ; wait; impulse 2 ; -attack"
+alias rock3 "impulse 7 ; +attack ; wait; impulse 3 ; -attack"
+alias rock4 "impulse 7 ; +attack ; wait; impulse 4 ; -attack"
+alias rock5 "impulse 7 ; +attack ; wait; impulse 5 ; -attack"
+alias rock6 "impulse 7 ; +attack ; wait; impulse 6 ; -attack"
+alias rock7 "impulse 7 ; +attack ; wait; impulse 7 ; -attack"
+alias rock8 "impulse 7 ; +attack ; wait; impulse 8 ; -attack"
+
+alias at01 "impulse 1 ; bind mouse3 rock1"
+alias at02 "impulse 2 ; bind mouse3 rock2"
+alias at03 "impulse 3 ; bind mouse3 rock3"
+alias at04 "impulse 4 ; bind mouse3 rock4"
+alias at05 "impulse 5 ; bind mouse3 rock5"
+alias at06 "impulse 6 ; bind mouse3 rock6"
+alias at07 "impulse 7 ; bind mouse3 rock7"
+alias at08 "impulse 8 ; bind mouse3 rock8"
+
+bind 1 "impulse 1"
+bind 2 "impulse 2"
+bind 3 "impulse 3"
+bind 4 "impulse 4"
+bind 5 "impulse 5"
+bind 6 "impulse 6"
+bind 7 "impulse 7"
+bind 8 "impulse 8"
+alias jumpleft "+moveleft ; +jump ; wait ; -moveleft ; -jump"
+alias jumpright "+moveright ; +jump ; wait ; -moveright ; -jump"
+
+mouse1 +attack
+bind mouse1 +attack
+
+alias +ml "-mlook"
+alias -ml "+mlook"
+bind a +ml
+bind c "impulse 9 ; god"
+bind g +moveup
+bind b +movedown
+
+bind q "impulse 15"
+bind z "impulse 101"
+bind i "impulse 102"
+bind u "impulse 103"
+bind y "impulse 104"
+sensitivity 28
+alias +snipe " fov 75 ; wait ; fov 40 ; wait ; fov 25 ; sensitivity 14 "
+alias -snipe " fov 20 ; wait ; fov 65 ; wait ; fov 90 ; sensitivity 28 "
+alias +ml "-mlook"
+alias -ml "+mlook"
+bind v noclip
+bind s "impulse 7"
+bind f "impulse 8"

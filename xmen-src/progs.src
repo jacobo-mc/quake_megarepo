@@ -1,0 +1,63 @@
+../progs.dat
+
+defs.qc
+x_vars.qc
+x_cam.qc
+x_misc.qc
+x_sound.qc
+geometry.qc
+subs.qc
+fight.qc
+ai.qc
+combat.qc
+items.qc
+weapons.qc
+x_spwpn.qc
+world.qc
+client.qc
+player.qc
+monsters.qc
+doors.qc
+buttons.qc
+tripwire.qc             // xmen (cl2): Laser Tripwire Code
+particle.qc             // xmen (cl2): Particle Throwers
+mines.qc                // xmen (cl2): Mines
+litening.qc             // xmen (cl2): Lightning
+triggers.qc
+x_trig.qc               // xmen (cl2): trigger_constant
+plats.qc
+misc.qc
+
+explbrsh.qc             // xmen (cl2): Exploding brush code
+
+x_selch.qc              // xmen : select character stuff
+x_tech.qc               // xmen : tech dude
+x_ambient.qc            // xmen : ambient sounds
+
+skeleton.qc
+
+// X-Men characters (implemented)
+wolvie.qc
+storm.qc
+cyclops.qc
+beast.qc
+psylocke.qc
+angel.qc
+gambit.qc
+bishop.qc
+rogue.qc
+cannon.qc
+cannon2.qc
+phoenix.qc
+iceman.qc
+
+// X-Men Bosses
+apsmall.qc
+appy.qc
+
+sinister.qc
+
+// Id's untouched monsters
+//boss.qc
+
+x_debug.qc

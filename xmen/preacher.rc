@@ -1,0 +1,92 @@
+unbindall                      	
+exec preach2.rc
+
+alias reset "exec Preacher.rc"
+
+//Quake's function keys
+bind ESCAPE 	"togglemenu" 			//cannot be unbound from ESC
+bind `          "toggleconsole"
+bind t      	"messagemode"     
+bind w		"messagemode2"
+bind TAB    	+showscores
+bind PAUSE	"pause"
+bind -      	"sizedown"  
+bind =      	"sizeup" 
+bind 9 		"impulse 9"  			//for testing shit in                    
+bind 0		"GOD"                    	//single player mode
+
+//Function Keys 
+bind F2 	"menu_save"			//F1 Sniper Toggle alias
+bind F3 	"menu_load"
+bind F4		"menu_options"
+//bind F5	"menu_multiplayer" 		//F6 Mouse Sensitivity Toggle
+//bind F10 	"quit"				//F11 Name Toggle alias
+//bind F12 	"screenshot" 
+
+//Preferences
+sensitivity 10
+gamma .80
+lookspring 0					//quick snap back for mlook
+lookstrafe 0					//who uses this shit?
+
+cl_forwardspeed 500				//just in case any servers
+cl_backspeed 500				//I get on have sv_maxspeed
+cl_sidespeed 500				//jacked way up & so I'm
+cl_upspeed 500					//running all the time
+
+scr_conspeed 5000				//console pulls down quickly
+con_notifytime 2				//messages disappear quickly
++mlook                                          //freelook on all the time
++speed
+crosshair 1
+
+m_pitch 0.022                                  //inverts the mouse freelook
+viewsize 100                                    //health & weapons bar shown
+color 1 10                                      //brown shirt/tan pants 
+
+//bgmvolume 1					//the best music/fx volume
+//volume .6					//combo I've found
+
+r_waterwarp 0					//default 1
+v_kicktime 0					//default .5           
+v_kickpitch 0					//default .6
+v_kickroll 0					//default .6
+
+alias longwait "wait ; wait; wait; wait; wait; wait"
+
+  
+//Sniper Toggle alias
+//for smooth zoom in for sniping, snipe is the first increment, zoom is the 
+//second, hitting a third time returns to normal view. also toggles the 
+//crosshair on/off, sensitivities are now adjusted for Win95 play
+alias snipe_t snipe_on
+alias snipe_on "alias snipe_t zoom_on ; fov 75; wait; fov 60; wait; fov 45; wait; fov 30; sensitivity 3; echo Snipe Mode on"
+alias zoom_on "alias snipe_t snipe_off ; fov 15; sensitivity 1.5; echo Zoom Mode on"    
+alias snipe_off "alias snipe_t snipe_on ;fov 30; wait; fov 45; wait; fov 60; wait; fov 75; wait; fov 90; sensitivity 7"
+bind s snipe_t
+
+alias crosson "crosshair 1;bind c crossoff"
+alias crossoff "crosshair 0;bind c crosson"
+bind c crosson
+
+alias vsize1 "viewsize 110;bind v vsize2"
+alias vsize2 "viewsize 120;bind v vsize3"
+alias vsize3 "viewsize 100;bind v vsize1"
+bind v vsize2
+
+alias col1 "setinfo bottomcolor 11;bind x col2"
+alias col2 "setinfo bottomcolor 12;bind x col3"
+alias col3 "setinfo bottomcolor 13;bind x col1"
+bind x col1
+
+
+alias fortuna "cd loop 1"
+alias ra rate 2500
+pushlatency -100
+noskins 1
+//alias qw vid_mode 3
+
+alias sens sensitivity 12
+alias reaper "deathmatch 1:fraglimit 15;exec reaper.cfg;"
+
+vid_mode 3
