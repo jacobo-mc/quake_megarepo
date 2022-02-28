@@ -15,7 +15,7 @@ TARGET = ../bin/tyrlite$(EXT)
 CC	 = gcc 
 #CFLAGS	 = -Wall -O2 -fomit-frame-pointer
 #CFLAGS	 = -Wall -O2 -fomit-frame-pointer -ffast-math
-CFLAGS	 = -Wall -O3 -fomit-frame-pointer -ffast-math -mcpu=i686
+CFLAGS	 = -Wall -O3 -fomit-frame-pointer -ffast-math
 #CFLAGS	 = -Wall -pg
 CPPFLAGS = -DLINUX -I./include
 
