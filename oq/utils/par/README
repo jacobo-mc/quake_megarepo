@@ -1,0 +1,73 @@
+This is par, an archiver for Quake pak?.pak files.
+It has been written for all those who don't like to use windoze (pakexplr by
+Ashley Bone) for pak file processing.
+
+Par knows about listing, extraction and creation of pak archives:
+
+  par -l pak0.pak [files]
+  par -x pak0.pak [files]
+  par -c pak9.pak [files].
+
+In addition, you may specify -v for having par to be more talketive and -f to
+force some actions or/and suppress error messages.
+Since pak archives usually contain hundreds of files, instead of specifying
+them on the command line you may put the names to textfiles and use the -t
+switch. This option may be used instead of (not implemented) wildcards:
+
+  par -l pak0.pak | egrep "^models/weapons" > list
+  par -xvt pak0.pak list
+
+
+Now about the unimplemented stuff:
+
+Q: Why didn't you implement -d for deletion?
+A: This is v0.01, until now I implemented only the very needed features.
+   Workaround: If you want to delete "maps/base1.bsp" from pak0.pak (and you've
+     got enough disk space :-), just type
+
+     par -l pak0.pak | sed "s/^maps\/base1\.bsp$//" > list
+     par -x pak0.pak
+     par -ct pak0.pak list
+
+Q: Why didn't you implement -a for adding?
+A: The implementation of this feature requires some programming effort in order
+   to prevent the archive from being destroyed if an error occours (disk full
+   or something like this). Again, this is v0.01.
+
+Q: I love pipes! Why didn't you implement reading the archive from stdin?
+A: I love pipes, too! Unfortunately, the table of contents of the pak archive
+   is located at its end with the following consequences: Since repositioning
+   the file offset isn't possible with stdin, listing would take much time and
+   the extraction would require to buffer the whole archive. Makes no sense.
+
+Q: Why didn't you implement reading the file list from stdin?
+A: This made sense. Send me an e-mail asking for this feature. Better two...
+
+Q: Why didn't you implement extracting to stdout?
+A: Makes some sense, too. Send me an e-mail asking for this feature.
+
+Q: Why didn't you implement creation to stdout?
+A: I had to rewrite the algorithm. The pak header contains the number of files
+   stored in the archive. Until now, I create an empty archive, add the files
+   one by one and rewrite the header afterwards. This way, files that cannot
+   be accessed by par for some weird reasons (permissions, ...) can be skipped
+   (if -f has been specified). When writing to stdout, par cannot be forced to
+   create a valid archive in this case, since the information on the number of
+   files can only be retrieved by counting the file names.
+   Since this is a weak reason, here another: Since reading the archive from
+   stdin isn't possible, implementing creation to stdout would result in an
+   inconsistency: "par -x -" wouldn't work, but "par -c -" would.
+   Not convinced? Okay, ask me for implementation.
+
+Q: What is the pak file format?
+A: It is described in pak-format.txt.
+
+Q: I want to clean up my Quake directory by putting all downloaded stuff into
+   new pak files. Is this possible?
+A: Yes, it is. The linux quake2 reads (at least) pak[0-9].pak in alphabetic
+   order. All files that are only read may be placed into additional paks.
+   If you find out more about this, please let me know.
+
+
+Par should be available at the ibiblio site at
+http://ibiblio.org/pub/linux/games/quake/.

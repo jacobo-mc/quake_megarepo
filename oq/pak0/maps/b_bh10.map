@@ -1,0 +1,40 @@
+// This map has been written by QuArK - Quake Army Knife, Version 5.10
+// It is a map for the game Quake 1.
+
+// It is recommended that you compile this map using TXQBSP, a version of QBSP
+// that can process floating-point coordinates and enhanced texture positionning.
+// For more information see QuArK's Home Page :  http://www.planetquake.com/quark
+
+{
+ "classname" "worldspawn"
+ "wad" "textures/free_wad.wad"
+ {
+  ( 0 0 0 ) ( 0 -128 0 ) ( 128 0 0 ) smhealthtop 0 0 0 1 -1 //TX1
+  ( 64 64 8 ) ( 64 192 8 ) ( 192 64 8 ) smhealthtop -64 64 0 1 1 //TX1
+  ( 0 0 8 ) ( 0 0 136 ) ( 128 0 8 ) smhealthfront. 0 8 0 1 1 //TX1
+  ( 64 16 64 ) ( 64 16 192 ) ( -64 16 64 ) smhealthback 64 64 0 -1 1 //TX1
+  ( 0 64 64 ) ( 0 64 192 ) ( 0 -64 64 ) smhealthside 64 64 0 -1 1 //TX1
+  ( 32 64 64 ) ( 32 64 192 ) ( 32 192 64 ) smhealthside -64 64 0 1 1 //TX1
+ }
+}
+{
+ "classname" "light"
+ "origin" "16 -48 -112"
+ "light" "200"
+}
+{
+ "classname" "light"
+ "origin" "-96 0 0"
+ "light" "200"
+ "spawnflags" "0"
+}
+{
+ "classname" "light"
+ "origin" "16 64 80"
+ "light" "200"
+}
+{
+ "classname" "light"
+ "origin" "128 0 0"
+ "light" "200"
+}

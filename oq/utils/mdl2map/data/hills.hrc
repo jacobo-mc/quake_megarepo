@@ -1,0 +1,1627 @@
+HRCH: Softimage 4D Creative Environment v3.50
+
+
+model
+{
+  name         "base"
+  scaling      1.000 1.000 1.000
+  rotation     0.000 0.000 0.000
+  translation  0.000 0.000 0.000
+  
+  mesh
+  {
+    flag    (PROCESS AVERAGED)
+    discontinuity  60.000
+    
+    vertices   58
+    {
+      [0] position  7.000  6.000  -15.000
+      [1] position  8.000  5.000  -21.000
+      [2] position  11.000  5.000  -15.000
+      [3] position  8.000  5.000  -10.000
+      [4] position  2.000  5.000  -14.000
+      [5] position  3.000  5.000  -19.000
+      [6] position  15.000  1.000  -26.000
+      [7] position  20.000  1.000  -21.000
+      [8] position  20.000  1.000  -13.000
+      [9] position  16.000  1.000  -6.000
+      [10] position  9.000  1.000  -2.000
+      [11] position  1.000  1.000  -3.000
+      [12] position  -4.000  1.000  -11.000
+      [13] position  -4.000  1.000  -21.000
+      [14] position  5.000  1.000  -28.000
+      [15] position  -22.000  4.000  9.000
+      [16] position  -16.000  4.000  4.000
+      [17] position  -7.000  4.000  6.000
+      [18] position  0.000  4.000  10.000
+      [19] position  2.000  4.000  18.000
+      [20] position  1.000  4.000  26.000
+      [21] position  -5.000  4.000  33.000
+      [22] position  -17.000  4.000  33.000
+      [23] position  -24.000  4.000  30.000
+      [24] position  -29.000  4.000  23.000
+      [25] position  -27.000  4.000  14.000
+      [26] position  -16.000  9.000  13.000
+      [27] position  -11.000  9.000  13.000
+      [28] position  -8.000  9.000  18.000
+      [29] position  -8.000  9.000  24.000
+      [30] position  -16.000  9.000  26.000
+      [31] position  -20.000  9.000  19.000
+      [32] position  -13.000  10.000  18.000
+      [33] position  -23.000  -5.000  -8.000
+      [34] position  -28.000  -3.000  -14.000
+      [35] position  -18.000  -3.000  -13.000
+      [36] position  -15.000  -3.000  -6.000
+      [37] position  -23.000  -3.000  0.000
+      [38] position  -30.000  -3.000  -5.000
+      [39] position  -22.000  1.000  -28.000
+      [40] position  -37.000  1.000  -9.000
+      [41] position  -29.000  0.000  5.000
+      [42] position  -15.000  0.000  0.000
+      [43] position  -10.000  0.000  -12.000
+      [44] position  -38.000  1.000  11.000
+      [45] position  -33.000  1.000  -18.000
+      [46] position  -9.000  1.000  -32.000
+      [47] position  16.000  1.000  -33.000
+      [48] position  40.000  -2.000  0.000
+      [49] position  22.000  1.000  25.000
+      [50] position  -14.000  -2.000  40.000
+      [51] position  -33.000  1.000  35.000
+      [52] position  -39.998  -2.000  -40.004
+      [53] position  40.002  -2.000  -40.004
+      [54] position  40.002  -2.000  39.997
+      [55] position  -39.998  -2.000  39.997
+      [56] position  -39.996  -2.000  0.002
+      [57] position  -0.005  -2.000  -40.004
+    }
+    
+    polygons   106
+    {
+      [0] nodes  3
+          {
+            [0] vertex  26
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  31
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  32
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [1] nodes  3
+          {
+            [0] vertex  32
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  27
+                normal  0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  26
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [2] nodes  3
+          {
+            [0] vertex  32
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  28
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  27
+                normal  0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [3] nodes  3
+          {
+            [0] vertex  32
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  29
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  28
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [4] nodes  3
+          {
+            [0] vertex  32
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  30
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [2] vertex  29
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [5] nodes  3
+          {
+            [0] vertex  32
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  31
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  30
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [6] nodes  3
+          {
+            [0] vertex  30
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [1] vertex  22
+                normal  -0.148  0.717  0.682
+                uvTexture  0.000  0.000
+            [2] vertex  21
+                normal  0.239  0.864  0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [7] nodes  3
+          {
+            [0] vertex  21
+                normal  0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [1] vertex  29
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  30
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [8] nodes  3
+          {
+            [0] vertex  29
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  21
+                normal  0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [2] vertex  20
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [9] nodes  3
+          {
+            [0] vertex  20
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  28
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  29
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [10] nodes  3
+          {
+            [0] vertex  28
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  20
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  19
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [11] nodes  3
+          {
+            [0] vertex  28
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  19
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  18
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [12] nodes  3
+          {
+            [0] vertex  18
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  27
+                normal  0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  28
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [13] nodes  3
+          {
+            [0] vertex  27
+                normal  0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  18
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  17
+                normal  0.000  0.851  -0.526
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [14] nodes  3
+          {
+            [0] vertex  17
+                normal  0.000  0.851  -0.526
+                uvTexture  0.000  0.000
+            [1] vertex  26
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  27
+                normal  0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [15] nodes  3
+          {
+            [0] vertex  26
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  17
+                normal  0.000  0.851  -0.526
+                uvTexture  0.000  0.000
+            [2] vertex  16
+                normal  -0.148  0.717  -0.682
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [16] nodes  3
+          {
+            [0] vertex  26
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  16
+                normal  -0.148  0.717  -0.682
+                uvTexture  0.000  0.000
+            [2] vertex  15
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [17] nodes  3
+          {
+            [0] vertex  31
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  26
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  15
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [18] nodes  3
+          {
+            [0] vertex  15
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  25
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  31
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [19] nodes  3
+          {
+            [0] vertex  31
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  25
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  24
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [20] nodes  3
+          {
+            [0] vertex  31
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  24
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  23
+                normal  -0.239  0.864  0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [21] nodes  3
+          {
+            [0] vertex  30
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [1] vertex  23
+                normal  -0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [2] vertex  22
+                normal  -0.148  0.717  0.682
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [22] nodes  3
+          {
+            [0] vertex  23
+                normal  -0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [1] vertex  30
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [2] vertex  31
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [23] nodes  3
+          {
+            [0] vertex  4
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  3
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [2] vertex  0
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [24] nodes  3
+          {
+            [0] vertex  3
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [1] vertex  2
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  0
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [25] nodes  3
+          {
+            [0] vertex  2
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  1
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  0
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [26] nodes  3
+          {
+            [0] vertex  0
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  1
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  5
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [27] nodes  3
+          {
+            [0] vertex  5
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  4
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  0
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [28] nodes  3
+          {
+            [0] vertex  12
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  11
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  4
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [29] nodes  3
+          {
+            [0] vertex  10
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  9
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  3
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [30] nodes  3
+          {
+            [0] vertex  8
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  7
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  2
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [31] nodes  3
+          {
+            [0] vertex  1
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  2
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  6
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [32] nodes  3
+          {
+            [0] vertex  7
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  6
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  2
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [33] nodes  3
+          {
+            [0] vertex  1
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  6
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  14
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [34] nodes  3
+          {
+            [0] vertex  14
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  5
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  1
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [35] nodes  3
+          {
+            [0] vertex  14
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  13
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  5
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [36] nodes  3
+          {
+            [0] vertex  4
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  5
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  13
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [37] nodes  3
+          {
+            [0] vertex  13
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  12
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  4
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [38] nodes  3
+          {
+            [0] vertex  11
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  10
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  4
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [39] nodes  3
+          {
+            [0] vertex  3
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [1] vertex  4
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  10
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [40] nodes  3
+          {
+            [0] vertex  2
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  3
+                normal  0.000  0.955  0.295
+                uvTexture  0.000  0.000
+            [2] vertex  9
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [41] nodes  3
+          {
+            [0] vertex  9
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  8
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  2
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [42] nodes  3
+          {
+            [0] vertex  35
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  34
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  33
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [43] nodes  3
+          {
+            [0] vertex  36
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  35
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  33
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [44] nodes  3
+          {
+            [0] vertex  42
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  36
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  33
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [45] nodes  3
+          {
+            [0] vertex  33
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  37
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  42
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [46] nodes  3
+          {
+            [0] vertex  38
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  37
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  33
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [47] nodes  3
+          {
+            [0] vertex  33
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  34
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  38
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [48] nodes  3
+          {
+            [0] vertex  34
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  35
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  39
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [49] nodes  3
+          {
+            [0] vertex  40
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  38
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  34
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [50] nodes  3
+          {
+            [0] vertex  37
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  38
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  41
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [51] nodes  3
+          {
+            [0] vertex  42
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  37
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  16
+                normal  -0.148  0.717  -0.682
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [52] nodes  3
+          {
+            [0] vertex  35
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  36
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  43
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [53] nodes  3
+          {
+            [0] vertex  43
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  39
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  35
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [54] nodes  3
+          {
+            [0] vertex  16
+                normal  -0.148  0.717  -0.682
+                uvTexture  0.000  0.000
+            [1] vertex  17
+                normal  0.000  0.851  -0.526
+                uvTexture  0.000  0.000
+            [2] vertex  42
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [55] nodes  3
+          {
+            [0] vertex  17
+                normal  0.000  0.851  -0.526
+                uvTexture  0.000  0.000
+            [1] vertex  36
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  42
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [56] nodes  3
+          {
+            [0] vertex  36
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  17
+                normal  0.000  0.851  -0.526
+                uvTexture  0.000  0.000
+            [2] vertex  11
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [57] nodes  3
+          {
+            [0] vertex  43
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  36
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  11
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [58] nodes  3
+          {
+            [0] vertex  11
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  12
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  43
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [59] nodes  3
+          {
+            [0] vertex  13
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  39
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  43
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [60] nodes  3
+          {
+            [0] vertex  12
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  13
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  43
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [61] nodes  3
+          {
+            [0] vertex  15
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  16
+                normal  -0.148  0.717  -0.682
+                uvTexture  0.000  0.000
+            [2] vertex  37
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [62] nodes  3
+          {
+            [0] vertex  15
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [1] vertex  37
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+            [2] vertex  41
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [63] nodes  3
+          {
+            [0] vertex  41
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  25
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  15
+                normal  -0.239  0.864  -0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [64] nodes  3
+          {
+            [0] vertex  38
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  40
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  41
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [65] nodes  3
+          {
+            [0] vertex  11
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  17
+                normal  0.000  0.851  -0.526
+                uvTexture  0.000  0.000
+            [2] vertex  18
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [66] nodes  3
+          {
+            [0] vertex  10
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  11
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  18
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [67] nodes  3
+          {
+            [0] vertex  45
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  40
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  34
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [68] nodes  3
+          {
+            [0] vertex  34
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  39
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  45
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [69] nodes  3
+          {
+            [0] vertex  46
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  39
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  13
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [70] nodes  3
+          {
+            [0] vertex  13
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  14
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  46
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [71] nodes  3
+          {
+            [0] vertex  47
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  46
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  14
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [72] nodes  3
+          {
+            [0] vertex  47
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  14
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  6
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [73] nodes  3
+          {
+            [0] vertex  6
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  7
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  47
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [74] nodes  3
+          {
+            [0] vertex  7
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  8
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  48
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [75] nodes  3
+          {
+            [0] vertex  48
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  47
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  7
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [76] nodes  3
+          {
+            [0] vertex  8
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  9
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  48
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [77] nodes  3
+          {
+            [0] vertex  9
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  10
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  48
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [78] nodes  3
+          {
+            [0] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  48
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  10
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [79] nodes  3
+          {
+            [0] vertex  10
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  18
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [80] nodes  3
+          {
+            [0] vertex  18
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  19
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [81] nodes  3
+          {
+            [0] vertex  19
+                normal  0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  20
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [82] nodes  3
+          {
+            [0] vertex  20
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  21
+                normal  0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [2] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [83] nodes  3
+          {
+            [0] vertex  21
+                normal  0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [1] vertex  22
+                normal  -0.148  0.717  0.682
+                uvTexture  0.000  0.000
+            [2] vertex  50
+                normal  0.000  0.851  0.526
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [84] nodes  3
+          {
+            [0] vertex  50
+                normal  0.000  0.851  0.526
+                uvTexture  0.000  0.000
+            [1] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  21
+                normal  0.239  0.864  0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [85] nodes  3
+          {
+            [0] vertex  22
+                normal  -0.148  0.717  0.682
+                uvTexture  0.000  0.000
+            [1] vertex  23
+                normal  -0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [2] vertex  50
+                normal  0.000  0.851  0.526
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [86] nodes  3
+          {
+            [0] vertex  51
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  50
+                normal  0.000  0.851  0.526
+                uvTexture  0.000  0.000
+            [2] vertex  23
+                normal  -0.239  0.864  0.443
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [87] nodes  3
+          {
+            [0] vertex  23
+                normal  -0.239  0.864  0.443
+                uvTexture  0.000  0.000
+            [1] vertex  24
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  51
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [88] nodes  3
+          {
+            [0] vertex  24
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  25
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  44
+                normal  -0.526  0.851  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [89] nodes  3
+          {
+            [0] vertex  25
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  41
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  44
+                normal  -0.526  0.851  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [90] nodes  3
+          {
+            [0] vertex  44
+                normal  -0.526  0.851  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  41
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  40
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [91] nodes  3
+          {
+            [0] vertex  24
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  44
+                normal  -0.526  0.851  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  51
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [92] nodes  3
+          {
+            [0] vertex  47
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  48
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  53
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [93] nodes  3
+          {
+            [0] vertex  48
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  54
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [94] nodes  3
+          {
+            [0] vertex  49
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [1] vertex  50
+                normal  0.000  0.851  0.526
+                uvTexture  0.000  0.000
+            [2] vertex  54
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [95] nodes  3
+          {
+            [0] vertex  50
+                normal  0.000  0.851  0.526
+                uvTexture  0.000  0.000
+            [1] vertex  51
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  55
+                normal  -0.500  0.809  0.309
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [96] nodes  3
+          {
+            [0] vertex  55
+                normal  -0.500  0.809  0.309
+                uvTexture  0.000  0.000
+            [1] vertex  51
+                normal  -0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  44
+                normal  -0.526  0.851  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [97] nodes  3
+          {
+            [0] vertex  56
+                normal  -0.851  0.526  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  44
+                normal  -0.526  0.851  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  40
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [98] nodes  3
+          {
+            [0] vertex  40
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  52
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  56
+                normal  -0.851  0.526  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [99] nodes  3
+          {
+            [0] vertex  40
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  45
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  52
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [100] nodes  3
+          {
+            [0] vertex  56
+                normal  -0.851  0.526  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  55
+                normal  -0.500  0.809  0.309
+                uvTexture  0.000  0.000
+            [2] vertex  44
+                normal  -0.526  0.851  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [101] nodes  3
+          {
+            [0] vertex  52
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [1] vertex  45
+                normal  0.263  0.951  0.162
+                uvTexture  0.000  0.000
+            [2] vertex  39
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [102] nodes  3
+          {
+            [0] vertex  39
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  46
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  52
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [103] nodes  3
+          {
+            [0] vertex  57
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  52
+                normal  -0.263  0.951  -0.162
+                uvTexture  0.000  0.000
+            [2] vertex  46
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [104] nodes  3
+          {
+            [0] vertex  46
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [1] vertex  47
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [2] vertex  57
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+      [105] nodes  3
+          {
+            [0] vertex  47
+                normal  0.000  1.000  0.000
+                uvTexture  0.000  0.000
+            [1] vertex  53
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+            [2] vertex  57
+                normal  0.000  0.955  -0.295
+                uvTexture  0.000  0.000
+          }
+          material 0
+    }
+    
+    edges   163
+    {
+      [1] vertices  31  32
+      [2] vertices  32  26
+      [3] vertices  26  31
+      [4] vertices  27  26
+      [5] vertices  32  27
+      [6] vertices  28  27
+      [7] vertices  32  28
+      [8] vertices  29  28
+      [9] vertices  32  29
+      [10] vertices  30  29
+      [11] vertices  32  30
+      [12] vertices  31  30
+      [13] vertices  22  21
+      [14] vertices  21  30
+      [15] vertices  30  22
+      [16] vertices  21  29
+      [17] vertices  21  20
+      [18] vertices  20  29
+      [19] vertices  20  28
+      [20] vertices  20  19
+      [21] vertices  19  28
+      [22] vertices  19  18
+      [23] vertices  18  28
+      [24] vertices  18  27
+      [25] vertices  18  17
+      [26] vertices  17  27
+      [27] vertices  17  26
+      [28] vertices  17  16
+      [29] vertices  16  26
+      [30] vertices  16  15
+      [31] vertices  15  26
+      [32] vertices  15  31
+      [33] vertices  25  31
+      [34] vertices  15  25
+      [35] vertices  25  24
+      [36] vertices  24  31
+      [37] vertices  24  23
+      [38] vertices  23  31
+      [39] vertices  23  22
+      [40] vertices  30  23
+      [41] vertices  3  0
+      [42] vertices  0  4
+      [43] vertices  4  3
+      [44] vertices  2  0
+      [45] vertices  3  2
+      [46] vertices  1  0
+      [47] vertices  2  1
+      [48] vertices  1  5
+      [49] vertices  5  0
+      [50] vertices  5  4
+      [51] vertices  11  4
+      [52] vertices  4  12
+      [53] vertices  12  11
+      [54] vertices  9  3
+      [55] vertices  3  10
+      [56] vertices  10  9
+      [57] vertices  7  2
+      [58] vertices  2  8
+      [59] vertices  8  7
+      [60] vertices  2  6
+      [61] vertices  6  1
+      [62] vertices  7  6
+      [63] vertices  6  14
+      [64] vertices  14  1
+      [65] vertices  14  5
+      [66] vertices  13  5
+      [67] vertices  14  13
+      [68] vertices  13  4
+      [69] vertices  13  12
+      [70] vertices  10  4
+      [71] vertices  11  10
+      [72] vertices  9  2
+      [73] vertices  9  8
+      [74] vertices  34  33
+      [75] vertices  33  35
+      [76] vertices  35  34
+      [77] vertices  33  36
+      [78] vertices  36  35
+      [79] vertices  33  42
+      [80] vertices  42  36
+      [81] vertices  37  42
+      [82] vertices  33  37
+      [83] vertices  33  38
+      [84] vertices  38  37
+      [85] vertices  34  38
+      [86] vertices  35  39
+      [87] vertices  39  34
+      [88] vertices  34  40
+      [89] vertices  40  38
+      [90] vertices  38  41
+      [91] vertices  41  37
+      [92] vertices  37  16
+      [93] vertices  16  42
+      [94] vertices  36  43
+      [95] vertices  43  35
+      [96] vertices  43  39
+      [97] vertices  17  42
+      [98] vertices  17  36
+      [99] vertices  17  11
+      [100] vertices  11  36
+      [101] vertices  11  43
+      [102] vertices  12  43
+      [103] vertices  43  13
+      [104] vertices  13  39
+      [105] vertices  37  15
+      [106] vertices  41  15
+      [107] vertices  41  25
+      [108] vertices  40  41
+      [109] vertices  18  11
+      [110] vertices  18  10
+      [111] vertices  34  45
+      [112] vertices  45  40
+      [113] vertices  39  45
+      [114] vertices  13  46
+      [115] vertices  46  39
+      [116] vertices  14  46
+      [117] vertices  14  47
+      [118] vertices  47  46
+      [119] vertices  6  47
+      [120] vertices  7  47
+      [121] vertices  8  48
+      [122] vertices  48  7
+      [123] vertices  48  47
+      [124] vertices  9  48
+      [125] vertices  10  48
+      [126] vertices  10  49
+      [127] vertices  49  48
+      [128] vertices  18  49
+      [129] vertices  19  49
+      [130] vertices  20  49
+      [131] vertices  21  49
+      [132] vertices  22  50
+      [133] vertices  50  21
+      [134] vertices  50  49
+      [135] vertices  23  50
+      [136] vertices  23  51
+      [137] vertices  51  50
+      [138] vertices  24  51
+      [139] vertices  25  44
+      [140] vertices  44  24
+      [141] vertices  41  44
+      [142] vertices  40  44
+      [143] vertices  44  51
+      [144] vertices  48  53
+      [145] vertices  53  47
+      [146] vertices  49  54
+      [147] vertices  54  48
+      [148] vertices  50  54
+      [149] vertices  51  55
+      [150] vertices  55  50
+      [151] vertices  44  55
+      [152] vertices  40  56
+      [153] vertices  56  44
+      [154] vertices  52  56
+      [155] vertices  40  52
+      [156] vertices  45  52
+      [157] vertices  56  55
+      [158] vertices  39  52
+      [159] vertices  46  52
+      [160] vertices  46  57
+      [161] vertices  57  52
+      [162] vertices  47  57
+      [163] vertices  53  57
+    }
+  }
+}

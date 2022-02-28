@@ -1,0 +1,55 @@
+dm2ish.map, dm3ish.map, dm4ish.map, e1m2ish.map, q3dm6ish.map and ukpak4.map
+
+Copyright (C) 2001  Aardappel (@planetquake.com)
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+www.planetquake.com/aardappel
+
+Except q3dm6ish, these have been made using qoole, so may be messy.
+In fact when compiling them I had to make very sure qbsp didn't
+produce areas that allow you to get stuck, so you will need to do the
+same.
+
+Also, these maps were compiled with arghlite with the "-light 30"
+(or thereabouts) switch. If you compile with standard id light,
+the maps will be darker than the bsps on my page.
+
+My advise: just replace the textures in the .bsp rather than recompiling.
+You can do this with a utility such as adquedit very easily.
+
+Finally, I hope you will show me the retextured version before you
+release it, so that I can give comments.
+
+
+q3dm6ish has been retextured using some of the textures from the free_wad.wad
+and some from the Quake Retexturing Project (http://www.quake.cz/winclan/qe1/).
+
+suggestions for dm4ish by Seth Galbraith:
+
+skydark			free.wad/sky_void (use dark sky box)
+*lavapk1_1		free.wad/lava_s2
+head_x4			free.wad/thangulus2
+clip			free.wad/clip
++0~light2a		new texture based on aardmtrim32_2
+blume6_2		new texture based on aaardtex textures
+her2wfl			
+florr1_5		
+city4_7			
+city4_8			
+wizmet1_2		aardtex_q1_darker.wad/aardmet32_1
+wizmet1_5		should match color of aardmet32_1
+rock5_2			
+afloor1_4		aardtex_q1_darker.wad/aardmtile64_1r

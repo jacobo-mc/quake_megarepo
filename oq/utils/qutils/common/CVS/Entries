@@ -1,0 +1,25 @@
+/bspfile.c/1.2/Sun Nov 19 18:05:09 2000//
+/bspfile.h/1.1/Fri Nov 17 19:01:13 2000//
+/cadlib.c/1.2/Sun Jan 20 21:15:11 2002//
+/cadlib.h/1.1/Fri Jul 27 19:29:32 2001//
+/cmdlib.c/1.4/Thu May  3 23:28:16 2001//
+/cmdlib.h/1.2/Thu May  3 23:28:16 2001//
+/lbmlib.c/1.1/Fri Nov 17 19:01:13 2000//
+/lbmlib.h/1.1/Fri Nov 17 19:01:13 2000//
+/mathlib.c/1.1/Fri Nov 17 19:01:13 2000//
+/mathlib.h/1.1/Fri Nov 17 19:01:13 2000//
+/polylib.c/1.3/Sun Nov 19 18:25:15 2000//
+/polylib.h/1.1/Fri Nov 17 19:01:13 2000//
+/qmalloc.c/1.1/Sun Nov 19 18:05:09 2000//
+/qmalloc.h/1.1/Sun Nov 19 18:05:09 2000//
+/scriplib.c/1.1/Fri Nov 17 19:01:13 2000//
+/scriplib.h/1.1/Fri Nov 17 19:01:13 2000//
+/threads.c/1.2/Sun Nov 19 18:25:15 2000//
+/threads.h/1.1/Fri Nov 17 19:01:13 2000//
+/trilib.c/1.1/Fri Nov 17 19:01:13 2000//
+/trilib.h/1.1/Fri Nov 17 19:01:13 2000//
+/wadlib.c/1.2/Sun Nov 19 18:05:09 2000//
+/wadlib.h/1.1/Fri Nov 17 19:01:13 2000//
+/work.c/1.1/Sun Nov 19 18:06:35 2000//
+/work.h/1.1/Sun Nov 19 18:06:35 2000//
+D

@@ -1,0 +1,51 @@
+-230 2397 1472 QUAD
+923 2986 704 RA/NG
+1008 439 192 bottom lava
+-608 -570 192 bottom lava
+3348 683 1472 GA/LG
+3399 -1130 1472 lg
+3549 -892 192 lava to ladder
+2553 -2564 1472 GL/LG
+1240 -2826 1472 GL/LG
+-289 -2893 1472 GL
+-85 -4322 1472 ammo room
+1294 -4880 1472 ammo room
+484 -5457 2752 top to ladder
+559 -7409 2752 ammo room to top stairs
+-912 -6713 1472 ammo room
+-1481 -4112 1472 ammo room
+-3922 -2831 192 RL/HH
+1 3246 2752 thin corridor
+-2090 -510 192 bottom lava
+-4417 -634 192 bottom to RL/HH
+-1717 -5523 1472 ammo room
+181 -8250 2240 ammo room to top stairs
+-1042 -8509 1472 ammo room to top stairs
+918 -6525 1472 ammo room
+2192 -5992 1472 ladder
+-3662 -5514 192 RL/HH
+-4702 -6794 203 RL/HH
+-5042 -5638 192 RL/HH
+-4557 -4083 192 RL/HH
+-5390 -2805 192 RL/HH
+1679 -345 192 bottom lava
+3762 1997 2752 thin corridor
+814 4675 1088 RA/RL
+1984 4822 1088 RA/RL
+4616 4586 1856 RA to YA
+5293 3065 2752 YA
+7178 4223 2752 YA
+7381 2178 2752 YA
+7114 133 2752 top to YA
+5214 131 2752 top to YA
+5361 1449 2752 thin corridor
+1591 2478 2752 thin corridor
+-2439 2168 2752 thin corridor
+-2608 -514 2752 above QUAD
+-1525 -3452 2752 above GL
+614 -4004 2752 top to ladder
+2048 -5898 2752 ladder
+2340 -6009 192 ladder
+3819 -6314 192 GA/ladder
+3662 -4108 192 lava to ladder
+3774 -2341 192 lava to ladder

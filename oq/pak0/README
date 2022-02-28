@@ -1,0 +1,42 @@
+================================================================================
+pak0
+================================================================================
+
+This module contains the source for all of the Open Quartz game data and the
+related build system.  The build system will construct four pak files:
+pak0.pak, pak1.pal, pak2.pak, and pak3.pak.
+
+
+Building the pak files:
+
+ 1) Either compile or download pre-build versions of the Open Quartz utilities.
+
+ 2) Change the QUTILSDIR and UTILSDIR variables in "makefile" to point
+    to your utilties.  You may skip this step if you have installed the "utils" 
+    directory next to the "pak0" directory.
+
+ 3) Run "make" to start the build.  
+    On Microsoft Windows, you may not have to install either
+	MinGW (from http://www.mingw.org/) or cygwin (http://www.cygwin.com/)
+	to get make.
+
+Installing/running the pak files:
+
+ 1) Obtain a Quake engine that you like.  
+    We recommend using LorkHavoc's Dark Places engine, which we include
+    with our "playable" version.
+  
+ 2) Copy the four pak files (pak0.pak, pak1.pal, pak2.pak, and pak3.pak) into
+    Quake's "id1" directory.
+
+ 3) If you are using Dark Places, you can also copy additional game 
+    enhancements into the id1 directory:
+	   gfx/*.tga
+	   gfx/env/*.tga
+
+ 4) Run Quake.
+   
+
+E-mail suggestions, comments, and requests for help to:
+   openquartz-general@lists.sourceforge.net
+

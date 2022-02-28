@@ -1,0 +1,73 @@
+raw2map - raw bitmap to Quake .map terrain convertor
+
+Copyright (C) 2000  Seth Galbraith
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+AUTHORS:
+
+Seth Galbraith
+"The Serpent Lord"
+http://www.planetquake.com/simitar
+sgalbrai@krl.org
+
+
+USAGE: raw2map [options] <file> [more options and/or files]
+
+OPTIONS:
+
+	-w [int]    : image width in pixels (default = 0)
+	              if width is 0, image is assumed to be square
+	-o [string] : output filename (NOTE: affects only the next input file)
+	              (default = input filename but with .map extension)
+	-h [float]  : horizontal scale in Quake units per pixel (default = 128)
+	-v [float]  : vertical   scale in Quake units per pixel (default = 4)
+	-x [float]  : X offset (lattitude) in Quake units (default = 0)
+	-y [float]  : Y offset (longitude) in Quake units (default = 0)
+	-z [float]  : Z offset (altitude)  in Quake units (default = 0)
+	-f [float]  : height of brush bottoms in Quake units
+	              (default = Z offset - vertical scale)
+	-c [float]  : ceiling or sky height in Quake units
+	              (default = maximum terrain height + 64)
+	-t [float]  : wall thickness in Quake units (default = 64)
+	              (if this is 0, no wall or hint brushes will be created)
+	              NOTE: -v and -z restore default floor and ceiling height
+
+HISTORY:
+
+10-4-00
+
+First release
+
+10-24-00
+
+Changed "%f" to "%0.f" so there is no minimum number of decimal points written
+in the fprintf statements in write_terrain_triangle() and write_terrain_quad().
+This makes the output .map file much smaller.
+
+3-17-01
+
+Added walls, hint brushes, and am_detail grouping of terrain brushes.
+Started adding support for BMP and TGA files, BMP is basically broken
+8 bit uncompressed TGA files should work (but raw2map does not read the
+width and height information from the TGA file.)
+
+3-27-01
+
+Changed printf format strings to output default precision
+
+4-17-01
+
+Added tutorial (index.html and images)

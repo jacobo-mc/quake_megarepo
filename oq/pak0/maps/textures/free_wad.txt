@@ -1,0 +1,56 @@
+The Serpent Lord's Free Quake Textures
+
+Copyright (C) 1998, 2000, 2004  Seth Galbraith, Ulrich Galbraith, Charles Galbraith, Aaardappel and others
+
+They can be used or modified for any purpose as long as the authors are given credit for creating the original image.
+
+Contributors:
+
+Seth Galbraith - sgalbrai@krl.org
+Ulrich Galbraith - ugalbrai@krl.org
+Charles Galbraith - cgalbrai@krl.org
+
+Visit our website:
+
+  http://www.planetquake.com/simitar
+
+
+
+
+aard* series made by Aardappel:
+
+Original textures made by Aardappel
+
+aardf* : made from a photo I took, then made to tile
+aardo* : made completely from scratch (photoshop mostly)
+aardm* : made using a free texture base but modified unrecognisibly
+
+All texture tile well
+
+These textures are completely free to use in any way you like,
+including using them as base for others. I couldn't care less
+if you credit me or not.
+
+Aardappel 
+http://wouter.fov120.com/maps/
+
+
+
+
+cr8* textures made by Speedy 
+http://www.planetquake.com/speedy/
+licensed GPL
+
+These textures are free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This level is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this level; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA

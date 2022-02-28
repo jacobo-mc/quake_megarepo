@@ -1,0 +1,126 @@
+// The Lost Supply Base- maps/void3.way
+// $Revision: 1.1 $
+// Ways by mindHog
+
+// hack to get these working on DarkPlaces
+sys_ticrate 0
+
+saved1 -521.710327; saved2 999.835388; saved3 -337.96875
+scratch1 2; scratch2 0; scratch3 0; scratch4 0
+saved4 1; wait
+saved1 -514.936707; saved2 542.454102
+scratch1 1; scratch2 3; scratch3 6; scratch4 12
+saved4 2; wait
+saved1 -941.881531; saved2 511.503571; saved3 -465.96875
+scratch1 2; scratch2 4; scratch3 0; scratch4 0
+saved4 2; wait
+saved1 -1005.209473; saved2 517.249756
+scratch1 5; scratch2 0
+saved4 1154; wait
+saved1 -1009.892639; saved2 259.073364
+scratch1 4
+saved4 1154; wait
+saved1 -377.763153; saved2 512.454834; saved3 -337.96875
+scratch1 2; scratch2 38; scratch3 29
+saved4 2; wait
+saved1 -185.342102; saved2 631.558472; saved3 -201.96875
+scratch1 38; scratch2 11; scratch3 0
+saved4 2; wait
+saved1 -287.982971; saved2 1263.96875; saved3 -145.96875
+scratch1 11; scratch2 9
+saved4 2; wait
+saved1 82.699387; saved2 1241.63623
+scratch1 8; scratch2 10
+saved4 2; wait
+saved1 87.543869; saved2 802.871216
+scratch1 9; scratch2 11
+saved4 2; wait
+saved1 -213.730087; saved2 798.752014
+scratch1 10; scratch2 8; scratch3 7
+saved4 2; wait
+saved1 -516.676941; saved2 -70.800751; saved3 -337.96875
+scratch1 2; scratch2 13; scratch3 14
+saved4 2; wait
+saved1 -745.219666; saved2 -57.788227
+scratch1 12; scratch2 27; scratch3 28
+saved4 2; wait
+saved1 -339.129944; saved2 -151.741135
+scratch2 15
+saved4 2; wait
+saved1 -308.548737; saved2 -575.05658
+scratch1 14; scratch2 16
+saved4 2; wait
+saved1 -580.384827; saved2 -636.308167
+scratch1 15; scratch2 27; scratch3 18
+saved4 2; wait
+saved1 -751.96875; saved2 -691.788086; saved3 -209.968765
+scratch1 19; scratch2 0; scratch3 37
+saved4 2; wait
+saved1 -642.150818; saved2 -685.711853; saved3 -337.96875
+scratch1 17; scratch3 0
+saved4 4098; wait
+saved1 -831.735474; saved2 -712.274109; saved3 -209.96875
+scratch2 20
+saved4 2; wait
+saved1 -829.745056; saved2 -333.19223
+scratch1 19; scratch2 21; scratch3 27
+saved4 2; wait
+saved1 -847.902344; saved2 211.660126
+scratch1 20; scratch2 22; scratch3 25
+saved4 2; wait
+saved1 -1223.881836; saved2 191.96875
+scratch1 21; scratch2 26; scratch3 0
+saved4 2; wait
+saved1 -1052.30603; saved2 815.96875
+scratch1 26; scratch2 24
+saved4 2; wait
+saved1 -980.700623; saved2 409.51059
+scratch1 23; scratch2 25; scratch3 26
+saved4 2; wait
+saved1 -1067.492065; saved2 248.548538
+scratch1 24; scratch2 21; scratch3 0
+saved4 2; wait
+saved1 -1151.030762; saved2 487.523376
+scratch1 22; scratch2 23; scratch3 24
+saved4 2; wait
+saved1 -615.878174; saved2 -331.538177; saved3 -337.96875
+scratch1 16; scratch2 13; scratch3 28
+saved4 2; wait
+saved1 -517.900146; saved2 -280.513763
+scratch1 13; scratch2 14; scratch3 27; scratch4 15
+saved4 2; wait
+saved1 -193.23082; saved2 428.549561; saved3 -385.96875
+scratch1 6; scratch2 30; scratch3 0; scratch4 0
+saved4 2; wait
+saved1 -136.859085; saved2 256.470886; saved3 -465.96875
+scratch1 29; scratch2 31; scratch3 34; scratch4 32
+saved4 2; wait
+saved1 -335.482452; saved2 138.12355
+scratch1 30; scratch2 32; scratch4 0
+saved4 2; wait
+saved1 -129.886612; saved2 20.495569
+scratch1 31; scratch2 33; scratch3 30
+saved4 2; wait
+saved1 49.195194; saved2 116.789879
+scratch1 32; scratch2 34; scratch3 0
+saved4 2; wait
+saved1 45.075897; saved2 340.033966
+scratch1 33; scratch2 30; scratch3 31
+saved4 2; wait
+saved1 -479.646545; saved2 -557.955383; saved3 -273.96875
+scratch1 36; scratch2 0; scratch3 0
+saved4 1026; wait
+saved1 -304.0625; saved2 -743.321106
+scratch1 15
+saved4 2; wait
+saved1 -751.387024; saved2 -708.831543; saved3 -209.96875
+scratch1 35
+saved4 1026; wait
+saved1 -213.173584; saved2 559.531677; saved3 -273.96875
+scratch1 6; scratch2 7
+saved4 2; wait
+saved4 3
+// end waypoint dump
+
+// end hack
+sys_ticrate 0.05

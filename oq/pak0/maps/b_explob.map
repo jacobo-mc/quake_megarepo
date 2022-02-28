@@ -1,0 +1,59 @@
+// This map has been created by QuArK - Quake Army Knife, Version 4.07
+// It is a map for the game Quake.
+
+// It is recommended that you compile this map using a version of QBSP
+// that can read floating-point coordinates, like the one recommended
+// at QuArK's Home Page <http://www.planetquake.com/quark/>
+
+{
+ "classname" "worldspawn"
+ "message" "No Name"
+ "worldtype" "0"
+ "wad" "textures/free_wad.wad"
+ {
+  ( 0 0 0 ) ( 0 -512 0 ) ( 0 0 -512 ) sbox5_side 0 0 0 1 1
+  ( 32 0 0 ) ( 32 512 0 ) ( 32 0 -512 ) sbox5_side 0 0 0 1 1
+  ( 0 0 0 ) ( 512 0 0 ) ( 0 0 -512 ) sbox5_side 0 0 0 1 1
+  ( 0 32 0 ) ( -512 32 0 ) ( 0 32 -512 ) sbox5_side 0 0 0 1 1
+  ( 0 0 0 ) ( 0 512 0 ) ( -512 0 0 ) sbox3_top 0 0 0 1 1
+  ( 0 0 64 ) ( 0 -512 64 ) ( -512 0 64 ) sbox3_top 0 0 0 1 1
+  ( -8.78461 5.07180 0 ) ( -264.78461 -438.33321 0 ) ( -8.78461 5.07180 -512 ) sbox5_side 0 0 0 1 1
+  ( 18.92820 -10.92820 0 ) ( 274.92820 432.47680 0 ) ( 18.92820 -10.92820 -512 ) sbox5_side 0 0 0 1 1
+  ( 2.92820 5.07180 0 ) ( 446.33321 -250.92820 0 ) ( 2.92820 5.07180 -512 ) sbox5_side 0 0 0 1 1
+  ( 18.92820 32.78461 0 ) ( -424.47680 288.78461 0 ) ( 18.92820 32.78461 -512 ) sbox5_side 0 0 0 1 1
+  ( 5.07180 2.92820 0 ) ( 261.07180 -440.47680 0 ) ( 5.07180 2.92820 -512 ) sbox5_side 0 0 0 1 1
+  ( 32.78461 18.92820 0 ) ( -223.21539 462.33321 0 ) ( 32.78461 18.92820 -512 ) sbox5_side 0 0 0 1 1
+  ( 5.07180 -8.78461 0 ) ( 448.47680 247.21539 0 ) ( 5.07180 -8.78461 -512 ) sbox5_side 0 0 0 1 1
+  ( -10.92820 18.92820 0 ) ( -454.33321 -237.07180 0 ) ( -10.92820 18.92820 -512 ) sbox5_side 0 0 0 1 1
+ }
+}
+{
+ "classname" "light"
+ "origin" "-32 16 48"
+ "light" "100"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "64 16 48"
+ "light" "100"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "16 16 80"
+ "light" "200"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "16 64 48"
+ "light" "150"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "16 -32 48"
+ "light" "50"
+ "style" "0"
+}

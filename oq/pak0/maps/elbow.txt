@@ -1,0 +1,44 @@
+28th December 1998
+
+-------------------------------------------------------------------------------------
+Title                   : Spare Elbow - Beta Version 1
+Filename                : elbow.bsp
+Author                  : Kevin Shanahan
+Email Address           : kmshanah@senet.com.au
+-------------------------------------------------------------------------------------
+
+* Play Information *
+
+Single Player           : No
+Cooperative             : No
+Deathmatch              : Yes
+Difficulty Settings     : No
+New Sounds              : No
+New Graphics            : No
+
+* Description *
+
+Very small map designed for tight, fast 1 on 1 play. I didn't plan for FFA, but
+you could try 2-4 players. 5 would be chaos :).
+
+* Construction *
+
+Base                    : New level from scratch
+Editor(s) used          : BSP 0.93b
+Build Time              : about 4 days..
+
+
+Distribution
+------------
+This map source file is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option) any
+later version.
+
+This map is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+Foobar; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+Suite 330, Boston, MA 02111-1307 USA

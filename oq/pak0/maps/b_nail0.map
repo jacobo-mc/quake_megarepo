@@ -1,0 +1,59 @@
+// This map has been created by QuArK - Quake Army Knife, Version 4.07
+// It is a map for the game Quake.
+
+// It is recommended that you compile this map using a version of QBSP
+// that can read floating-point coordinates, like the one recommended
+// at QuArK's Home Page <http://www.planetquake.com/quark/>
+
+{
+ "classname" "worldspawn"
+ "message" "No Name"
+ "worldtype" "0"
+ "wad" "textures/free_wad.wad"
+ {
+  ( 0 24 4 ) ( 0 0 4 ) ( 0 0 0 ) bullets -8 -8 270 1 1
+  ( 8 24 0 ) ( 8 0 0 ) ( 8 0 4 ) bullets -8 -8 270 1 1
+  ( 8 0 0 ) ( 0 0 0 ) ( 0 0 4 ) bullets 8 -8 90 1 1
+  ( 8 24 4 ) ( 0 24 4 ) ( 0 24 0 ) bullets 12 -8 90 1 1
+  ( 8 24 0 ) ( 0 24 0 ) ( 0 0 0 ) bullets 0 -8 0 1 1
+  ( 8 0 4 ) ( 0 0 4 ) ( 0 24 4 ) bullets 0 -8 0 1 1
+ }
+ {
+  ( 12 24 4 ) ( 12 0 4 ) ( 12 0 0 ) bullets -8 -8 270 1 1
+  ( 20 24 0 ) ( 20 0 0 ) ( 20 0 4 ) bullets -8 -8 270 1 1
+  ( 20 0 0 ) ( 12 0 0 ) ( 12 0 4 ) bullets 8 -20 90 1 1
+  ( 20 24 4 ) ( 12 24 4 ) ( 12 24 0 ) bullets 12 -20 90 1 1
+  ( 20 24 0 ) ( 12 24 0 ) ( 12 0 0 ) bullets -12 -8 0 1 1
+  ( 20 0 4 ) ( 12 0 4 ) ( 12 24 4 ) bullets -12 -8 0 1 1
+ }
+}
+{
+ "classname" "light"
+ "origin" "-32 8 16"
+ "light" "128"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "64 8 16"
+ "light" "128"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "16 8 48"
+ "light" "192"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "16 56 16"
+ "light" "160"
+ "style" "0"
+}
+{
+ "classname" "light"
+ "origin" "16 -40 16"
+ "light" "96"
+ "style" "0"
+}

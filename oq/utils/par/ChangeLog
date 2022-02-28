@@ -1,0 +1,28 @@
+par
+
+v0.01 1998-08-22
+- initial release
+
+v0.02.01 2001-02-27
+- core dump fixed, "par -c"
+- email updated
+
+v0.03.01 2004-08-06
+- sys_errlist[] -> strerror()
+- toc check less pedantic (padding allowed)
+  thanks to David Costanzo <david_costanzo@yahoo.com>
+- changed to current configure/make configuration
+- option V added
+- some other stuff updated
+
+v0.04.00 *forked* 2004-08-14 (david_costanzo@yahoo.com)
+- port to Windows
+- change UNIX syscalls to C stdio.h calls
+- add unit tests
+
+v0.05.00 *forked* 2004-08-14
+- fix a bug on Windows; treat \r\n as valid separator for pak manifests
+
+v0.06.00 *forked* 2006-11-09
+- fix a bug where par.exe would create corrupt PAK files when it was
+  built with a compiler that treat off_t as an eight-byte value.

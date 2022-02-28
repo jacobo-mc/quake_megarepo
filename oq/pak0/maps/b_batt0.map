@@ -1,0 +1,35 @@
+// This map has been created by QuArK - Quake Army Knife, Version 4.07
+// It is a map for the game Quake.
+
+// It is recommended that you compile this map using a version of QBSP
+// that can read floating-point coordinates, like the one recommended
+// at QuArK's Home Page <http://www.planetquake.com/quark/>
+
+{
+ "classname" "worldspawn"
+ "message" "No Name"
+ "worldtype" "0"
+ "wad" "textures/free_wad.wad"
+ {
+  ( 32 16 24 ) ( 16 32 24 ) ( 0 16 24 ) *gold 0 0 0 1 1
+  ( 16 16 40 ) ( 16 32 24 ) ( 32 16 24 ) *gold 0 0 0 1 1
+  ( 16 16 40 ) ( 32 16 24 ) ( 16 0 24 ) *gold 0 0 0 1 1
+  ( 16 16 40 ) ( 0 16 24 ) ( 16 32 24 ) *gold 0 0 0 1 1
+  ( 16 16 40 ) ( 16 0 24 ) ( 0 16 24 ) *gold 0 0 0 1 1
+ }
+ {
+  ( 16 16 8 ) ( 0 16 24 ) ( 16 0 24 ) *gold 0 0 0 1 1
+  ( 16 0 24 ) ( 0 16 24 ) ( 16 32 24 ) *gold 0 0 0 1 1
+  ( 32 16 24 ) ( 16 16 8 ) ( 16 0 24 ) *gold 0 0 0 1 1
+  ( 16 32 24 ) ( 0 16 24 ) ( 16 16 8 ) *gold 0 0 0 1 1
+  ( 16 16 8 ) ( 32 16 24 ) ( 16 32 24 ) *gold 0 0 0 1 1
+ }
+ {
+  ( 17 15 25 ) ( 15 15 25 ) ( 15 17 25 ) blak 0 0 0 1 1
+  ( 17 17 23 ) ( 15 17 23 ) ( 15 15 23 ) blak 0 0 0 1 1
+  ( 15 17 23 ) ( 15 15 25 ) ( 15 15 23 ) blak 0 0 0 1 1
+  ( 17 15 23 ) ( 17 17 25 ) ( 17 17 23 ) blak 0 0 0 1 1
+  ( 17 17 23 ) ( 17 17 25 ) ( 15 17 25 ) blak 0 0 0 1 1
+  ( 15 15 23 ) ( 15 15 25 ) ( 17 15 25 ) blak 0 0 0 1 1
+ }
+}

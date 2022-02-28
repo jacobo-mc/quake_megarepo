@@ -1,0 +1,37 @@
+// use this to compile the old progs with the new qcc
+// qcc -o progs.dat progs.c
+
+#include "defs.qc"
+#include "subs.qc"
+#include "fight.qc"
+#include "ai.qc"
+#include "combat.qc"
+#include "items.qc"
+#include "weapons.qc"
+#include "world.qc"
+#include "client.qc"
+#include "player.qc"
+#include "monsters.qc"
+#include "doors.qc"
+#include "buttons.qc"
+#include "triggers.qc"
+#include "plats.qc"
+#include "misc.qc"
+
+// monsters
+
+#include "ogre.qc"
+#include "demon.qc"
+#include "shambler.qc"
+#include "knight.qc"
+#include "soldier.qc"
+#include "wizard.qc"
+#include "dog.qc"
+#include "zombie.qc"
+#include "boss.qc"
+#include "tarbaby.qc"
+#include "hknight.qc"
+#include "fish.qc"
+#include "shalrath.qc"
+#include "enforcer.qc"
+#include "oldone.qc"

@@ -1,0 +1,191 @@
+<html>
+<head><title>Using the Raw2map Terrain Convertor</title></head>
+<body>
+
+<center>
+<table width="460" border="0"><tr><td>
+
+<h1>Raw2map - Terrain Conversion</h1>
+
+<p><a href="http://www.planetquake.com/gg/raw2map.html">Raw2map</a>
+is a utility that converts grayscale images into terrain brushes
+in Quake .map format.  This tutorial shows how to make a map from a terrain
+image made in Paint Shop Pro but it should be easily adapted to other paint
+programs. This tutorial shows how to save the image in .tga format, but an
+8 bit Raw File Format (.raw) image with no header will also work.</p>
+
+<p>You can also try out the raw2map convertor using the sample files
+&quot;17x17.raw&quot; and &quot;17x17.tga&quot;.  To do that just skip
+ahead to <a href="#step4">Step 4</a>.</p>
+
+<p>If you already know basically how to use raw2map, and just need more
+information about it's options, skip ahead to the <a href="#options">Other
+Options</a> section.</p>
+
+<p><b>1.</b> Paint the terrain as an 8 bit monochrome (256 shades of gray)
+image.  Lighter pixels will be higher points on the terrain.<br>
+<img src="01.gif" border="1"></p>
+
+<p><b>2.</b> Save the image as a .tga file.  If you are using Paint Shop
+Pro, select the <b>Save <u>A</u>s</b> option from the <b><u>F</u>ile</b>
+menu, then select &quot;Truevision Targa (*.tga)&quot; in the <b>Save As
+<u>T</u>ype</b> list near the bottom left of the <b>Save <u>A</u>s</b>
+dialog.<br>
+<img src="02.gif" border="1"></p>
+
+<p><b>3.</b> Do not use compression. If you are using Paint Shop Pro, click
+on the <b><u>O</u>ptions</b> button in the <b>Save <u>A</u>s</b> dialog
+before saving the image. Select <b><u>8</u> bits</b> in the <b>Bit
+Depth</b> section and <b><u>U</u>ncompressed</b> in the <b>Compression</b>
+section. Then click on <b>OK</b> and then <b><u>S</u>ave.</b><br>
+<img src="03.gif" border="1"></p>
+
+<p>This tutorial assumes that you have saved the image in the same folder
+as the raw2map convertor, or that you are using one of the sample images
+in that folder.</p>
+
+<p><a name="step4"><b>4.</b> Open an MS-DOS Prompt or Command Prompt.</a>
+For example, in Windows 95 or Windows 98 you can usually do this by opening
+the <b>Start</b> menu, selecting <b>Programs</b> and then clicking on the
+<b>MS-DOS Prompt</b> option. (Windows NT and 2000 have the &quot;Command
+Prompt&quot; instead of the MS-DOS Prompt.)
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;</font><font color="#FFFFFF">_ </font></pre>
+</td></tr></table></p>
+
+<p><b>5.</b> If the current drive letter in the MS-DOS prompt is not the
+drive containing the image and the raw2map terrain convertor, type the
+letter of the drive where the image and the convertor are found, followed
+by a colon, and press &lt;Enter&gt;.
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;d: 
+
+D:\&gt;</font><font color="#FFFFFF">_ </font></pre>
+</td></tr></table></p>
+
+<p><b>6.</b> Use the <b>CD</b> command to change to the directory (folder)
+where the raw2map convertor and the image to be converted are.
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;d: 
+
+D:\&gt;cd raw2map 
+
+D:\raw2map&gt;</font><font color="#FFFFFF">_ </font></pre>
+</td></tr></table></p>
+
+<p><b>7.</b> Type &quot;raw2map&quot; (don't type the quotes), followed by
+a space and the name of the image you want to convert into a terrain map.
+Then press &lt;Enter&gt; to run the convertor
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;d: 
+
+D:\&gt;cd raw2map 
+
+D:\raw2map&gt;raw2map 17x17.tga
+raw2map - raw bitmap to Quake .map terrain convertor 
+Copyright (C) 2000  Seth Galbraith
+Input  File Name: 17x17.tga
+Output File Name: 17x17.map
+
+D:\raw2map&gt;</font><font color="#FFFFFF">_ </font></pre>
+</td></tr></table></p>
+
+<p><a name="options"><b>Other Options</b> - These other options</a>
+are used by typing a hyphen (dash) and letter followed by a number value
+or word. An &quot;[int]&quot; is a whole number, a &quot;[float]&quot;
+is a number which can have a decimal part, and a &quot;[string]&quot;
+is just a word like a filename.</p>
+
+<pre>-w [int]    : image width in pixels (default = 0)</pre>
+
+<p>Raw2map does not know the width and height of the image. This is used
+to tell raw2map how wide the image is.  The height is figured out by
+dividing the number of pixels in the image by the width.</p>
+
+<p>If width is zero (0) - or if you don't specify a width - then
+raw2map assumes that the image must be square and tries to use the
+square root of the number of pixels as the width of the image.</p>
+
+<pre>-o [string] : output filename</pre>
+
+<p>By default, the .map file generated (the &quot;output&quot; file)
+is named after the image file (the &quot;input&quot; file) except the
+file type extension - such as &quot;.tga&quot; - is replaced with
+&quot;.map&quot;.  This option allows you to choose a different name for
+your output file.</p>
+
+<pre>-h [float]  : horizontal scale (default = 128)</pre>
+
+<p>This is the width between each pixel in Quake units.  The total width
+of your generated terrain brushes will be the width of your image in
+pixels, minus one (because there are only terrain brushes <i>between</i>
+pixels) multiplied by this value.</p>
+
+<pre>-v [float]  : vertical   scale (default = 4)</pre>
+
+<p>This is the difference between each gray value in Quake units. For
+example, the maximum height difference between any two corners of terrain
+anywhere in the map is 255 times this value.</p>
+
+<pre>-x [float]  : X offset (lattitude) (default = 0)</pre>
+
+<p>The lower south-west corner of the terrain is placed at the center of
+the map by default.  Use this option to move it East (positive value)
+or West (negative value.)</p>
+
+<pre>-y [float]  : Y offset (longitude) (default = 0)</pre>
+
+<p>The lower south-west corner of the terrain is placed at the center of
+the map by default.  Use this option to move it North (positive value)
+or South (negative value.)</p>
+
+<pre>-z [float]  : Z offset (altitude)  (default = 0)</pre>
+
+<p>The lower south-west corner of the terrain is placed at the center of
+the map by default.  Use this option to move it Up (positive value)
+or Down (negative value.)</p>
+
+<pre>-f [float]  : height of brush bottoms</pre>
+
+<p>By default, the bottom of the terrain brushes generated by raw2map are
+a little bit below the lowest possible point on the terrain (specifically,
+one times the vertical scale below the height of a black pixel.)  Although
+it is not often needed, you can use this option to specify a different
+height for the bottoms of the terrain brushes.</p>
+
+<p>Note: -v and -z restore default brush bottom height, so you must
+specify the height of the brush bottoms with -f after -v and/or -z
+if you don't want the default brush bottom height.</p>
+
+<pre>-c [float]  : ceiling or sky height</pre>
+
+<p>Raw2map generates walls and ceiling brushes so that you can easily use
+the generated terrain maps.  By default the ceiling height is 64 plus the
+maximum height of the terrain (the height of a white pixel.) You can make
+the ceiling higher or lower with this option.</p>
+
+<p>Note: -v and -z restore default ceiling height, so you must specify
+the ceiling height with -c after -v and/or -z if you don't want the
+default ceiling height.</p>
+
+<pre>-t [float]  : wall thickness (default = 64)</pre>
+
+<p>Raw2map generates walls and ceiling brushes so that you can easily use
+the generated terrain maps.  By default the walls and ceiling are 64 units
+thick. You can change the thickness of the walls and ceiling with this
+option.</p>
+
+<p>If you set the wall and ceiling thickness to zero (0) then raw2map will
+not generate any wall or ceiling brushes.  It will also not generate any
+hint brushes.  Hint brushes are specially textured brushes that can make
+complex maps like these converted terrain maps easier to compile if you
+use versions of the QBSP and VIS utilities that support hint brushes.</p>
+
+<hr>
+
+Copyright &copy; 2001 Seth Galbraith
+
+</td></tr></table>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+9-12-96
+
+First public release
+
+5-9-00
+
+Re-released under GPL license
+
+11-16-2000
+
+Seth Galbraith (sgalbrai@krl.org):
+
+created a simple makefile to build all of the utilities
+with DJGPP and Mingw Gnu C Compiler (GCC) ports for DOS and Windows
+it probably also works with GCC for other platforms
+
+renamed "filelength" function to "qfilelength" in:
+common/cmdlib.c, common/cmdlib.h, and qfiles/qfiles.c
+because Mingw was using that name in io.h
+
+removed all generated binaries - bin/*.exe, qcc/*.pdb and qcc/qcc
+
+11-19-2000
+
+Alexander Malmberg:
+
+Got rid of some warnings (unused variables, wrong return type from main).
+Use wrappers for malloc/realloc to catch out of memory errors.
+[cmdlib.c]: Clean up qdir/gamedir handling.
+Add generic progress meter. (common/work.c)
+Add support for detail brushes.
+
+11-20-2000
+
+Seth Galbraith:
+
+Updated Makefile to work with Alex's changes
+
+Added support for radius and attenuation to light utility
+attenuation types are 0..4 corresponding to:
+
+LIGHT_LINEAR     normal Quake style - radius based on brightness
+LIGHT_RADIUS     fades from "light" value at center to 0 at radius
+LIGHT_INVERSE    psuedo-realistic, light / distance formula
+LIGHT_REALISTIC  light divided by distance squared
+LIGHT_NO_ATTEN   same light value at any distance
+
+Added simple litetest.map to test light utility
+
+Changed build system to build library in common/ and use that for linking. Make it work on Linux. Added clean target.
+
+11-21-2000
+
+Alexander Malmberg:
+
+Changed build system to build library in common/ and use that for linking. Make it work on Linux. Added clean target.
+[light/entities.c] - Added underscore to new key names.
+[qbsp/map.c] - Add support for loading maps with float coordinates.
+
+Seth Galbraith:
+
+Removed install.bat (part of the old MSVC makefile system)
+
+11-22-2000
+
+Alexander Malmberg:
+
+Make clean target work with shells that don't support {}.
+Use new cutoff parameter to speed up builds by setting a maximum range on lights.
+
+Seth Galbraith:
+
+Added .cvsignore to bin folder
+whitespace and comments
+default radius for LIGHT_LINEAR
+allow negative light intensity
+created darktest.map for testing negative lights
+updated litetest.map with underscores for new key names
+other small fixes to test maps
+
+11-23-00
+
+Seth Galbraith:
+
+Added "-noise" option for light
+The value after noise is a float from 0.0 to 1.0
+which controls how much noise is applied
+
+11-24-00
+
+Alexander Malmberg:
+
+Added '_noise' key for noise settings for individual lights.
+Make individual noise patterns for each light.
+[qbsp/map.c] Fixed bug in am_detail handling.
+
+12-02-00
+
+Seth Galbraith:
+
+New noise system:
+_noisetype = 0 (random) 1 (smooth) or 2 (perlin)
+_resolution = reduces light detail
+_persistence = decay for perlin noise
+Added noise.map for testing
+
+3-16-01
+
+Seth Galbraith:
+
+Added sound directory with "public domain" sounds
+from p0x's Free Quake Media page:
+http://www.planetquake.com/paroxysm
+Added oqsounds.html file listing sounds we still need
+
+3-17-01
+
+Seth Galbraith:
+
+Added qbsp support and test map for Quake Army Knife
+(QuArK)'s "three points" texture alignment system
+Support from light.exe is still needed.
+
+5-3-01
+
+Alexander Malmberg:
+
+qcc has been modified to run gcc to preprocess the input file and to
+accept its output. I've merged the Quake and QuakeWorld .qc code. The
+pak0/qc_merge/ directory contains the .qc code and a makefile to build
+the .dat files. Just run make once in utils/qutils/ and once in
+pak0/qc_merge/ to build everything. The call syntax of qcc is now:
+
+qcc -o outfile.dat -p defsfile.h input.qc
+
+pak0/qc_merge/{quake,qw}.c are the main files. They include all the
+other .qc files. Common parts are in the common/ directory, and specific
+stuff's in quake/ or qw/. This is just a merge of the code; each version
+still has the same old functionality. I'll merge such things later
+(e.g. both versions should use qw's deathtype tracking).
+
+This version of qcc also has some optimizations. The generated string
+heap is compact, and symbols are hashed, which means that the resulting
+.dat file is smaller (much fewer strings), and qcc runs much faster.
+They should work fine, but before blaming them for problems, try
+disabling both of them in qcc.h.
+
+> Can the merged QC compiler compile regular QC mods?
+
+Yes, as long as progs.src is updated. Instead of being just a list of
+files to include, it should be a 'normal' .qc file that includes all the
+other files using #include "foo.qc". A progs.src that used to be
+
+
+Seth Galbraith:
+
+Disabled dependency checking in the Makefile because it spawns layers
+of DOS shells so you have to type "exit" about four times to finish
+compiling.  This probably only affects DOS/Windows so it should be safe
+to enable this stuff on other platforms.
+
+
+7-27-01
+
+Seth Galbraith:
+
+Modelgen enhancements
+
+ * support for Breeze Designer .cad files
+ * support for .png skins (and they don't have to be 320x200)
+ * if all coords >= 0 then convert X and Z directly to S and T
+
+7-28-01
+
+Seth Galbraith:
+
+Added skinless, a new sister utility to modelgen which extracts those
+pesky base frames from .mdl files when you have no better way to
+generate a base frame that produces exactly the skin mapping you want
+
+Changed the special exception for base frames with coords >= 0.
+It now applies when the base frame is in the "lower right" quadrant
+(X >= 0 and Z <= 0) which puts the origin of the model at the origin
+of the skin.  This is required because modelgen won't know the skin
+size when the base frame is loaded and skin coordinates are generated.
+
+8-1-01
+
+Seth Galbraith:
+
+Added .png support to qlumpy and sprgen, images of any size can be
+loaded but use is still limited to a 320 x 200 area of the image
+(It would probably be safe to remove this limitation unless someone
+fixes the .lbm support and starts using that.)
+
+8-14-01
+
+Seth Galbraith:
+
+Skin group support was never finished in modelgen so I implemented it.
+Skinless is also updated to read correctly past skin groups.
+
+1-11-02
+
+Seth Galbraith:
+
+QuArK "//TX" extensions were being read totally wrong in qbsp/map.c
+
+Light will now emulate IKLITE if you add the "-iklite" parameter
+In other words the attenuation will be based on the "angle" key:
+"angle" "0" == or no angle for regular (linear) attenuation
+"angle" "1" == realistic (inverse square or 1/x^2) attenuation
+"angle" "2" == no attentuation (same brightness at any distance)
+"angle" "3" == inverse (1/x) attenuation
+
+Light now also allows string values instead of numbers for
+_attenuation and _noisetype:
+"_attenuation" "linear"    == regular attenuation
+"_attenuation" "radius"    == control light and radius seperately
+"_attenuation" "inverse"   == inverse (1/x) attenuation
+"_attenuation" "realistic" == inverse square (1/x^2) attenuation
+"_attenuation" "none"      == same brightness at any distance
+
+1-20-02
+
+Seth Galbraith:
+
+Removed modelgen's hardcoded vertex and triangle limits
+

@@ -1,0 +1,87 @@
+// This map has been written by QuArK - Quake Army Knife, Version 5.10
+// It is a map for the game Quake 1.
+
+// It is recommended that you compile this map using TXQBSP, a version of QBSP
+// that can process floating-point coordinates and enhanced texture positionning.
+// For more information see QuArK's Home Page :  http://www.planetquake.com/quark
+
+{
+ "classname" "worldspawn"
+ "wad" "textures/free_wad.wad"
+ {
+  ( 0 64 0 ) ( -128 64 0 ) ( 0 -64 0 ) smhealthtop 64 0 -90 1 -1 //TX1
+  ( -1 64 32 ) ( 127 64 32 ) ( -1 -64 32 ) lrghealthtop 64 -1 -90 1 1 //TX1
+  ( 0 64 0 ) ( 0 64 128 ) ( 0 -64 0 ) lrghealthfront 64 0 0 -1 1 //TX1
+  ( 32 0 0 ) ( 32 0 128 ) ( 32 128 0 ) lrghealthfront 0 0 0 1 1 //TX1
+  ( 32 64 0 ) ( 32 64 128 ) ( -96 64 0 ) lrghealthside 32 0 0 -1 1 //TX1
+  ( 0 0 0 ) ( 0 0 128 ) ( 128 0 0 ) lrghealthside 0 0 0 1 1 //TX1
+ }
+ {
+  ( -19 64 34 ) ( -147 64 34 ) ( -19 -64 34 ) greyrail 64 19 -90 1 -1 //TX1
+  ( -20 64 36 ) ( 108 64 36 ) ( -20 -64 36 ) greyrail 64 -20 -90 1 1 //TX1
+  ( 11 64 29 ) ( 11 64 157 ) ( 11 -64 29 ) greyrail 64 29 0 -1 1 //TX1
+  ( 13 0 29 ) ( 13 0 157 ) ( 13 128 29 ) greyrail 0 29 0 1 1 //TX1
+  ( 13 44 29 ) ( 13 44 157 ) ( -115 44 29 ) greyrail 13 29 0 -1 1 //TX1
+  ( -19 20 29 ) ( -19 20 157 ) ( 109 20 29 ) greyrail 19 29 0 1 1 //TX1
+ }
+ {
+  ( -11 64 34 ) ( -139 64 34 ) ( -11 -64 34 ) greyrail 64 11 -90 1 -1 //TX1
+  ( -12 64 36 ) ( 116 64 36 ) ( -12 -64 36 ) greyrail 64 -12 -90 1 1 //TX1
+  ( 19 64 32 ) ( 19 64 160 ) ( 19 -64 32 ) greyrail 64 32 0 -1 1 //TX1
+  ( 21 0 32 ) ( 21 0 160 ) ( 21 128 32 ) greyrail 0 32 0 1 1 //TX1
+  ( 21 44 32 ) ( 21 44 160 ) ( -107 44 32 ) greyrail 21 32 0 -1 1 //TX1
+  ( -11 20 32 ) ( -11 20 160 ) ( 117 20 32 ) greyrail 11 32 0 1 1 //TX1
+ }
+ {
+  ( -19 62 32 ) ( -147 62 32 ) ( -19 -66 32 ) greyrail 62 19 -90 1 -1 //TX1
+  ( -20 62 34 ) ( 108 62 34 ) ( -20 -66 34 ) greyrail 62 -20 -90 1 1 //TX1
+  ( 11 62 27 ) ( 11 62 155 ) ( 11 -66 27 ) greyrail 62 27 0 -1 1 //TX1
+  ( 13 -2 27 ) ( 13 -2 155 ) ( 13 126 27 ) greyrail 2 27 0 1 1 //TX1
+  ( 13 42 27 ) ( 13 42 155 ) ( -115 42 27 ) greyrail 13 27 0 -1 1 //TX1
+  ( -19 40 27 ) ( -19 40 155 ) ( 109 40 27 ) greyrail 19 27 0 1 1 //TX1
+ }
+ {
+  ( -11 62 32 ) ( -139 62 32 ) ( -11 -66 32 ) greyrail 62 11 -90 1 -1 //TX1
+  ( -12 62 34 ) ( 116 62 34 ) ( -12 -66 34 ) greyrail 62 -12 -90 1 1 //TX1
+  ( 19 62 30 ) ( 19 62 158 ) ( 19 -66 30 ) greyrail 62 30 0 -1 1 //TX1
+  ( 21 -2 30 ) ( 21 -2 158 ) ( 21 126 30 ) greyrail 2 30 0 1 1 //TX1
+  ( 21 42 30 ) ( 21 42 158 ) ( -107 42 30 ) greyrail 21 30 0 -1 1 //TX1
+  ( -11 40 30 ) ( -11 40 158 ) ( 117 40 30 ) greyrail 11 30 0 1 1 //TX1
+ }
+ {
+  ( -19 44 32 ) ( -147 44 32 ) ( -19 -84 32 ) greyrail 44 19 -90 1 -1 //TX1
+  ( -20 44 34 ) ( 108 44 34 ) ( -20 -84 34 ) greyrail 44 -20 -90 1 1 //TX1
+  ( 11 44 27 ) ( 11 44 155 ) ( 11 -84 27 ) greyrail 44 27 0 -1 1 //TX1
+  ( 13 -20 27 ) ( 13 -20 155 ) ( 13 108 27 ) greyrail 20 27 0 1 1 //TX1
+  ( 13 24 27 ) ( 13 24 155 ) ( -115 24 27 ) greyrail 13 27 0 -1 1 //TX1
+  ( -19 22 27 ) ( -19 22 155 ) ( 109 22 27 ) greyrail 19 27 0 1 1 //TX1
+ }
+ {
+  ( -11 44 32 ) ( -139 44 32 ) ( -11 -84 32 ) greyrail 44 11 -90 1 -1 //TX1
+  ( -12 44 34 ) ( 116 44 34 ) ( -12 -84 34 ) greyrail 44 -12 -90 1 1 //TX1
+  ( 19 44 30 ) ( 19 44 158 ) ( 19 -84 30 ) greyrail 44 30 0 -1 1 //TX1
+  ( 21 -20 30 ) ( 21 -20 158 ) ( 21 108 30 ) greyrail 20 30 0 1 1 //TX1
+  ( 21 24 30 ) ( 21 24 158 ) ( -107 24 30 ) greyrail 21 30 0 -1 1 //TX1
+  ( -11 22 30 ) ( -11 22 158 ) ( 117 22 30 ) greyrail 11 30 0 1 1 //TX1
+ }
+}
+{
+ "classname" "light"
+ "origin" "-96 32 0"
+ "light" "200"
+}
+{
+ "classname" "light"
+ "origin" "16 160 112"
+ "light" "200"
+}
+{
+ "classname" "light"
+ "origin" "144 32 0"
+ "light" "200"
+}
+{
+ "classname" "light"
+ "origin" "16 -128 112"
+ "light" "200"
+}

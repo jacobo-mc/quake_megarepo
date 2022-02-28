@@ -1,0 +1,62 @@
+mesh2map - converts a triangle mesh to a map
+
+Copyright (C) 2001  Seth Galbraith
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+AUTHORS:
+
+Seth Galbraith
+"The Serpent Lord"
+http://www.planetquake.com/simitar
+sgalbrai@krl.org
+
+
+USAGE: mesh2map [options] <file> [more options and/or files]
+
+OPTIONS:
+
+	-o [string] : output filename (NOTE: affects only the next input file)
+	-t [float]  : thickness (default = 16)
+	-a [float]  : axis alignment tolerance in degrees (default = 45)
+
+
+This utility currently only works on exported MilkShape 3D ASCII format models.
+The homepage for MilkShape 3D is at: http://www.swissquake.ch/chumbalum-soft
+
+HISTORY:
+
+2-24-01
+
+First version of cartoon outline generator
+
+3-1-01
+
+Now vertex normals are recalculated based on which vertices are touching.
+This keeps the outline from breaking along sharp edges.
+
+3-27-01
+
+Created map convertor from cartoon outline generator
+
+4-7-01
+
+Added Axis-Alignment Tolerance setting
+
+4-9-01
+
+Now tries to align texture using Quake Army Knife threepoints system
+(also supported by Open Quartz compiling utilities)
+

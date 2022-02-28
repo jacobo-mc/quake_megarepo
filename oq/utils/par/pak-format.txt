@@ -1,0 +1,73 @@
+The Quake pak file format
+=========================
+
+Steffen Solyga <solyga@tetibm3.ee.tu-berlin.de>
+started      : Fri Jul 3 00:26:54 MET DST 1998 @beast
+last modified: Fri Jul 3 00:26:54 MET DST 1998 @beast
+
+(examples from pak3.pak)
+
+header
+------
+000000:  50 41 43 4b  | PACK	just the string "PACK"
+000004:  b4 0a 0c 00  | ´...	toc offset, this toc at 0x0c0ab4= 789172
+000008:  00 02 00 00  | ....	toc size in bytes, this toc 0x0200 = 512 bytes
+
+body
+----
+
+00000c:  49 42 53 50  | IBSP	the first 4 bytes of the first file
+....
+
+table of contents
+-----------------
+1. entry:
+0c0ab4:  6d 61 70 73  2f 6d 61 74  63 68 31 2e  62 73 70 00  | maps/match1.bsp.
+0c0ac4:  00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  | ................
+0c0ad4:  00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  | ................
+0c0ae4:  00 00 00 00  00 00 00 00  0c 00 00 00  58 47 0b 00  | ............XG..
+                                   -----------  -----------
+                             file offset= 0x0c  file size 0x0b4758 bytes
+1. file for comparation:
+00000c:  49 42 53 50  26 00 00 00  7c 19 0b 00  d9 2c 00 00  | IBSP&...|...Ù,..
+...
+0b475c:  00 00 00 00  00 00 00 00  65 32 75 33  2f 77 6e 64  | ........e2u3/wnd
+
+
+2. entry:
+0c0af4:  74 65 78 74  75 72 65 73  2f 65 32 75  33 2f 77 6e  | textures/e2u3/wn
+0c0b04:  64 6f 77 31  5f 32 2e 77  61 6c 00 00  00 00 00 00  | dow1_2.wal......
+0c0b14:  00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  | ................
+0c0b24:  00 00 00 00  00 00 00 00  64 47 0b 00  a4 15 00 00  | ........dG..¤...
+                                   -----------  -----------
+                               offset 0x0b4764  size 0x15a4
+2. file for comparation:
+0b4764:  65 32 75 33  2f 77 6e 64  6f 77 31 5f  32 00 00 00  | e2u3/wndow1_2...
+...
+0b5d04:  27 04 27 27  65 31 75 31  2f 77 68 69  74 65 00 00  | '.''e1u1/white..
+
+
+...
+
+8. entry:
+0c0c74:  74 65 78 74  75 72 65 73  2f 65 32 75  33 2f 74 72  | textures/e2u3/tr
+0c0c84:  6f 6f 66 34  5f 32 2e 77  61 6c 00 00  00 00 00 00  | oof4_2.wal......
+0c0c94:  00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  | ................
+0c0ca4:  00 00 00 00  00 00 00 00  10 f5 0b 00  a4 15 00 00  | .........õ..¤...
+                                   -----------  -----------
+                               offset 0x0bf510  size 0x15a4
+EOF
+
+
+remarks
+-------
+1. The file offsets are redundant. The offset of the n-th file from the toc
+   is given by:
+
+     off_n = 0x0c + sum_{i=1}^{n-1} size_i .
+
+   For loading a certain file, the toc must be read anyway, so the summation
+   could be done without any further effort. However, this way programming
+   time is saved :-).
+
+2. The QuakeI pak format is the same as that of QuakeII.

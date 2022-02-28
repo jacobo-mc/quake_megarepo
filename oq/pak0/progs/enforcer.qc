@@ -1,0 +1,44 @@
+$cd enforcer
+$modelname progs/enforcer
+$scale 2
+$base enforcer_base
+$skin enforcer
+
+$frame enforcer_stand0 enforcer_stand1 enforcer_stand2 enforcer_stand3
+$frame enforcer_stand4 enforcer_stand5 enforcer_stand6
+
+$frame enforcer_walk0 enforcer_walk1 enforcer_walk2 enforcer_walk3
+$frame enforcer_walk4 enforcer_walk5 enforcer_walk6 enforcer_walk7
+$frame enforcer_walk8 enforcer_walk9 enforcer_walk10 enforcer_walk11
+$frame enforcer_walk12 enforcer_walk13 enforcer_walk14 enforcer_walk15
+
+$frame enforcer_run0 enforcer_run1 enforcer_run2 enforcer_run3
+$frame enforcer_run4 enforcer_run5 enforcer_run6 enforcer_run7
+
+$frame enforcer_flyattk0 enforcer_flyattk1 enforcer_flyattk2 enforcer_flyattk3
+$frame enforcer_flyattk4 enforcer_flyattk5 enforcer_flyattk6 enforcer_flyattk7
+$frame enforcer_flyattk8 enforcer_flyattk9
+
+$frame enforcer_death1 enforcer_death2 enforcer_death3 enforcer_death4
+$frame enforcer_death5 enforcer_death6 enforcer_death7 enforcer_death8
+$frame enforcer_death9 enforcer_death10 enforcer_death11 enforcer_death12
+$frame enforcer_death13
+
+$frame enforcer_death0 enforcer_death1 enforcer_death2 enforcer_death3
+$frame enforcer_death4 enforcer_death5 enforcer_death6 enforcer_death7
+$frame enforcer_death8 enforcer_death9 enforcer_death10
+
+$frame enforcer_pain0 enforcer_pain1 enforcer_pain2 enforcer_pain3
+
+$frame enforcer_painb0 enforcer_painb1 enforcer_painb2 enforcer_painb3
+$frame enforcer_painb4
+
+$frame enforcer_painc0 enforcer_painc1 enforcer_painc2 enforcer_painc3
+$frame enforcer_painc4 enforcer_painc5 enforcer_painc6 enforcer_painc7
+
+$frame enforcer_paind0 enforcer_paind1 enforcer_paind2 enforcer_paind3
+$frame enforcer_paind4 enforcer_paind5 enforcer_paind6 enforcer_paind7
+$frame enforcer_paind8 enforcer_paind9 enforcer_paind10 enforcer_paind11
+$frame enforcer_paind12 enforcer_paind13 enforcer_paind14 enforcer_paind15
+$frame enforcer_paind16 enforcer_paind17 enforcer_paind18
+

@@ -1,0 +1,115 @@
+<html>
+<head><title>Using the Cartoon Outline Convertor</title></head>
+<body>
+
+<center>
+<table width="428" border="0">
+
+<tr><td colspan="2"><h1>Cartoon Outline Generator</h1></td></tr>
+
+<tr><td valign="top">
+
+<p>This utility adds extra polygons to a model to make it look
+like it has a cartoon outline. It currently only works on
+<a href="http://www.swissquake.ch/chumbalum-soft">MilkShape 3D</a>
+models exported in MilkShape 3D ASCII format. These models can
+be imported into MilkShape 3D and then exported as models for many
+popular 3D games.</p>
+
+<p align="center"><a
+href="http://asp.planetquake.com/dl/dl.asp?simitar/toon2001.04.26.zip">Click
+Here to Download<br>The Cartoon Outline Generator</a></p>
+
+</td><td><img src="toon.gif" width="175" height="285"></td></tr>
+
+<tr><td colspan="2">
+
+<p><b>1.</b> With your model open in MilkShape 3D, click on the
+<b><u>F</u>ile</b> menu<br>and select <b>MilkShape 3D ASCII...</b>
+in the <b><u>E</u>xport</b> submenu</b><br>
+<img src="1.gif" border="0"></p>
+
+<p><b>2.</b>. In the Export MilkShape 3D ASCII dialog, choose a name
+and folder for your exported model and then click <b><u>S</u>ave</b>.<br>
+<img src="2.gif" border="0"></p>
+
+<p>This tutorial assumes that you have exported the model in the same folder
+as the cartoon outline generator, or that you are using the sample model
+in that folder.</p>
+
+<p><b>3.</b> Open an MS-DOS Prompt or Command Prompt.</a>
+For example, in Windows 95 or Windows 98 you can usually do this by opening
+the <b>Start</b> menu, selecting <b>Programs</b> and then clicking on the
+<b>MS-DOS Prompt</b> option. (Windows NT and 2000 have the &quot;Command
+Prompt&quot; instead of the MS-DOS Prompt.)
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;</font><font color="#FFFFFF">_ </font></pre>
+</td></tr></table></p>
+
+<p><b>4.</b> If the current drive letter in the MS-DOS prompt is not the
+drive containing the exported model and the cartoon outline generator,
+type the letter of the drive where the model and the outline generator
+are found, followed by a colon, and press &lt;Enter&gt;.
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;d: 
+
+D:\&gt;</font><font color="#FFFFFF">_ </font></pre>
+
+</td></tr></table></p>
+
+<p><b>6.</b> Use the <b>CD</b> command to change to the directory (folder)
+where the cartoon outline generator and the model to be converted are.
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;d: 
+
+D:\&gt;cd toon 
+
+D:\toon&gt;</font><font color="#FFFFFF">_ </font></pre>
+</td></tr></table></p>
+
+<p><b>7.</b> Type &quot;toon&quot; (don't type the quotes), followed by
+a space and the name of the model you want to generate the outline for.
+Then press &lt;Enter&gt; to run the cartoon outline generator.
+<table border="1" bgcolor="#CCCCCC"><tr><td bgcolor="#000000"><pre><font
+color="#CCCCCC">C:\WINDOWS&gt;d: 
+
+D:\&gt;cd toon 
+
+D:\toon&gt;toon player27.txt
+toon - 3D cartoon outline generator 
+Copyright (C) 2001  Seth Galbraith
+Input  File Name: player27.txt
+Output File Name: toon1.txt
+
+D:\toon&gt;</font><font color="#FFFFFF">_ </font></pre>
+</td></tr></table></p>
+
+<p>To see your outline in MilkShape 3D, import the generated model,
+(File menu, Import, MilkShape 3D ASCII...) right-click in the 3D view,
+and un-check the &quot;Draw Backfaces&quot; option</p>
+
+<p><a name="options"><b>Other Options</b> - These other options</a>
+are used by typing a hyphen (dash) and letter followed by a number value
+or word. A &quot;[float]&quot; is a number which can have a decimal part,
+and a &quot;[string]&quot; is just a word like a filename.</p>
+
+<pre>-o [string] : output filename</pre>
+
+<p>[string] is used for the name of the generated model. If you don't
+specify this option, the default filename (toon1.txt) will be used.</p>
+
+<pre>-t [float]  : thickness (default = 1)</pre>
+
+<p>[float] is the thickness of the outline.  The default is one unit.
+The length of one unit depends on the scale you build your model.
+(In the Quake scale for example, one unit is about 1/32 of a meter,
+or a little more than an inch.)</p>
+
+<hr>
+
+Copyright &copy; 2001 Seth Galbraith
+
+</td></tr></table>
+
+</body>
+</html>

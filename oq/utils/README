@@ -1,0 +1,41 @@
+===============================================================================
+Open Quartz Utilities
+===============================================================================
+
+This module contains a collection of open source utilities that
+are used by the Open Quartz project.
+
+===============================================================================
+Building the Utilities
+===============================================================================
+
+Building on GNU/UNIX systems:
+
+ 1) run gmake
+
+Building on Microsoft Windows:
+
+ 1) Install MinGW to get the gcc toolchain and gmake.
+    You can download MinGW from http://www.mingw.org
+
+ 2) Download and compile libpng and zlib. 
+    You can download both of these from http://sourceforge.net/projects/libpng/
+    See the README for instructions on how to build it.
+	
+ 3) Tell the Open Quartz utilities where libpng and zlib are by
+    setting the CFLAGS and LDFLAGS enviornment variables.
+    For example, if you downloaded both to c:\openquartz, you would use:
+
+      set CFLAGS=-Ic:/openquartz/lpng -Ic:/openquartz/zlib
+      set LDFLAGS=-Lc:/openquartz/lpng -Lc:/openquartz/zlib
+
+    Note the use of forward slashes.
+
+ 5) Delete the line in "Makefile" that adds "mkwad".  
+    mkwad does not compile on Windows.
+
+ 6) Run make
+
+E-mail suggestions, comments, and requests for help to:
+   openquartz-general@lists.sourceforge.net
+

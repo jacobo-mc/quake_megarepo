@@ -1,0 +1,122 @@
+Map name		: /me Votes Vondur for World Domination
+File name		: rpgdm1.bsp
+			  rpgdm1.txt
+			  rpgdm1.map
+Date completed		: July 6, 2004
+Author			: Robert P. Gove Jr
+Net Nickname		: R.P.G.
+E-mail address		: rpg_6sp@hotmail.com
+			  All comments are welcome
+Home page		: http://rpg.spawnpoint.org
+Description		: A small Quake deathmatch map designed for 1 vs 1
+			  play, but also suitable for 3-4 player free-for-all
+			  matches.  The map uses Speedy's Cr8 texture set, plus
+			  a few complementary textures from various sources
+			  (see below).
+
+			  This map is a distant version of a Q1DM I made way
+			  back in 1999, which was initially inspired by one of
+			  the pieces of concept art from American McGee's
+			  Alice.  Needless to say, the map has changed quite a
+			  bit since then, and the original map is hardly
+			  recognizable.  Even the tower that was inspired by
+			  Alice is gone.
+
+			  The map name comes from the phrase "Vote Vondur for
+			  world domination!"  I'm not sure who coined it.  It
+			  might have been ELEK.  Anyway, thanks to whoever came
+			  up with it.
+Additional credits	: id Software, Speedy, Lunaran, and scampie.
+Thank yous		: God, Mom, Dan Smith, and aguiRe.  Particular thanks
+			  to the testers: this map was made by all of you.
+Testers			: cyBeAr, Aardappel, gibbie, inertia, BlackPope,
+			  scampie, Blitz, Vondur.  I think CardO tested it too,
+			  but I'm not sure.  Ah forget it--thanks to everyone
+			  from #terrafusion and QMap/Func_msgboard; you
+			  probably tested the map at some point.
+Previous works		: rpgsmse series; RPG3DM2; RPG3DM1; could; RPGSP1;
+			  RPG100B1; contributed to SM32; a few Q1 speedmaps;
+			  an old poor-quality Q2SP; an old poor-quality Q3DM;
+			  and some really old Duke3D maps.
+Plugs			: http://celephais.net/board/ -- Func_MsgBoard (QMap)
+			  http://www.planetquake.com/speedy/ -- Speedy
+
+
+* Play Information *
+Game			: Quake
+Single player		: No
+Cooperative		: No
+Deathmatch		: Yes (5 starts, recommended for 1v1 or 3-4 player FFA)
+Difficulty settings	: N/A
+New sounds		: No
+New graphics		: Yes.  By Speedy, scampie, and myself. (The rock texture
+			  was made by Lunaran, then modified by scampie, and
+			  then modified by me).
+New music		: No
+CD track #		: 8
+Demos replaced		: None
+
+
+* Construction *
+
+Base			: From scratch.
+Editor(s) used		: QERadiant, mapconv, Photoshop, and TexMex.
+Build time		: Undetermined.  The original version dates all the way
+			  back to 1999.
+Known bugs		: None
+
+Compile utilities	: Map Converter 1.3.0 by Kristian Duske, TreeQBSP v1.87
+			  Modified by Bengt Jardrup, Vis 2.19 Modified by Bengt
+			  Jardrup, TyrLite 0.95 by Kevin Shanahan
+Brushes			: 653
+Entities		: 200
+
+
+
+
+
+* WHERE TO GET THIS LEVEL *
+
+http://rpg.spawnpoint.org
+Try a Google.com search for rpgsmse.zip if my site is down.
+
+
+* COMPILATION *
+
+I used Tyrlite to compile the map.  I used this commandline:
+
+tyrlite.exe -nocount -extra rpgdm1
+
+(-nocount just removes the progress indicator during the compile.)
+
+The lights in the map make extensive use of the "wait" key.  
+I also used the sunlight feature of Tyrlite.  But all of that is in the .map file,
+ so all you should have to do is compile the map using Tyrlite. 
+
+
+* PLEASE NOTE *
+
+Neither I nor id Software are responsible for any damage these files may or
+may not cause.  However, it is highly unlikely that any damage will be
+caused as a direct result from these files.
+
+
+
+* COPYRIGHT NOTICES and PERMISSIONS *
+
+Copyright (C) 2004 Robert P. Gove Jr.
+Textures copyright (C) their respective owners
+
+This level is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This level is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this level; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA

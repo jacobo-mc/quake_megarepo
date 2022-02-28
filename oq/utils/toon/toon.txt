@@ -1,0 +1,52 @@
+toon - 3D cartoon outline generator
+
+Copyright (C) 2001  Seth Galbraith
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+AUTHORS:
+
+Seth Galbraith
+"The Serpent Lord"
+http://www.planetquake.com/simitar
+sgalbrai@krl.org
+
+
+USAGE: toon [options] <file> [more options and/or files]
+
+OPTIONS:
+
+	-o [string] : output filename (NOTE: affects only the next input file)
+	-t [float]  : thickness (default = 1)
+
+This utility currently only works on exported MilkShape 3D ASCII format models.
+The homepage for MilkShape 3D is at: http://www.swissquake.ch/chumbalum-soft
+To view the outline in MilkShape 3D, import the generated model, right-click
+in the 3D view, and un-check the "Draw Backfaces" option
+
+HISTORY:
+
+2-24-01
+
+First version
+
+3-01-01
+
+Now vertex normals are recalculated based on which vertices are touching.
+This keeps the outline from breaking along sharp edges.
+
+12-29-01
+
+correct handling of parameters if the last parameter is -o [..] or -t [..]

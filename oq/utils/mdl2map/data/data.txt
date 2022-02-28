@@ -1,0 +1,16 @@
+EXT  TXT  FORMAT           EXPORTED BY
+
+3ds  no   Autodesk         MilkShape 3D
+asc  yes  3D Studio        MilkShape 3D
+cad  yes  Breeze Designer  qME
+dxf  yes  AutoCAD          MilkShape 3D
+hrc  yes  Softimage 4D     qME
+inc  yes  POV-Ray          MilkShape 3D
+lwo  no   LightWave        qME
+mdl  no   Quake            qME
+mtl  yes  [material data for .obj format]
+obj  yes  Wavefront        MilkShape 3D
+raw  yes  raw triangles    MilkShape 3D     
+rib  yes  RenderMan        MilkShape 3D
+txt  yes  MilkShape        MilkShape 3D
+wrl  yes  VRML 1           Milkshape 3D
