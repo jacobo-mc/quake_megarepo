@@ -1,0 +1,10 @@
+#Map stuff
+*.log
+*.prt
+*.bsp
+*.pts
+*.lit
+*.lit2
+*.lux
+autosave/
+#There are some more map files I am probably forgetting...

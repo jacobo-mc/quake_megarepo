@@ -1,0 +1,16 @@
+../progs.dat
+
+defs.qc
+subs.qc
+items.qc
+weapons.qc
+world.qc
+client.qc
+player.qc
+doors.qc
+buttons.qc
+triggers.qc
+plats.qc
+misc.qc
+server.qc
+
