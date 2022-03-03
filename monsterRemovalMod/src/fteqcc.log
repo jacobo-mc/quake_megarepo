@@ -1,0 +1,104 @@
+Args: fteqcc
+FTEQCC: Nov 23 2015
+Source file: progs.src
+outputfile: ../progs.dat
+compiling defs.qc
+compiling helpers/netnames.qc
+compiling subs.qc
+compiling fight.qc
+compiling ai.qc
+compiling combat.qc
+compiling items.qc
+compiling weapons.qc
+compiling world.qc
+compiling client.qc
+in function PutClientInServer (line 93),
+client.qc:577: warning F307: type mismatch: void() player_pain to void(entity attacker, float damage) self.th_pain
+compiling player.qc
+compiling monsters.qc
+compiling doors.qc
+in function fd_secret_use (line 610),
+doors.qc:626: warning F307: type mismatch: void() SUB_Null to void(entity attacker, float damage) self.th_pain
+in function fd_secret_done (line 601),
+doors.qc:717: warning F307: type mismatch: void() fd_secret_use to void(entity attacker, float damage) self.th_pain
+in function func_door_secret (line 771),
+doors.qc:825: warning F307: type mismatch: void() fd_secret_use to void(entity attacker, float damage) self.th_pain
+compiling buttons.qc
+compiling triggers.qc
+compiling plats.qc
+compiling misc.qc
+compiling monsters/ogre.qc
+compiling monsters/fiend.qc
+compiling monsters/shambler.qc
+compiling monsters/knight.qc
+compiling monsters/grunt.qc
+compiling monsters/scrag.qc
+compiling monsters/rottweiler.qc
+in function monster_dog (line 343),
+monsters/rottweiler.qc:376: warning F307: type mismatch: void() dog_pain to void(entity attacker, float damage) self.th_pain
+compiling monsters/zombie.qc
+compiling monsters/chthon.qc
+compiling monsters/spawn.qc
+compiling monsters/hellknight.qc
+compiling monsters/rotfish.qc
+compiling monsters/vore.qc
+in function monster_shalrath (line 240),
+monsters/vore.qc:277: warning F307: type mismatch: void() shalrath_pain to void(entity attacker, float damage) self.th_pain
+compiling monsters/enforcer.qc
+compiling monsters/shub.qc
+in function monster_oldone (line 276),
+monsters/shub.qc:306: warning F307: type mismatch: void() SUB_Null to void(entity attacker, float damage) self.th_pain
+Compile finished: ../progs.dat (id format)
+Done. 7 warnings
+Args: fteqcc
+FTEQCC: Nov 23 2015
+Source file: progs.src
+outputfile: ../progs.dat
+compiling defs.qc
+compiling helpers/netnames.qc
+compiling subs.qc
+compiling fight.qc
+compiling ai.qc
+compiling combat.qc
+compiling items.qc
+compiling weapons.qc
+compiling world.qc
+compiling client.qc
+in function PutClientInServer (line 93),
+client.qc:577: warning F307: type mismatch: void() player_pain to void(entity attacker, float damage) self.th_pain
+compiling player.qc
+compiling monsters.qc
+compiling doors.qc
+in function fd_secret_use (line 610),
+doors.qc:626: warning F307: type mismatch: void() SUB_Null to void(entity attacker, float damage) self.th_pain
+in function fd_secret_done (line 601),
+doors.qc:717: warning F307: type mismatch: void() fd_secret_use to void(entity attacker, float damage) self.th_pain
+in function func_door_secret (line 771),
+doors.qc:825: warning F307: type mismatch: void() fd_secret_use to void(entity attacker, float damage) self.th_pain
+compiling buttons.qc
+compiling triggers.qc
+compiling plats.qc
+compiling misc.qc
+compiling monsters/ogre.qc
+compiling monsters/fiend.qc
+compiling monsters/shambler.qc
+compiling monsters/knight.qc
+compiling monsters/grunt.qc
+compiling monsters/scrag.qc
+compiling monsters/rottweiler.qc
+in function monster_dog (line 343),
+monsters/rottweiler.qc:376: warning F307: type mismatch: void() dog_pain to void(entity attacker, float damage) self.th_pain
+compiling monsters/zombie.qc
+compiling monsters/chthon.qc
+compiling monsters/spawn.qc
+compiling monsters/hellknight.qc
+compiling monsters/rotfish.qc
+compiling monsters/vore.qc
+in function monster_shalrath (line 240),
+monsters/vore.qc:277: warning F307: type mismatch: void() shalrath_pain to void(entity attacker, float damage) self.th_pain
+compiling monsters/enforcer.qc
+compiling monsters/shub.qc
+in function monster_oldone (line 276),
+monsters/shub.qc:306: warning F307: type mismatch: void() SUB_Null to void(entity attacker, float damage) self.th_pain
+Compile finished: ../progs.dat (id format)
+Done. 7 warnings
