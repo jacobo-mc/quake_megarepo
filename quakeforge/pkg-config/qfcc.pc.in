@@ -1,0 +1,9 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@datarootdir@/qfcc/lib
+includedir=@datarootdir@/qfcc/include
+
+Name: qfcc
+Description: Ruamoko/QuakeC compiler/linker
+Version: @VERSION@
+URL: http://quakeforge.net/

@@ -1,0 +1,403 @@
+%define name	quakeforge
+%define qfversion @VERSION@
+%define rpmversion @RPMVERSION@
+%define release 1
+%define builddir $RPM_BUILD_DIR/%{name}-%{qfversion}
+
+%define ALSA_PLUGIN 'snd_output_@ALSA_PLUGIN@'
+
+%define fs_sharepath %{_prefix}/share/games/quakeforge
+
+Name:		%{name}
+Version:	%{rpmversion}
+Release:	%{release}
+Vendor:		The QuakeForge Project 
+Packager:	The QuakeForge Project quakeforge-devel@lists.quakeforge.net
+URL:		http://www.quakeforge.net/
+Source:         %{name}-%{qfversion}.tar.gz
+#Patch:		
+Group:		Amusements/Games
+License:	GPL
+#Icon:		
+Requires:	quakeforge-common, quake-game
+BuildRoot:	/var/tmp/%{name}-%{qfversion}
+Summary:	QuakeForge 3D game engine
+%description
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+
+%package common
+Summary:	QuakeForge 3D game engine - common files
+Group:		Amusements/Games
+#Requires:
+%description common
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains files and shared libraries common to all QuakeForge
+packages.
+
+
+%package devel
+Summary:	QuakeForge 3D game engine - headers and devel libs
+Group:	Amusements/Games
+Requires:	quakeforge-common
+%description devel
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains headers and static libraries for the development of
+utilities and applications for QuakeForge.
+
+%package sdl
+Summary:	QuakeForge 3D game engine - SDL client
+Group:		Amusements/Games
+Requires:	quakeforge == %{rpmversion}, quakeforge-common == %{rpmversion}, quakeforge-sdl-common == %{rpmversion}
+%description sdl
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains the SDL versions of the QuakeWorld client and
+standalone engine.
+
+%package svga
+Summary:	QuakeForge 3D game engine - SVGAlib client
+Group:		Amusements/Games
+Requires:	quakeforge == %{rpmversion}
+%description svga
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains the SVGAlib versions of the QuakeWorld client and
+standalone engine.
+
+%package x11
+Summary:	QuakeForge 3D game engine - X11 client
+Group:		Amusements/Games
+Requires:	quakeforge == %{rpmversion}
+%description x11
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains the X11 versions of the QuakeForge client and
+standalone engine.
+
+%package servers
+Summary:	QuakeForge 3D game engine - Server
+Group:		Amusements/Games
+Requires:	quakeforge == %{rpmversion}, quakeforge-common == %{rpmversion}
+%description servers
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains both the QuakeWorld-compatible and
+NetQuake-compatible dedicated servers, as well as a simple
+QuakeWorld-compatible master server.
+
+%package sw32
+Summary:	QuakeForge 3D game engine - Software renderer libraries
+Group:	Amusements/Games
+#Requires:
+%description sw32
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains the shared libraries needed to use the 32bpp software
+renderer.
+
+%package sw
+Summary:	QuakeForge 3D game engine - Software renderer libraries
+Group:	Amusements/Games
+#Requires:
+%description sw
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains the shared libraries needed to use the software
+renderer.
+
+%package gl
+Summary:	QuakeForge 3D game engine - OpenGL renderer libraries
+Group:	Amusements/Games
+#Requires:
+%description gl
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains the shared libraries needed to use the OpenGL
+renderer.
+
+%package glsl
+Summary:	QuakeForge 3D game engine - OpenGL renderer libraries
+Group:	Amusements/Games
+#Requires:
+%description glsl
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This package contains the shared libraries needed to use the OpenGL GLSL
+renderer.
+
+%package oss
+Summary:	OSS sound plugin for QuakeForge
+Group:		Amusements/Games
+#Requires:
+%description oss
+The OSS plugin for QuakeForge provides digital audio output (using OSS/Linux,
+OSS/Free, or kernel sound) for QuakeForge targets that contain clients.
+
+NOTE: This plugin does not work on all systems, since it uses memory-mapped
+I/O for the output device. If you have trouble, try the quakeforge-alsa
+package.
+
+%if "%{HAVE_XMMS}"=="'yes'"
+%package xmms
+Summary:	XMMS playlist interface
+Group:		Amusements/Games
+#Requires:
+%description xmms
+The XMMS plugin for QuakeForge allows the clients to use the XMMS playlist
+as a virtual cd for background music.
+%endif
+
+%package alsa
+Summary:	ALSA sound plugin for QuakeForge
+Group:		Amusements/Games
+#Requires:
+%description alsa
+The ALSA plugin for QuakeForge provides digital audio output for QuakeForge
+targets that contain clients.
+
+%package utils
+Summary:	QuakeForge 3D game engine - utility programs
+Group:		Amusements/Games
+#Requires:
+%description utils
+This package contains several tools for use with QuakeForge:
+* pak, a pakfile management tool.
+* zpak, a script for compressing pakfiles.
+* qfprogs, a "nm" tool for examining progs data files.
+* qfwavinfo, a tool to assist in converting "looped" WAV files to Ogg
+  Vorbis.
+
+
+%package maptools
+Summary:	QuakeForge 3D game engine - headers and devel libs
+Group:	Amusements/Games
+Requires:	quakeforge-common
+%description maptools
+This package contains QuakeForge's versions of the tools Id Software used
+to create maps for the Quake engine. Included are:
+
+* qfbsp, a program for compiling a map file into a BSP tree.
+* qflight, a program for generating lightmaps from the static lights in a
+  BSP file.
+* qfvis, a program for generating the Possibly-Visible Set information from
+  a BSP and a portal information file (generated by qfbsp).
+
+%package -n qfcc
+Summary:	QuakeForge QC/Ruamoko compiler
+#FIXME correct group?
+Group:	Amusements/Games
+Requires:	quakeforge-common
+%description -n qfcc
+QFCC is an optimizing byte-code compiler for the Ruamoko language, a language
+based strongly on Id Software's QuakeC. The bytecode interpreter for QuakeC
+and Ruamoko is located inside the Quake engine (though there is a standalone
+interpreter available).
+
+QFCC is designed to work with the QuakeForge engines, but will work with
+most non-QuakeForge servers with a couple of changes to its command-line
+options.
+
+%package stub
+Summary:	QuakeForge 3D game engine - common files
+Group:		Amusements/Games
+#Requires:
+Provides:	quake-game
+%description stub
+QuakeForge is a source port of Quake and QuakeWorld, the successors to id
+Software's very popular DOOM series. Its primary development goal is to
+remain compatible with the original games released by id Software while
+adding portability and optional extensions to enhance gameplay.
+
+This sub-package provides the quake-game pseudo package.
+
+%prep
+%setup -n %{name}-%{qfversion} 
+#%patch -p1
+
+%build
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix}
+make $QFSMP
+
+%install
+if [ -d $RPM_BUILD_ROOT ]; then rm -rf $RPM_BUILD_ROOT; fi
+mkdir -p $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/etc
+make install DESTDIR=$RPM_BUILD_ROOT
+cp RPM/quakeforge.conf $RPM_BUILD_ROOT/etc
+mkdir -p $RPM_BUILD_ROOT/%{fs_sharepath}/id1
+find $RPM_BUILD_ROOT/usr/lib/quakeforge -name '*.a' -exec rm {} \;
+find $RPM_BUILD_ROOT/usr/lib/quakeforge -name '*.la' -exec rm {} \;
+rm $RPM_BUILD_ROOT/usr/bin/hw-master
+find $RPM_BUILD_ROOT/usr/lib -name 'libQFrenderer_sw32.*' -exec rm {} \;
+#FIXME until I feel like making packages
+rm $RPM_BUILD_ROOT/usr/bin/qtv
+find $RPM_BUILD_ROOT/usr/lib/quakeforge -name 'snd_render_jack*' -exec rm {} \;
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+
+
+%files
+%doc COPYING INSTALL TODO doc/*
+%attr(-,root,root) %{_prefix}/lib/pkgconfig/quakeforge.pc
+
+%files common
+%attr(-,root,root) /etc/quakeforge.conf
+%attr(-,root,root) %{_prefix}/lib/libQFcd.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFconsole.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFgib.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFimage.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFjs.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFmodels.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFruamoko.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFsound.so.*
+%attr(-,root,root) %{_prefix}/lib/libQFutil.so.*
+%attr(-,root,root) %{_prefix}/lib/quakeforge/plugins/cd_file.so*
+%attr(-,root,root) %{_prefix}/lib/quakeforge/plugins/cd_linux.so*
+%attr(-,root,root) %{_prefix}/lib/quakeforge/plugins/console_client.so*
+%attr(-,root,root) %{_prefix}/lib/quakeforge/plugins/snd_render_default.so*
+%attr(-,root,root) %{fs_sharepath}/QF/menu.*
+
+%files devel
+%attr(-,root,root)	%{_prefix}/lib/libQFcd.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFcd.so
+%attr(-,root,root)	%{_prefix}/lib/libQFconsole.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFconsole.so
+%attr(-,root,root)	%{_prefix}/lib/libQFgib.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFgib.so
+%attr(-,root,root)	%{_prefix}/lib/libQFimage.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFimage.so
+%attr(-,root,root)	%{_prefix}/lib/libQFjs.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFjs.so
+%attr(-,root,root)	%{_prefix}/lib/libQFmodels.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFmodels.so
+%attr(-,root,root)	%{_prefix}/lib/libQFruamoko.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFruamoko.so
+%attr(-,root,root)	%{_prefix}/lib/libQFsound.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFsound.so
+%attr(-,root,root)	%{_prefix}/lib/libQFutil.*a
+%attr(-,root,root)	%{_prefix}/lib/libQFutil.so
+%attr(-,root,root)	%{_prefix}/include/QF/GL/*.h
+%attr(-,root,root)	%{_prefix}/include/QF/GLSL/*.h
+%attr(-,root,root)	%{_prefix}/include/QF/*.h
+%attr(-,root,root)	%{_prefix}/include/QF/math/*.h
+%attr(-,root,root)	%{_prefix}/include/QF/plugin/*.h
+
+%files gl
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/vid_render_gl.so*
+
+%files glsl
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/vid_render_glsl.so*
+
+%files sw32
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/vid_render_sw32.so*
+
+%files sw
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/vid_render_sw.so*
+
+%files servers
+%attr(-,root,root)	%{_prefix}/bin/qw-server
+%attr(-,root,root)	%{_prefix}/bin/nq-server
+%attr(-,root,root)	%{_prefix}/bin/qw-master
+#%attr(-,root,root)	%{_prefix}/bin/hw-master
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/console_server.so*
+
+%files sdl
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/cd_sdl.so*
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/snd_output_sdl.so*
+%attr(-,root,root)	%{_prefix}/bin/qw-client-sdl
+%attr(-,root,root)	%{_prefix}/bin/nq-sdl
+
+%files x11
+%attr(-,root,root)	%{_prefix}/bin/qw-client-x11
+%attr(-,root,root)	%{_prefix}/bin/nq-x11
+
+%if "%{HAVE_XMMS}"=="'yes'"
+%files xmms
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/cd_xmms.so
+%endif
+
+%files alsa
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/snd_output_alsa.so*
+
+%files oss
+%attr(-,root,root)	%{_prefix}/lib/quakeforge/plugins/snd_output_oss.so*
+
+%files -n qfcc
+%attr(-,root,root)	%{_prefix}/bin/qfcc
+%attr(-,root,root)	%{_prefix}/bin/qfpreqcc
+%attr(-,root,root)	%{_prefix}/share/man/man1/qfcc.1.gz
+%attr(-,root,root)	%{_prefix}/lib/pkgconfig/qfcc.pc
+%attr(-,root,root)	%{_prefix}/share/qfcc/include/*
+%attr(-,root,root)	%{_prefix}/share/qfcc/lib/*
+
+%files utils
+%attr(-,root,root)	%{_prefix}/bin/pak
+%attr(-,root,root)	%{_prefix}/bin/zpak
+%attr(-,root,root)	%{_prefix}/bin/qfprogs
+%attr(-,root,root)	%{_prefix}/bin/qfwavinfo
+%attr(-,root,root)	%{_prefix}/share/man/man1/pak.1.gz
+%attr(-,root,root)	%{_prefix}/share/man/man1/zpak.1.gz
+#%attr(-,root,root)	%{_prefix}/share/man/man1/qfprogs.1.gz
+#%attr(-,root,root)	%{_prefix}/share/man/man1/qfwavinfo.1.gz
+
+%files maptools
+%attr(-,root,root)	%{_prefix}/bin/bsp2img
+%attr(-,root,root)	%{_prefix}/bin/qfbsp
+%attr(-,root,root)	%{_prefix}/bin/qflight
+%attr(-,root,root)	%{_prefix}/bin/qflmp
+%attr(-,root,root)	%{_prefix}/bin/qfmodelgen
+%attr(-,root,root)	%{_prefix}/bin/qfspritegen
+%attr(-,root,root)	%{_prefix}/bin/qfvis
+%attr(-,root,root)	%{_prefix}/bin/wad
+%attr(-,root,root)	%{_prefix}/share/man/man1/qflight.1.gz
+%attr(-,root,root)	%{_prefix}/share/man/man1/qfvis.1.gz
+%attr(-,root,root)	%{_prefix}/share/man/man1/wad.1.gz
+
+%files stub
+%attr(-,root,root) %dir	%{fs_sharepath}
+%attr(-,root,root) %dir	%{fs_sharepath}/id1
+
+%post stub
+if test ! -f %{fs_sharepath}/id1/pak0.pak; then
+	echo Warning: %{fs_sharepath}/id1/pak0.pak not found
+	echo Install either the shareware or registered quake data in
+	echo %{fs_sharepath}
+fi

@@ -1,0 +1,138 @@
+#! /bin/bash
+
+. ~/.bash_profile
+
+set -e
+
+PATH=/usr/local/bin:$PATH
+RELEASE=~/release
+export QFSMP=${QFSMP--j4}
+
+pref=`dirname $0`
+if test $# -lt 1; then
+	echo 'Usage: $0 <version> [targets]'
+	exit 1;
+fi
+
+tag_name="$1"
+shift
+if test "$tag_name" = "current"; then
+	tag_name=master
+fi
+
+do_rpm=0
+do_deb=0
+do_win32=0
+no_rm=0
+
+if test $# -ne 0; then
+	while test $# -ne 0; do
+		case $1 in
+		rpm)
+			do_rpm=1
+			;;
+		deb)
+			do_deb=1
+			;;
+		win32)
+			do_win32=1
+			;;
+		norm)
+			no_rm=1
+			;;
+		*)
+			echo 'Unknown target'
+			exit 1
+			;;
+		esac
+		shift
+	done
+else
+	do_rpm=1
+	do_deb=1
+	do_win32=1
+fi
+
+git_url=${git_url:-git://git.quakeforge.net/gitroot/quake/quakeforge}
+
+mkdir -p $RELEASE
+cd $RELEASE
+if test $no_rm -ne 1; then
+	rm -rf NEWS io_mesh_qfmdl-* quakeforge-* qfcc-* quakeforge_* qfcc_*
+fi
+git clone $git_url || true
+ver=`(cd quakeforge; config.d/git-version-gen --prefix '' .tarball-version)`
+mv quakeforge quakeforge-$ver
+cd quakeforge-$ver
+git checkout $tag_name
+cp NEWS $RELEASE
+cd tools
+zip -r ../../io_mesh_qfmdl-$ver.zip io_mesh_qfmdl
+tar zcvf ../../io_mesh_qfmdl-$ver.tar.gz io_mesh_qfmdl
+tar jcvf ../../io_mesh_qfmdl-$ver.tar.bz2 io_mesh_qfmdl
+cd ..
+mkdir -p linux.o qf-win32.o
+./bootstrap
+#begin linux
+	cd linux.o
+	../configure -C --without-clients --with-servers=master
+	make dist-all-local
+	if test $do_rpm -eq 1; then
+		cd RPM
+		make rpm
+		mv *.rpm $RELEASE
+		cd ..
+	fi
+	if test $do_deb -eq 1; then
+		DIR=`basename quakeforge-*.tar.gz .tar.gz`
+		cd debian
+		rm -rf $DIR
+		tar zxvf ../${DIR}.tar.gz
+		cd $DIR
+		dpkg-buildpackage -rfakeroot -us -uc
+		rm -rf $DIR
+		cd ..
+		mv q*.[a-z]* $RELEASE
+		cd ..
+	fi
+	#make dist-all-local
+	mv *.tar.gz *.tar.bz2 *.zip $RELEASE
+	cd ..
+# end linux
+if test $do_win32 -eq 1; then
+	cd qf-win32.o
+	qf_win32="quakeforge-$ver-win32"
+	qf_win32_dir=`pwd`"/$qf_win32"
+	qf_win64="quakeforge-$ver-win64"
+	qf_win64_dir=`pwd`"/$qf_win64"
+	rm -rf $qf_win32_dir *.zip
+	rm -rf $qf_win64_dir *.zip
+	../tools/cross/mingw/cross-configure.sh \
+		--disable-debug \
+		--program-prefix=
+	../tools/cross/mingw64/cross-configure.sh \
+		--disable-debug \
+		--program-prefix=
+	../tools/cross/mingw/cross-make.sh $QFSMP \
+		prefix=${qf_win32_dir} \
+		exec_prefix=${qf_win32_dir} \
+		pkgdatadir=${qf_win32_dir}/QF \
+		man1dir=${qf_win32_dir} \
+		install
+	../tools/cross/mingw64/cross-make.sh $QFSMP \
+		prefix=${qf_win64_dir} \
+		exec_prefix=${qf_win64_dir} \
+		pkgdatadir=${qf_win64_dir}/QF \
+		man1dir=${qf_win64_dir} \
+		install
+	mkdir -p ${qf_win32_dir}/pkgconfig ${qf_win64_dir}/pkgconfig
+	mv ${qf_win32_dir}/QF/*.pc ${qf_win32_dir}/pkgconfig
+	mv ${qf_win64_dir}/QF/*.pc ${qf_win64_dir}/pkgconfig
+	eval `grep MINGW= ../tools/cross/mingw/cross-configure.sh`
+	$MINGW/usr/bin/i686-pc-mingw32-strip --strip-unneeded "$qf_win32"/bin/*.exe
+	$MINGW/usr/bin/x86_64-w64-mingw32-strip --strip-unneeded "$qf_win64"/bin/*.exe
+	../tools/build_scripts/qf-win32.py "$ver-win32" quakeforge "$qf_win32"
+	../tools/build_scripts/qf-win32.py "$ver-win64" quakeforge "$qf_win64"
+	mv *.zip $RELEASE
+	cd ..
+fi

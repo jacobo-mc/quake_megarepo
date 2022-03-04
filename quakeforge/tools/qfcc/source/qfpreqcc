@@ -1,0 +1,374 @@
+#!/usr/bin/env python
+
+import os
+import re
+import sys
+import string
+from pprint import *
+
+#os.sapn*p* hack
+#swiped from Alexey Borzenkov snaury at gmail.com 
+if (not (hasattr(os, 'spawnvpe') or hasattr(os, 'spawnvp'))
+    and hasattr(os, 'spawnve') and hasattr(os, 'spawnv')):
+    def _os__spawnvpe(mode, file, args, env=None):
+        import sys
+        from errno import ENOENT, ENOTDIR
+        from os import path, spawnve, spawnv, environ, defpath, pathsep, error
+
+        if env is not None:
+            func = spawnve
+            argrest = (args, env)
+        else:
+            func = spawnv
+            argrest = (args,)
+            env = environ
+
+        head, tail = path.split(file)
+        if head:
+            return func(mode, file, *argrest)
+        if 'PATH' in env:
+            envpath = env['PATH']
+        else:
+            envpath = defpath
+        PATH = envpath.split(pathsep)
+        if os.name == 'nt' or os.name == 'os2':
+            PATH.insert(0, '')
+        saved_exc = None
+        saved_tb = None
+        for dir in PATH:
+            fullname = path.join(dir, file)
+            try:
+                return func(mode, fullname, *argrest)
+            except error, e:
+                tb = sys.exc_info()[2]
+                if (e.errno != ENOENT and e.errno != ENOTDIR
+                    and saved_exc is None):
+                    saved_exc = e
+                    saved_tb = tb
+        if saved_exc:
+            raise error, saved_exc, saved_tb
+        raise error, e, tb
+
+    def _os_spawnvp(mode, file, args):
+        return os._spawnvpe(mode, file, args)
+
+    def _os_spawnvpe(mode, file, args, env):
+        return os._spawnvpe(mode, file, args, env)
+
+    def _os_spawnlp(mode, file, *args):
+        return os._spawnvpe(mode, file, args)
+
+    def _os_spawnlpe(mode, file, *args):
+        return os._spawnvpe(mode, file, args[:-1], args[-1])
+
+    os._spawnvpe = _os__spawnvpe
+    os.spawnvp = _os_spawnvp
+    os.spawnvpe = _os_spawnvpe
+    os.spawnlp = _os_spawnlp
+    os.spawnlpe = _os_spawnlpe
+    os.__all__.extend(["spawnvp", "spawnvpe", "spawnlp", "spawnlpe"])
+#end os.sapn*p* hack
+
+string_re = re.compile (r'"(\\.|[^"\\])*"')
+comment_whole = re.compile (r'((/\*.*\*/)|//.*)')
+comment_start = re.compile (r'(/\*.*)')
+comment_end = re.compile (r'(.*\*/)')
+directive_re = re.compile (
+    r'^\s*#\s*(define|undef|include|includelist|endlist|ifdef|ifndef|endif|else|pragma|[0-9]+)\b' +
+    r'((\s*("[^"]*"|[^ \t\n\r\f\v/]+|/(?!/))+)?)' +
+    r'((\s*("[^"]*"|[^ \t\n\r\f\v/]+|/(?!/))+)*)')
+macro_re = re.compile (r'#([A-Za-z_][0-9A-Za-z_]*)')
+arg_re = re.compile (
+    r'((\s*("[^"]*"|[^ \t\n\r\f\v/]+|/(?!/))+)?)' +
+    r'((\s*("[^"]*"|[^ \t\n\r\f\v/]+|/(?!/))+)*)')
+
+current_file = []
+source_list = []
+qcc_list = []
+defines = {}
+progs_dat = None
+progs_src = "progs.src"
+compile_this_file = 1
+keep_newlines = 1
+check_redefines = 1
+verbose = 0
+
+def append_file (filename):
+	global current_file
+	f = open (filename, "rb")
+	lines = f.readlines ()
+	f.close ()
+	current_file.append ('# 1 "' + filename + '"')
+	for i in range (len (lines)):
+		lines[i] = string.rstrip (lines[i])
+	current_file = current_file + lines
+
+def parse_filename (args):
+	m = arg_re.match (args)
+	fname = string.strip (m.groups()[0])
+	if fname:
+		if fname[0] == '"':
+			fname = fname[1:]
+		if fname[-1] == '"':
+			fname = fname[:-1]
+	return fname
+
+def parse_pragma (pragma, args):
+	global progs_dat, progs_dat
+	global compile_this_file, keep_newlines, check_redefines
+	if pragma == 'PROGS_DAT':
+		progs_dat = parse_filename (args)
+	elif pragma == 'PROGS_SRC':
+		progs_src = parse_filename (args)
+	elif pragma == 'DONT_COMPILE_THIS_FILE':
+		compile_this_file = 0
+	elif pragma == 'COMPILE_THIS_FILE':
+		compile_this_file = 1
+	elif pragma == 'KEEP_NEWLINES':
+		keep_newlines = parse_on_off (args)
+	elif pragma == 'CHECK_REDEFINES':
+		check_redefines = parse_on_off (args)
+	elif pragma == 'CHECK_UNUSED_ON':
+		pass
+	elif pragma == 'CHECK_UNUSED_OFF':
+		pass
+	else:
+		print "ignoring " + pragma
+
+def comment_string (string_list, start, end):
+	i = 0
+	while i < len (string_list):
+		if start <= string_list[i][1] and end >= string_list[i][2]:
+			del string_list[i]
+			continue
+		i += 1
+	return string_list
+
+def parse_strings_and_comments (l, incomment):
+	#print source_file + ":" + `i` + ":" + l
+	string_list = []
+	s = string_re.search (l)
+	while s:
+		string_list.append ((l[s.start():s.end()], s.start(), s.end()))
+		l = l[:s.start()] + ((s.end() - s.start()) * ' ') + l[s.end():]
+		s = string_re.search (l)
+	if incomment:
+		s = comment_end.search (l)
+		if s:
+			l = (s.end() * ' ') + l[s.end():]
+			incomment = 0
+			string_list = comment_string (string_list, s.start(), s.end())
+		else:
+			string_list = comment_string (string_list, 0, len(l))
+			l = ""
+	s = comment_whole.search (l)
+	if s:
+		l = l[:s.start()] + ((s.end() - s.start()) * ' ') + l[s.end():]
+		string_list = comment_string (string_list, s.start(), s.end())
+	s = comment_start.search (l)
+	if s:
+		l = l[:s.start()] + ((s.end() - s.start()) * ' ')
+		string_list = comment_string (string_list, s.start(), s.end())
+		incomment = 1
+	for str in string_list:
+		l = l[:str[1]] + str[0] + l[str[2]:]
+	#print l
+	return l, incomment
+
+def do_preprogs_src ():
+	global current_file
+	current_file = []
+	condition = [1]
+	incomment = 0
+	append_file ("preprogs.src")
+	preprogs = current_file
+	for p in preprogs:
+		p, incomment = parse_strings_and_comments (p, incomment)
+		m = directive_re.match (p)
+		if (m):
+			g = m.groups()
+			directive = g[0]
+			arg1 = string.strip (g[1])
+			margs = string.strip (g[4])
+			#pprint ((directive, arg1, margs))
+			if directive == 'pragma':
+				if condition[-1]:
+					parse_pragma (arg1, margs)
+			elif directive[0] in '0123456789':
+				pass
+			elif directive == 'includelist':
+				if condition[-1]:
+					fname = parse_filename (arg1)
+					if fname:
+						source_list.append (fname)
+			elif directive == 'endlist':
+				pass
+			elif directive == 'ifdef':
+				condition.append (condition[-1])
+				if not defines.has_key (arg1):
+					condition[-1]=0
+			elif directive == 'ifndef':
+				condition.append (condition[-1])
+				if defines.has_key (arg1):
+					condition[-1]=0
+			elif directive == 'else':
+				condition[-1] = condition [-2] and not condition[-1]
+			elif directive == 'endif':
+				del condition[-1]
+			else:
+				if condition[-1]:
+					print "ignoring " + p
+		else:
+			if condition[-1]:
+				fname = parse_filename (p)
+				if fname:
+					source_list.append (fname)
+				
+def include_file (fname):
+	global current_file
+	fname = parse_filename (fname)
+	if fname:
+		append_file (fname)
+
+def process_source (source_file):
+	global compile_this_file, current_file
+	if verbose:
+		print source_file
+	compile_this_file = 1
+	includelist = 0
+	incomment = 0
+	current_file = []
+	output = []
+	condition = [1]
+	append_file (source_file)
+	i = 0
+	while i < len (current_file):
+		l = current_file[i]
+		l, incomment = parse_strings_and_comments (l, incomment)
+		m = directive_re.match (l)
+		if (m):
+			g = m.groups()
+			directive = g[0]
+			arg1 = string.strip (g[1])
+			margs = string.strip (g[4])
+			#pprint ((directive, arg1, margs))
+			comment_out = True
+			if directive == 'pragma':
+				if condition[-1]:
+					parse_pragma (arg1, margs)
+			elif directive == 'include':
+				if condition[-1]:
+					include_file (arg1)
+			elif directive == 'includelist':
+				if condition[-1]:
+					include_file (arg1)
+					includelist = 1
+			elif directive == 'endlist':
+				if condition[-1]:
+					includelist = 0
+			elif directive == 'define':
+				if condition[-1]:
+					defines[arg1] = margs
+			elif directive == 'undef':
+				if condition[-1]:
+					if defines.has_key (arg1):
+						del defines[arg1]
+			elif directive == 'ifdef':
+				condition.append (condition[-1])
+				if not defines.has_key (arg1):
+					condition[-1]=0
+			elif directive == 'ifndef':
+				condition.append (condition[-1])
+				if defines.has_key (arg1):
+					condition[-1]=0
+			elif directive == 'else':
+				condition[-1] = condition [-2] and not condition[-1]
+			elif directive == 'endif':
+				del condition[-1]
+			else:
+				if condition[-1]:
+					comment_out = False
+			if comment_out:
+				output.append ('//' + l)
+			else:
+				output.append (l)
+		else:
+			if (includelist):
+				fname = parse_filename (l)
+				if fname:
+					include_file (fname)
+				output.append ('//' + l)
+			else:
+				if not condition[-1]:
+					l = '//##' + l
+				else:
+					s = macro_re.search (l)
+					while s:
+						id = s.groups()[0]
+						if defines.has_key (id):
+							l = (l[:s.start()]
+							     + defines[id]
+							     + l[s.end():])
+							s = macro_re.search (l)
+						else:
+							s = macro_re.search (l,
+								s.start(1))
+				output.append (l)
+		i = i + 1
+	if compile_this_file:
+		fname = source_file + '.pqc'
+		qcc_list.append (fname)
+		f = open (fname, "wb")
+		for l in output:
+			f.write(l + '\n')
+		f.close ()
+
+no_delete = 0
+use_cpp = 0
+i = 0
+qfcc_prefix = ""	# search the path
+while i < len (sys.argv):
+	if sys.argv[i] == '--keep':
+		no_delete = 1
+		del sys.argv[i]
+		continue
+	elif sys.argv[i] == '--verbose':
+		verbose = 1
+		del sys.argv[i]
+		continue
+	elif sys.argv[i] == '--cpp':
+		use_cpp = 1
+		del sys.argv[i]
+		continue
+	elif sys.argv[i] == '--local-qfcc':
+		qfcc_prefix = "./"	# search the local directory
+		del sys.argv[i]
+		continue
+	i = i + 1
+progs_dat = None
+do_preprogs_src ()
+if progs_dat == None:
+	progs_dat = source_list[0]
+	source_list = source_list[1:]
+for s in source_list:
+	process_source (s)
+f = open (progs_src, "wb")
+f.write (progs_dat + '\n\n')
+for l in qcc_list:
+	f.write(l + '\n')
+f.close ()
+args = sys.argv[1:]
+if not verbose:
+	args = ["--quiet"] + args
+if not use_cpp:
+	args = ["-C", "no-cpp"] + args
+args = [qfcc_prefix + "qfcc"] + args
+err = os.spawnvp (os.P_WAIT, qfcc_prefix + "qfcc", args)
+if not no_delete:
+	for l in qcc_list:
+		os.unlink (l)
+	os.unlink (progs_src)
+if err == 127:
+	print "Could not execute qfcc. Ensure qfcc is either in a directory in"
+	print "$PATH, or in the current directory and run qfpreqcc with",
+	print "\"--local-qfcc\"."

@@ -1,0 +1,2080 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass article
+\begin_preamble
+\usepackage{ae,aecompl}
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Title
+
+
+\begin_inset Graphics
+	filename gib_head.eps
+
+\end_inset 
+
+
+\newline 
+
+\family sans 
+\series bold 
+The GIB Scripting Language
+\layout Author
+
+Brian Koropoff
+\layout Standard
+\pagebreak_top \pagebreak_bottom 
+
+\begin_inset LatexCommand \tableofcontents{}
+
+\end_inset 
+
+
+\layout Section
+
+Introduction
+\layout Subsection
+
+Purpose and Applications
+\layout Standard
+
+GIB
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+
+\noun on 
+GIB
+\noun default 
+ stands for 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\series bold 
+G
+\series default 
+IB 
+\series bold 
+I
+\series default 
+sn't 
+\series bold 
+\noun on 
+B
+\series default 
+ash
+\noun default 
+.
+\begin_inset Quotes erd
+\end_inset 
+
+ 
+\noun on 
+Bash
+\noun default 
+ is the 
+\noun on 
+GNU
+\noun default 
+ implementation of the UNIX shell, with which GIB shares many similarities.
+\end_inset 
+
+ is a scripting language first introduced in 
+\noun on 
+QuakeForge
+\noun default 
+ 0.5.2, although it existed in several (less successful) incarnations in the
+ CVS development tree before finding its way into a release.
+ I created it out of frustration at the limited abilities of the standard
+ 
+\noun on 
+Quake
+\noun default 
+ console for client-side scripting.
+ The language that resulted now has applications ranging from glorified
+ aliases to server-side chat bots and map voting scripts.
+\layout Subsection
+
+Features
+\layout Standard
+
+Some of GIB's more noteworthy features include:
+\layout Itemize
+
+Full branching and looping support, including 
+\family typewriter 
+if-else
+\family default 
+, 
+\family typewriter 
+while
+\family default 
+, and 
+\family typewriter 
+for
+\family default 
+ structures.
+\layout Itemize
+
+Local and global variables, arrays, and hashes (all rolled into one, see
+ Section 
+\begin_inset LatexCommand \vref{sec:variables}
+
+\end_inset 
+
+ for details) as well as access to standard console variables.
+\layout Itemize
+
+A full-featured math evaluator supporting correct order of operations and
+ most arithmetic, logical, and bitwise operators.
+\layout Itemize
+
+Functions that can be passed any number of arguments and return any number
+ of values to the caller.
+\layout Itemize
+
+File and directory access.
+\layout Itemize
+
+String manipulation functions, including regular expressions.
+\layout Itemize
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Cooperative
+\begin_inset Quotes erd
+\end_inset 
+
+ threading.
+\layout Itemize
+
+An event system, wherein GIB functions can be run when a certain event occurs,
+ such as a chat message being received or the player's health changing.
+\layout Itemize
+
+Integration with the console.
+ Console commands can be used from GIB, and GIB functions can be 
+\begin_inset Quotes eld
+\end_inset 
+
+exported
+\begin_inset Quotes erd
+\end_inset 
+
+ to the console as normal commands.
+\layout Section
+\pagebreak_top 
+Language Basics
+\layout Subsection
+
+Command Syntax
+\layout Standard
+
+GIB follows the same syntax for basic commands as the standard Quake console:
+ the command, followed by any number of spaces and a space-separated list
+ of arguments.
+ Consider the following console command, which is also a legitimate GIB
+ command:
+\layout LyX-Code
+
+echo Hello world!
+\layout Standard
+
+Each command is usually placed on a separate line, but a semicolon (
+\family typewriter 
+;
+\family default 
+) may be used to separate multiple commands on a single line:
+\layout LyX-Code
+
+echo This is a command; echo ...and so is this!
+\layout Subsection
+
+Enclosing Arguments
+\layout Standard
+
+A normal argument is considered to end at the first 
+\begin_inset Quotes eld
+\end_inset 
+
+whitespace
+\begin_inset Quotes erd
+\end_inset 
+
+ character or comma (see Section 
+\begin_inset LatexCommand \ref{sub:concat}
+
+\end_inset 
+
+) encountered.
+ Arguments may be optionally enclosed in certain characters to either define
+ their boundaries or specify special processing to be done before the command
+ is run.
+\layout Subsubsection
+
+Double Quotes
+\layout Standard
+
+An argument may be enclosed in double quotes (
+\family typewriter 
+"
+\family default 
+ and 
+\family typewriter 
+"
+\family default 
+, never smart quotes!), in which case the argument consists of all characters
+ within the quotes, including any spaces.
+ For example:
+\layout LyX-Code
+
+print "Hello, world!"
+\layout Standard
+\added_space_bottom bigskip 
+In addition, special processing is done to arguments in quotes to allow
+ the inclusion of characters that can't normally be typed.
+ If a character is preceded by a backslash (
+\family typewriter 
+
+\backslash 
+
+\family default 
+), the backslash and the character will be replaced with a special character.
+ This is referred to as 
+\begin_inset Quotes eld
+\end_inset 
+
+escaping.
+\begin_inset Quotes erd
+\end_inset 
+
+ Figure 
+\begin_inset LatexCommand \vref{cap:escapes}
+
+\end_inset 
+
+ lists possible characters and their replacements.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0in">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0in">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Character
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Replacement
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+n
+\end_inset 
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Newline
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+t
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tab
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+r
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Carriage return
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+"
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Double quote (does not end argument)
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\family typewriter 
+
+\backslash 
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Backslash (does not escape next character)
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Caption
+
+Escape characters
+\begin_inset LatexCommand \label{cap:escapes}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+\added_space_top bigskip 
+The preceding code example could be rewritten to include a newline character
+ so that printing will continue on the next line:
+\layout LyX-Code
+
+print "Hello, world!
+\backslash 
+n"
+\layout Standard
+\added_space_bottom bigskip 
+Besides a single character, a backslash can be followed by three digits
+ forming a decimal number between 0 and 255, in which case the backslash
+ and all digits are replaced by the character with the value of the number.
+\layout Standard
+\line_top \line_bottom \align left 
+
+\series bold 
+\color red
+Warning
+\color default
+: 
+\series default 
+\emph on 
+Attempting to send any string with the character of decimal value 255 over
+ the network will result in a malformed packet and an immediate loss of
+ connection.
+ Do not use 
+\family typewriter 
+"
+\backslash 
+255"
+\family default 
+ in any chat message, info string, or any other text sent between the client
+ and server.
+\layout Standard
+\added_space_top bigskip 
+Double quotes must be evenly matched, or a parse error will be issued when
+ GIB attempts to execute the script.
+\layout Subsubsection
+
+Parentheses
+\layout Standard
+
+An argument may be enclosed within parentheses, in which case the argument
+ will be evaluated as a mathematical expression and will be replaced with
+ the result of that expression.
+ Consider the following code:
+\layout LyX-Code
+
+echo (1/(1+1))
+\layout Standard
+
+This will result in 
+\begin_inset Quotes eld
+\end_inset 
+
+0.5
+\begin_inset Quotes erd
+\end_inset 
+
+ being printed.
+ For a detailed explanation of the capabilities of the math evaluator, please
+ see Section .
+ As with double quotes, parentheses must be evenly matched or a parse error
+ will be issued.
+\layout Subsubsection
+
+Curly Braces
+\layout Standard
+
+Arguments within curly braces (
+\family typewriter 
+{
+\family default 
+ and 
+\family typewriter 
+}
+\family default 
+) are treated as 
+\emph on 
+program blocks
+\emph default 
+, or groups of GIB commands.
+ To facilitate readable formatting of code, line breaks are allowed within
+ curly braces.
+ Curly braces should be used only where GIB code is appropriate, such as
+ in a loop or function definitions.
+ Arguments in curly braces 
+\emph on 
+may
+\emph default 
+ be used for any purpose, but this comes with two drawbacks:
+\layout Enumerate
+
+Arguments in curly braces are considered code and will be held to those
+ standards.
+ Parse errors within curly braces will prevent execution of your script,
+ even if the argument is not used where a program block is requested.
+\layout Enumerate
+
+The GIB parser will convert code in curly braces to an internal representation,
+ which is a waste of time and resources if the argument is never used as
+ a program block.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{curly.gib}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+Example uses of curly braces
+\begin_inset LatexCommand \label{cap:curly}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \vref{cap:curly}
+
+\end_inset 
+
+ uses features that will be discussed later, but it demonstrates several
+ of the intended uses of curly braces.
+\layout Subsection
+
+Concatenation
+\begin_inset LatexCommand \label{sub:concat}
+
+\end_inset 
+
+
+\layout Standard
+
+Concatenation refers to joining one argument onto the end of another.
+ This is useful when you want to combine different arguments into one, such
+ as a double-quoted argument and a math expression.
+ To do this, simply place a single comma (
+\family typewriter 
+,
+\family default 
+) anywhere between arguments.
+ Example:
+\layout LyX-Code
+
+print "20 divided by 4 is ", (20/4), "
+\backslash 
+n"
+\layout Standard
+
+Concatenation will not work with curly-brace-enclosed arguments.
+ In addition, it will not work or simply be ignored on instances of variable
+ expansion, which will be discussed in Section 
+\begin_inset LatexCommand \ref{sec:variables}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Comments
+\layout Standard
+
+GIB uses the same format for comments as the console.
+ Any text between two forward slashes (
+\family typewriter 
+//
+\family default 
+) and the end of the current line will be discarded when the script is parsed.
+ To use two forward slashes without starting a comment, enclose the argument
+ in double quotes.
+ Example:
+\layout LyX-Code
+
+echo "Hello" // This is a comment
+\layout LyX-Code
+
+echo "// This is not a comment"
+\layout Standard
+
+Proper use of comments in your scripts will make them easier to read and
+ understand.
+\layout Section
+\pagebreak_top 
+Variables
+\begin_inset LatexCommand \label{sec:variables}
+
+\end_inset 
+
+
+\layout Subsection
+
+Types and Concepts
+\layout Standard
+
+GIB offers several powerful forms of variables:
+\layout Description
+
+Console\SpecialChar ~
+variables hold a character string and can also be accessed from the
+ 
+\noun on 
+QuakeForge
+\noun default 
+ console.
+\layout Description
+
+Standard\SpecialChar ~
+variables hold a character string.
+\layout Description
+
+Arrays hold a numbered list of character strings, each referred to as an
+ 
+\emph on 
+element
+\emph default 
+.
+\layout Description
+
+Hashes hold a list of arrays, each referenced by a unique name called a
+ 
+\emph on 
+key
+\emph default 
+.
+\layout Standard
+
+Unlike many other languages, these different types of variables are not
+ defined separately.
+ Rather, all non-console GIB variables are a hash/array hybrid.
+ Every variable is an array, and every element in that array also can be
+ a hash.
+ This may sound confusing at first, but it is actually quite intuitive and
+ powerful.
+\layout Standard
+
+Variables in GIB can be used in three different ways:
+\layout Itemize
+
+
+\series bold 
+Assignment
+\series default 
+
+\newline 
+A value (character string) is stored in the variable.
+\layout Itemize
+
+
+\series bold 
+Embedding
+\series default 
+
+\newline 
+The value of a variable is placed somewhere within an argument.
+\layout Itemize
+
+
+\series bold 
+Expansion
+\series default 
+
+\newline 
+A new argument is created in the command for each element of an array or
+ each key in a hash.
+\layout Standard
+
+Note that console variables cannot be expanded, as they may hold only one
+ value.
+\layout Subsection
+
+Console Variables
+\layout Standard
+
+Console variables are the normal settings used at the 
+\noun on 
+QuakeForge
+\noun default 
+ console, such as 
+\family typewriter 
+in_mouse_amp
+\family default 
+, 
+\family typewriter 
+fov
+\family default 
+, etc.
+ These are the simplest variables available to GIB.
+\layout Subsubsection
+
+Assigning to Console Variables
+\layout Standard
+
+To assign to a console variable from GIB, simply use the 
+\family typewriter 
+set
+\family default 
+ console command with the name of the console variable as the first argument
+ and the value to assign as the second.
+ Example:
+\layout LyX-Code
+
+set fov 90.0
+\layout Subsubsection
+
+Embedding Console Variables
+\layout Standard
+
+To embed the value of a console variable in an argument, include the name
+ of the variable preceded by a dollar sign (
+\family typewriter 
+$
+\family default 
+).
+ This works only within normal arguments or parenthesis-enclosed arguments.
+ Examples:
+\layout LyX-Code
+
+echo The current field of vision is $fov degrees.
+\layout LyX-Code
+
+echo Zoom factor: (90.0/$fov)
+\layout Standard
+
+The name of the variable is considered to span from after the dollar sign
+ to before the first non-alphanumeric, non-underline character.
+ Example:
+\layout LyX-Code
+
+echo Your mouse sensitivity is currently $in_mouse_amp.
+\layout Standard
+
+The command above will result in the current mouse sensitivity being printed,
+ as 
+\family typewriter 
+in_mouse_amp
+\family default 
+ consists of only letters and underlines.
+ The period at the end of the sentence is not a number, letter, or underline,
+ and thus is not counted as part of the variable name, even though it is
+ part of the last argument.
+\layout Standard
+
+To use variables with unusual names, or to separate the name of a variable
+ from surrounding alphanumeric characters, enclose the name of the variable
+ in curly braces.
+ Examples:
+\layout LyX-Code
+
+echo /
+\backslash 
+/
+\backslash 
+/
+\backslash 
+ has the value ${/
+\backslash 
+/
+\backslash 
+/
+\backslash 
+}.
+\layout LyX-Code
+
+echo Fieldofvisionis${fov}degrees.Wheredidmyspacebargo?
+\layout Standard
+
+Variables that do not exist are considered to contain an empty string.
+\layout Subsection
+
+Standard Variables
+\begin_inset LatexCommand \label{sub:stdvars}
+
+\end_inset 
+
+
+\layout Standard
+
+As noted before, all non-console GIB variables are also arrays.
+ However, their array properties can be ignored for simplicity, in which
+ case the first element of an array is used for storing and retrieving a
+ value.
+\layout Subsubsection
+
+Assigning to Standard Variables
+\begin_inset LatexCommand \label{sub:assignstandard}
+
+\end_inset 
+
+
+\layout Standard
+
+To assign to a standard variable, begin a command with the name of the variable,
+ followed by at least one space and an equals (
+\family typewriter 
+=
+\family default 
+) sign, followed by any non-program-block argument.
+ Example:
+\layout LyX-Code
+
+foo = "bar"
+\layout Standard
+
+The above example will store 
+\begin_inset Quotes eld
+\end_inset 
+
+bar
+\begin_inset Quotes erd
+\end_inset 
+
+ in the variable 
+\family typewriter 
+foo
+\family default 
+.
+\layout Subsubsection
+
+Embedding Standard Variables
+\layout Standard
+
+Standard variables are embedded the same way as console variables: a dollar
+ sign, followed by the name of the variable or the name of the variable
+ in curly braces.
+ To display the stored value in the example in Section 
+\begin_inset LatexCommand \ref{sub:assignstandard}
+
+\end_inset 
+
+, simply do:
+\layout LyX-Code
+
+echo $foo
+\layout Subsection
+
+Arrays
+\layout Standard
+
+Arrays are simply an extension of standard variables.
+ They are divided into numbered elements beginning at 0.
+\layout Subsubsection
+
+Assigning to Arrays
+\layout Standard
+
+Assignment to arrays is the same as assignment to standard variables, except
+ that you specify the element of the array to which you wish to assign.
+ In fact, all standard variables 
+\emph on 
+are
+\emph default 
+ arrays.
+ When the element is not specified, it defaults to element 0.
+ All examples in section 
+\begin_inset LatexCommand \ref{sub:stdvars}
+
+\end_inset 
+
+ use element 0 of an array via this default behavior.
+ To specify a specific element, follow the name of the variable by the element
+ number enclosed in brackets (
+\family typewriter 
+[
+\family default 
+ and 
+\family typewriter 
+]
+\family default 
+).
+ Example:
+\layout LyX-Code
+
+foo[2] = "Hello!"
+\layout Standard
+
+It's possible--and useful--to assign to several elements of an array at
+ the same time.
+ To do this, simply include more than one argument after the equals sign.
+ All elements starting at the specified number will be assigned with their
+ respective argument.
+ Example:
+\layout LyX-Code
+
+foo[0] = "one" "two"
+\layout Standard
+
+This will assign 
+\begin_inset Quotes eld
+\end_inset 
+
+one
+\begin_inset Quotes erd
+\end_inset 
+
+ to the element 0 of 
+\family typewriter 
+foo
+\family default 
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+two
+\begin_inset Quotes erd
+\end_inset 
+
+ to element 1.
+ If you specify no arguments after the equals sign, all elements beginning
+ at the specified number are simply removed.
+ If this is element 0, the variable becomes a zero-size array, which is
+ important in embedding and expansion.
+\layout Subsubsection
+
+Embedding Arrays
+\layout Standard
+
+As with assignment, you need only specify the element number in brackets
+ after the name of a variable to use that specific element.
+ Example:
+\layout LyX-Code
+
+echo $foo[2]
+\layout Standard
+
+If you wish to enclose the name of the variable in curly braces, the brackets
+ and element number must fall inside the braces:
+\layout LyX-Code
+
+echo ${foo[2]}
+\layout Standard
+
+Instead of a dollar sign, you may use a number symbol (
+\family typewriter 
+#
+\family default 
+).
+ In this case, the size of the array will be embedded in the argument rather
+ than its value.
+ Variables that have never been used are considered to have a size of zero.
+ If you specify an element, the size of the array minus the specified number
+ will be used.
+ Example:
+\layout LyX-Code
+
+foo = "one" "two" "three"
+\layout LyX-Code
+
+echo #foo    // Prints: 3
+\layout LyX-Code
+
+echo #foo[1] // Prints: 2
+\layout Subsubsection
+
+Expanding Arrays
+\layout Standard
+
+A very useful feature of arrays is the ability to expand them into multiple
+ arguments.
+ If a normal argument begins with an at symbol (
+\family typewriter 
+@
+\family default 
+), the rest of the argument will be treated as the name of an array.
+ The argument will be removed and replaced by a single argument for each
+ element of the array.
+ Consider the following program:
+\layout LyX-Code
+
+array = one two three
+\layout LyX-Code
+
+echo @array
+\layout Standard
+
+This prints the exact same thing as:
+\layout LyX-Code
+
+echo one two three
+\layout Standard
+
+It's possible to specify a range of elements to use instead of the entire
+ array.
+ To do this, follow the name of the array with an opening bracket, the number
+ of the first element to use, a colon (:), one plus the number of the last
+ element to use, and a closing bracket.
+ Example:
+\layout LyX-Code
+
+array = one two three four
+\layout LyX-Code
+
+echo @array[1:3] // Prints: two three
+\layout LyX-Code
+
+\layout Standard
+\line_top \line_bottom 
+
+\series bold 
+Note
+\series default 
+: 
+\emph on 
+To understand why you add one to the second number, envision each element
+ of the array as a different pile of groceries on a store checkout belt.
+ Between each pile sits a plastic separator.
+ The numbers in the brackets represent the numbers of the separators.
+ To specify the second and third piles of groceries, you would pick all
+ the piles between the first separator and the third separator.
+ If bad analogies don't suit you, simply remember to specify one more than
+ the last element that you want.
+\layout Standard
+
+Negative numbers count backward from the end of the array.
+ For instance, using -1 for the second number will include everything except
+ the very last element of the array.
+ To specify the very end of the array, omit the second number.
+ Examples:
+\layout LyX-Code
+
+array = one two three four
+\layout LyX-Code
+
+echo @array[1:-1] // Prints: two three
+\layout LyX-Code
+
+echo @array[2:]   // Prints: three four
+\layout LyX-Code
+
+echo @array[-1:]  // Prints: four
+\layout Standard
+
+If the selected range does not make sense (i.e.
+ the starting element comes after the ending element), or begins past the
+ end of the array, no arguments will be added.
+ If the range begins within the array but extends beyond its size, it will
+ be clipped to the end of the array.
+\layout Subsection
+
+Hashes
+\layout Standard
+
+Every element in a GIB array is capable of containing a hash.
+ A hash is an unordered list of names, called 
+\emph on 
+keys
+\emph default 
+, that can be used to access more arrays.
+ Another way to think about it is that each element of an array can have
+ its own set of variables.
+\layout Subsubsection
+
+Assigning to Hashes
+\layout Standard
+
+Assignment to a hash is very similar to normal assignment, except that you
+ must specify an additional name (called the key) and optional element number.
+ The element that contains the hash is called the 
+\emph on 
+stem
+\emph default 
+, and the array stored in the hash is called the 
+\emph on 
+leaf
+\emph default 
+.
+ The stem and leaf are separated by a single period.
+ Examples:
+\layout LyX-Code
+
+foo.bar = "Hello"
+\layout LyX-Code
+
+foo[2].bar = "World"
+\layout LyX-Code
+
+foo[3].bar[2] = "!!"
+\layout LyX-Code
+
+foo.bar.baz = "There is no limit to the depth of hashes"
+\layout Standard
+
+As the last example shows, the elements of the arrays stored in a hash can
+ have their 
+\emph on 
+own
+\emph default 
+ hashes.
+ The depth of GIB variables is limited only by system memory.
+\layout Subsubsection
+
+Embedding Hashes
+\layout Standard
+
+As with assignment, embedding hashes uses the same format as embedding standard
+ variables.
+ However, you 
+\emph on 
+must
+\emph default 
+ use curly braces or the periods between stems and leaves will not be treated
+ as part of the variable.
+ Examples:
+\layout LyX-Code
+
+echo ${foo.bar}
+\layout LyX-Code
+
+echo ${foo[2].bar}
+\layout LyX-Code
+
+echo ${foo[3].bar[2]}
+\layout LyX-Code
+
+echo ${foo.bar.baz}
+\layout Subsubsection
+
+Expanding Hashes
+\layout Standard
+
+If an array element contains a hash, it's possible to acquire a list of
+ all the keys it contains.
+ If a normal argument begins with a percent symbol (
+\family typewriter 
+%
+\family default 
+), the rest of the argument will be treated as the name of a variable and
+ optional element number.
+ The argument will be removed, and one argument will be added in its place
+ for each key in the hash.
+ Example:
+\layout LyX-Code
+
+foo.one = "a"
+\layout LyX-Code
+
+foo.two = "b"
+\layout LyX-Code
+
+foo.three = "c"
+\layout LyX-Code
+
+echo %foo // Prints in any order: one two three
+\layout Standard
+
+If the hash is unused or contains no keys, no arguments will be added.
+ Note that the order of keys in the resulting list is unpredictable.
+\layout Subsection
+
+Dynamic Variables
+\layout Standard
+
+Many of the features of variables would be absolutely useless without the
+ ability to assign, embed, or expand variables differently depending on
+ circumstances when the program is run.
+ For instance, arrays would not be very flexible if you couldn't calculate
+ the element number you wish to access while the program is running.
+ Luckily, GIB allows you to use values of other variables to construct the
+ name a variable before accessing it.
+\layout Subsubsection
+
+Assigning Dynamically
+\layout Standard
+
+To assign dynamically, simply embed other variables as you would in any
+ other argument.
+ For instance, you could assign to an element of an array as follows:
+\layout LyX-Code
+
+number = 2
+\layout LyX-Code
+
+foo[$number] = "bar"
+\layout Standard
+
+Variable leaves can be assigned to in the same way:
+\layout LyX-Code
+
+leaf = "bar"
+\layout LyX-Code
+
+foo.$leaf.message = "This variable was assigned to dynamically."
+\layout Standard
+
+Deciding element numbers or leaves while the script is running is the chief
+ use of this ability, but you can dynamically construct a variable name
+ any way you wish:
+\layout LyX-Code
+
+array = "in" "mouse" "amp"
+\layout LyX-Code
+
+echo Setting sensitivity to 10...
+\layout LyX-Code
+
+set ${array[0]}_${array[1]}_${array[2]} 10
+\layout Standard
+
+This may prove useful under certain circumstances, even though the example
+ given isn't one of them.
+\layout Subsubsection
+
+Embedding Dynamically
+\layout Standard
+
+Embedding dynamically follows a similar pattern.
+ Within the name of an embedded variable you may embed other variables.
+ Example:
+\layout LyX-Code
+
+number = 3
+\layout LyX-Code
+
+foo[$number] = "bar"
+\layout LyX-Code
+
+echo Element $number of foo is equal to $foo[$number]
+\layout Standard
+
+This works for leaves as well:
+\layout LyX-Code
+
+leaf = "bar"
+\layout LyX-Code
+
+foo.$leaf = "Hello"
+\layout LyX-Code
+
+echo ${foo.$leaf} // Prints: Hello
+\layout Standard
+
+Remember that in most circumstances, you must surround the entire variable
+ name with braces.
+ The only case where you don't have to is when embedding a variable as an
+ element number, as in the first example.
+\layout Subsubsection
+
+Expanding Dynamically
+\layout Standard
+
+Dynamic expansion is as simple as dynamic assignment.
+ You can embed variables in an argument beginning with @ or % as you would
+ with any other argument.
+ Example:
+\layout LyX-Code
+
+array = one two three four
+\layout LyX-Code
+
+start = 1
+\layout LyX-Code
+
+end = 3
+\layout LyX-Code
+
+echo @array[$start:$end] // Prints: two three
+\layout Subsection
+
+Variable Scope
+\layout Comment
+
+FIXME: add this section!
+\layout Subsubsection
+
+Locals
+\layout Subsubsection
+
+Globals
+\layout Subsubsection
+
+Domains
+\layout Section
+\pagebreak_top 
+Flow Control
+\layout Standard
+
+Flow control refers to controlling the order in which commands are executed
+ -- or if they are executed at all -- in your GIB script.
+ GIB currently offers two ways to control program flow:
+\layout Description
+
+Conditionals execute a command or group of commands if a certain condition
+ is met
+\layout Description
+
+Loops execute a command or group of commands multiple times while a certain
+ condition is met.
+\layout Subsection
+
+Conditionals
+\layout Subsubsection
+
+
+\family typewriter 
+if
+\family default 
+ and 
+\family typewriter 
+ifnot
+\layout Standard
+
+The 
+\family typewriter 
+if
+\family default 
+ structure will execute a group of commands when a condition is 
+\begin_inset Quotes eld
+\end_inset 
+
+true.
+\begin_inset Quotes erd
+\end_inset 
+
+ An optional 
+\family typewriter 
+else
+\family default 
+ structure may follow, which contains a group of commands to be executed
+ if the condition is 
+\begin_inset Quotes eld
+\end_inset 
+
+false
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ When 
+\family typewriter 
+ifnot
+\family default 
+ is used, the condition is reversed.
+ The syntax for 
+\family typewriter 
+if
+\family default 
+ and 
+\family typewriter 
+ifnot
+\family default 
+ is as follows:
+\layout LyX-Code
+
+
+\family sans 
+if
+\family default 
+ condition block1 [
+\family sans 
+else
+\family default 
+ block2]
+\layout Standard
+
+Explanations of what each part means follow:
+\layout Description
+
+condition may be any type of argument that is not a program block.
+ Its value will be treated as a number; 0 will be deemed 
+\begin_inset Quotes eld
+\end_inset 
+
+false
+\begin_inset Quotes erd
+\end_inset 
+
+ and all other numbers will be deemed 
+\begin_inset Quotes eld
+\end_inset 
+
+true.
+\begin_inset Quotes erd
+\end_inset 
+
+ If the value does not appear to be a number, it will be considered false.
+ When 
+\family typewriter 
+ifnot
+\family default 
+ is used instead of 
+\family typewriter 
+if
+\family default 
+, true and false are reversed.
+\layout Description
+
+block1 must be a program block argument.
+ If 
+\family typewriter 
+condition
+\family default 
+ was considered to be true, the commands in the block will be executed.
+\layout Description
+
+else may optionally follow 
+\family typewriter 
+block1
+\family default 
+, in which case 
+\family typewriter 
+block2
+\family default 
+ must also be provided.
+\layout Description
+
+block2 can be either a command or a single program block.
+ If 
+\family typewriter 
+condition
+\family default 
+ was false and 
+\family typewriter 
+block2
+\family default 
+ was provided, it will be executed instead of 
+\family typewriter 
+block1
+\family default 
+.
+\layout Standard
+
+The simplest form of 
+\family typewriter 
+if
+\family default 
+ is shown in Figure 
+\begin_inset LatexCommand \vref{cap:if-simple}
+
+\end_inset 
+
+.
+ Because the number 1 is non-zero and thus considered true, the program
+ block will be executed and text will be printed.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{if-simple.gib}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Output:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{if-simple.gib.out}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+Simple 
+\family typewriter 
+if
+\family default 
+ structure
+\begin_inset LatexCommand \label{cap:if-simple}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \vref{cap:if-else}
+
+\end_inset 
+
+ is similar to Figure 
+\begin_inset LatexCommand \ref{cap:if-simple}
+
+\end_inset 
+
+, but includes an 
+\family typewriter 
+else
+\family default 
+ structure.
+ The condition argument is false, and thus the second program block is executed.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{if-else.gib}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Output:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{if-else.gib.out}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+
+\family typewriter 
+if/else
+\family default 
+ structure
+\begin_inset LatexCommand \label{cap:if-else}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Besides a program block, a simple command may follow 
+\family typewriter 
+else
+\family default 
+, including another 
+\family typewriter 
+if
+\family default 
+ structure.
+ This allows 
+\family typewriter 
+if
+\family default 
+ structures to be chained together.
+ The first structure that is true will be the one executed, as shown by
+ Figure 
+\begin_inset LatexCommand \ref{cap:if-chain}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{if-chain.gib}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Output:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{if-chain.gib.out}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+Chained 
+\family typewriter 
+if
+\family default 
+ structures
+\begin_inset LatexCommand \label{cap:if-chain}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Remember that 
+\family typewriter 
+ifnot
+\family default 
+ may always be used in place of 
+\family typewriter 
+if
+\family default 
+ to reverse 
+\family typewriter 
+condition
+\family default 
+.
+\layout Subsection
+
+Loops
+\layout Subsubsection
+
+
+\family typewriter 
+while
+\layout Standard
+
+The 
+\family typewriter 
+while
+\family default 
+ structure is very similar to a basic 
+\family typewriter 
+if
+\family default 
+ structure, except that the program block is continuously executed as long
+ as the condition argument is 
+\begin_inset Quotes eld
+\end_inset 
+
+true.
+\begin_inset Quotes erd
+\end_inset 
+
+ The formal syntax is:
+\layout LyX-Code
+
+
+\family sans 
+while
+\family default 
+ condition block
+\layout Description
+
+condition is the same as 
+\family typewriter 
+condition
+\family default 
+ in an 
+\family typewriter 
+if
+\family default 
+ structure; all non-zero numbers are 
+\begin_inset Quotes eld
+\end_inset 
+
+true,
+\begin_inset Quotes erd
+\end_inset 
+
+ anything else is false.
+ If condition is true, block will be executed.
+\layout Description
+
+block must be a program block argument.
+ If 
+\family typewriter 
+condition
+\family default 
+ is true, it will be executed.
+ After it has been executed, 
+\family typewriter 
+condition
+\family default 
+ will be checked again.
+ As long as 
+\family typewriter 
+condition
+\family default 
+ is true, 
+\family typewriter 
+block
+\family default 
+ will be continually executed.
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \vref{cap:while}
+
+\end_inset 
+
+ shows an example 
+\family typewriter 
+while
+\family default 
+ loop and its output.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{while.gib}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Output:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{while.gib.out}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+Example 
+\family typewriter 
+while
+\family default 
+ loop.
+\begin_inset LatexCommand \label{cap:while}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection
+
+
+\family typewriter 
+for
+\layout Standard
+
+The for loop executes a program block once for every argument in a list.
+ Each execution, a variable will be set to the value of the current argument.
+ Syntax:
+\layout LyX-Code
+
+
+\family sans 
+for
+\family default 
+ variable 
+\family sans 
+in
+\family default 
+ list block
+\layout Description
+
+variable is the variable that will be set to the value of the current argument
+ each time the program block is executed.
+\layout Description
+
+in is a simple placeholder between 
+\family typewriter 
+variable
+\family default 
+ and 
+\family typewriter 
+list
+\family default 
+.
+ It emphasizes the fact that 
+\emph on 
+for
+\emph default 
+ each argument 
+\emph on 
+in
+\emph default 
+ the list, the program block will be executed.
+\layout Description
+
+list can be any number of arguments, including expansions.
+\layout Description
+
+block must be the last argument to 
+\family typewriter 
+for
+\family default 
+, and it must be a program block.
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \vref{cap:for}
+
+\end_inset 
+
+ shows an example 
+\family typewriter 
+for
+\family default 
+ loop and its output.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{for.gib}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Output:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{for.gib.out}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+Example 
+\family typewriter 
+for
+\family default 
+ loop
+\begin_inset LatexCommand \label{cap:for}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Additional Loop Functions: 
+\family typewriter 
+break
+\family default 
+ and 
+\family typewriter 
+continue
+\layout Standard
+
+Two functions are available to control the behavior of loops during execution
+ of their program blocks:
+\layout Description
+
+break immediately ends the program block and leaves the loop.
+\layout Description
+
+continue returns to the top of the loop.
+ This means that 
+\family typewriter 
+while
+\family default 
+ loops check their condition argument again and 
+\family typewriter 
+for
+\family default 
+ loops move to the next argument in the list.
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \vref{cap:break}
+
+\end_inset 
+
+ shows an example use of 
+\family typewriter 
+break
+\family default 
+ and its output, while Figure 
+\begin_inset LatexCommand \ref{cap:continue}
+
+\end_inset 
+
+ shows an example use of 
+\family typewriter 
+continue
+\family default 
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{break.gib}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Output:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{break.gib.out}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+Example use of 
+\family typewriter 
+break
+\begin_inset LatexCommand \label{cap:break}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout LyX-Code
+\line_top \line_bottom 
+
+\begin_inset Include \verbatiminput{continue.gib}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+Output:
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{continue.gib.out}
+preview false
+
+\end_inset 
+
+
+\layout Caption
+
+Example use of 
+\family typewriter 
+continue
+\begin_inset LatexCommand \label{cap:continue}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+\pagebreak_top 
+Functions
+\layout Subsection
+
+Types and Concepts
+\layout Subsection
+
+Defining Functions
+\layout Subsection
+
+Accessing Arguments
+\layout Subsection
+
+Return Values
+\layout Subsubsection
+
+Returning Values from Functions
+\layout Subsubsection
+
+Embedding Return Values
+\layout Subsubsection
+
+Expanding Return Values
+\the_end

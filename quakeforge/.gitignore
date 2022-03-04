@@ -1,0 +1,465 @@
+*.exe
+*.swp
+*.la
+*.lo
+*.obj
+*.a
+*.o
+*.output
+*.slc
+*.dat
+*.sym
+*~
+__pycache__/
+autom4te.cache/
+.deps/
+.libs/
+.vimrc
+.dirstamp
+ChangeLog
+Makefile
+Makefile.in
+core
+
+# /
+/.version
+/aclocal.m4
+/build-stamp
+/changelog-stamp
+/compile
+/config.cache
+/config.guess
+/config.log
+/config.status
+/config.sub
+/configure
+/configure-stamp
+/depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/missing
+/mkinstalldirs
+/py-compile
+/quakeforge-config
+/quakeforge.lsm
+/test-driver
+/ylwrap
+
+# /RPM/
+/RPM/build_rpm
+/RPM/quakeforge.conf
+/RPM/quakeforge.spec
+
+# /debian/
+/debian/*.debhelper
+/debian/debhelper.log
+/debian/*.debhelper.log
+/debian/*.substvars
+/debian/files
+/debian/qfcc
+/debian/quakeforge
+/debian/quakeforge-alsa
+/debian/quakeforge-common
+/debian/quakeforge-common.conffiles
+/debian/quakeforge-dev
+/debian/quakeforge-glx
+/debian/quakeforge-jack
+/debian/quakeforge-libs-gl
+/debian/quakeforge-libs-sw
+/debian/quakeforge-maptools
+/debian/quakeforge-oss
+/debian/quakeforge-sdl
+/debian/quakeforge-servers
+/debian/quakeforge-sgl
+/debian/quakeforge-stub
+/debian/quakeforge-svga
+/debian/quakeforge-utils
+/debian/quakeforge-x11
+/debian/tmp
+
+# /doc/
+/doc/doxygen
+/doc/install-sh
+/doc/man
+/doc/missing
+/doc/progs/vm-mem.eps
+/doc/progs/vm-mem.png
+/doc/progs/vm-mem.svg
+/doc/qtv/qwtv.eps
+/doc/qtv/qwtv.png
+/doc/qtv/qwtv.svg
+/doc/quakeforge.dox.conf
+/doc/texinfo
+/doc/stamp-*
+/doc/aclocal.m4
+/doc/config.h
+/doc/config.h.in
+/doc/config.log
+/doc/config.status
+/doc/configure
+
+# /doc/man/
+
+# /hw/
+
+# /hw/include/
+
+# /hw/source/
+/hw/source/*.a
+/hw/source/*.d
+/hw/source/*.i
+/hw/source/*.s
+/hw-master
+
+# /include/
+/include/config.h.in
+/include/config.h
+/include/stamp-*
+
+# /include/QF/
+
+# /include/QF/GL/
+
+# /include/QF/classes/
+
+# /include/QF/plugin/
+
+# /libs/
+
+# /libs/audio/
+
+# /libs/audio/test/
+/libs/audio/test/testsound
+
+# /libs/audio/cd/
+
+# /libs/audio/renderer/
+
+# /libs/audio/targets/
+
+# /libs/console/
+
+# /libs/gamecode/
+
+# /libs/gamecode/builtins/
+
+# /libs/gamecode/engine/
+
+# /libs/gib/
+
+# /libs/image/
+
+# /libs/models/
+
+# /libs/models/test/
+/libs/models/test/testclip
+/libs/models/test/testcontents
+/libs/models/test/testportals
+
+# /libs/models/alias/
+
+# /libs/models/brush/
+
+# /libs/models/sprite/
+
+# /libs/net/
+
+# /libs/net/nc/
+
+# /libs/net/nm/
+
+# /libs/object/
+
+# /libs/qw/
+/libs/qw/*.a
+
+# /libs/ruamoko/
+
+# /libs/util/
+
+# /libs/util/test
+/libs/util/test/test-qfs
+/libs/util/test/test-quat
+
+# /libs/video/
+
+# /libs/video/renderer/
+/libs/video/renderer/fbset_modes_y.[ch]
+/libs/video/renderer/fbset_modes_l.c
+
+# /libs/video/renderer/gl/
+/libs/video/renderer/gl/fbset_modes_y.[ch]
+/libs/video/renderer/gl/fbset_modes_l.c
+
+# /libs/video/renderer/glsl/
+/libs/video/renderer/glsl/*.fc
+/libs/video/renderer/glsl/*.vc
+
+# /libs/video/renderer/sw/
+/libs/video/renderer/sw/fbset_modes_y.[ch]
+/libs/video/renderer/sw/fbset_modes_l.c
+
+# /libs/video/renderer/sw32/
+
+# /libs/video/targets/
+/libs/video/targets/fbset_modes_y.[ch]
+/libs/video/targets/fbset_modes_l.c
+
+# /m4/
+/m4/libtool.m4
+/m4/ltoptions.m4
+/m4/ltsugar.m4
+/m4/ltversion.m4
+/m4/lt~obsolete.m4
+
+# /nq/
+
+# /nq/include/
+/nq/include/config.h
+/nq/include/config.h.in
+/nq/include/stamp-h
+
+# /nq/source/
+/nq/source/*.d
+/nq/source/fbset_modes_l.c
+/nq/source/fbset_modes_y.c
+/nq/source/fbset_modes_y.h
+/nq-sdl
+/nq-x11
+/nq-server
+
+# /pkg-config/
+/pkg-config/*.pc
+
+# /qtv/
+
+# /qtv/include/
+/qtv/include/config.h.in
+/qtv/include/stamp-h.in
+/qtv/include/stamp-h
+/qtv/include/config.h
+
+# /qtv/source/
+/qtv/source/*.d
+/qtv/source/*.i
+/qtv/source/*.s
+/qtv-server
+
+# /qw/
+
+# /qw/include/
+/qw/include/config.h.in
+/qw/include/stamp-h.in
+/qw/include/stamp-h
+/qw/include/config.h
+
+# /qw/source/
+/qw/source/*.d
+/qw/source/*.i
+/qw/source/*.s
+/qw/source/fbset_modes_l.c
+/qw/source/fbset_modes_y.c
+/qw/source/fbset_modes_y.h
+/qw-client-sdl
+/qw-client-x11
+/qw-master
+/qw-server
+
+# /ruamoko/
+/ruamoko/*.d
+/ruamoko/*.dat
+/ruamoko/*.qfo
+/ruamoko/*.sym
+/ruamoko/Doxyfile
+/ruamoko/doxygen/
+/ruamoko/qwaq/qwaq-curses
+/ruamoko/qwaq/qwaq-x11
+
+
+# /ruamoko/cl_menu/
+/ruamoko/cl_menu/*.dat
+/ruamoko/cl_menu/*.gz
+/ruamoko/cl_menu/*.qfo
+/ruamoko/cl_menu/*.src
+/ruamoko/cl_menu/*.sym
+
+# /ruamoko/game/
+/ruamoko/game/*.d
+/ruamoko/game/*.dat
+/ruamoko/game/*.dat.gz
+/ruamoko/game/*.qfo
+/ruamoko/game/*.sym
+/ruamoko/game/*.sym.gz
+
+# /ruamoko/gui/
+/ruamoko/gui/*.d
+/ruamoko/gui/*.dat
+/ruamoko/gui/*.pak
+/ruamoko/gui/*.qfo
+/ruamoko/gui/*.sym
+
+# /ruamoko/include/
+/ruamoko/include/*.d
+/ruamoko/include/*.dat
+/ruamoko/include/*.qfo
+/ruamoko/include/*.sym
+
+# /ruamoko/lib/
+/ruamoko/lib/*.d
+/ruamoko/lib/*.dat
+/ruamoko/lib/*.pak
+/ruamoko/lib/*.qfo
+/ruamoko/lib/*.sym
+
+# /ruamoko/scheme/
+/ruamoko/scheme/*.dat
+/ruamoko/scheme/*.gz
+/ruamoko/scheme/*.qfo
+/ruamoko/scheme/*.src
+/ruamoko/scheme/*.sym
+
+# /tools/
+
+# /tools/Forge/
+/tools/Forge/Forge.app
+/tools/Forge/Forge.debug
+/tools/Forge/Forge.profile
+/tools/Forge/*_obj
+
+# /tools/Forge/Bundles/MainPrefs/
+/tools/Forge/Bundles/MainPrefs/shared_debug_obj
+/tools/Forge/Bundles/MainPrefs/shared_obj
+/tools/Forge/Bundles/MainPrefs/shared_profile_debug_obj
+/tools/Forge/Bundles/MainPrefs/shared_profile_obj
+/tools/Forge/Bundles/MainPrefs/obj
+/tools/Forge/Bundles/MainPrefs/*.forgeb
+
+# /tools/Forge/Bundles/MapEdit/
+/tools/Forge/Bundles/MapEdit/shared_debug_obj
+/tools/Forge/Bundles/MapEdit/shared_obj
+/tools/Forge/Bundles/MapEdit/shared_profile_debug_obj
+/tools/Forge/Bundles/MapEdit/shared_profile_obj
+/tools/Forge/Bundles/MapEdit/obj
+/tools/Forge/Bundles/MapEdit/gmon.out
+/tools/Forge/Bundles/MapEdit/*.forgeb
+/tools/Forge/Bundles/MapEdit/*.app
+
+# /tools/bsp2img/
+/bsp2img
+
+# /tools/carne/
+/carne
+
+# /tools/cross/
+/tools/cross/binutils-i386-mingw32msvc
+/tools/cross/gcc-i386-mingw32msvc
+/tools/cross/source
+
+# /tools/gas2masm/
+/tools/gas2masm/gas2masm
+! /tools/gas2masm/Makefile
+
+# /tools/gl_stub/
+/tools/gl_stub/*.so
+
+# /tools/pak/
+/tools/pak/*.d
+/pak
+
+# /tools/qfbsp/
+
+# /tools/qfbsp/include/
+
+# /tools/qfbsp/source/
+/qfbsp
+
+# /tools/qfcc/
+/tools/qfcc/aclocal.m4
+/tools/qfcc/confdefs.h
+/tools/qfcc/configure
+/tools/qfcc/config.log
+/tools/qfcc/config.cache
+/tools/qfcc/config.status
+/tools/qfcc/qfcc.lsm
+
+# /tools/qfcc/doc/
+/tools/qfcc/doc/*.dvi
+/tools/qfcc/doc/*.pdf
+
+# /tools/qfcc/doc/man/
+
+# /tools/qfcc/include/
+/tools/qfcc/include/config.h.in
+/tools/qfcc/include/config.h
+/tools/qfcc/include/stamp-*
+
+# /tools/qfcc/source/
+/tools/qfcc/source/qc-lex.c
+/tools/qfcc/source/qc-parse.c
+/tools/qfcc/source/qc-parse.h
+/qfcc
+/qfprogs
+/tools/qfcc/source/qp-lex.c
+/tools/qfcc/source/qp-parse.c
+/tools/qfcc/source/qp-parse.h
+
+# /tools/qfcc/test/
+/tools/qfcc/test/*.dat
+/tools/qfcc/test/*.sym
+
+# /tools/qflight/
+
+# /tools/qflight/include/
+
+# /tools/qflight/source/
+/qflight
+
+# /tools/qflmp/
+/qflmp
+
+# /tools/qfmodelgen/
+
+# /tools/qfmodelgen/include/
+
+# /tools/qfmodelgen/source/
+/qfmodelgen
+
+# /tools/qfspritegen/qfspritegen
+/qfspritegen
+
+# /tools/qfvis/
+
+# /tools/qfvis/include/
+
+# /tools/qfvis/source/
+/qfvis
+
+# /tools/quaketoascii/
+/tools/quaketoascii/quaketoascii
+! /tools/quaketoascii/Makefile
+
+# /tools/qwaq/
+/tools/qwaq/*.dat
+/tools/qwaq/*.src
+/tools/qwaq/*.sym
+/tools/qwaq/qwaq
+/tools/qwaq/qwaq-x11
+
+# /tools/texpaint/
+/tools/texpaint/aclocal.m4
+/tools/texpaint/autom4te.cache
+/tools/texpaint/config.h
+/tools/texpaint/config.log
+/tools/texpaint/config.status
+/tools/texpaint/configure
+/tools/texpaint/stamp-h1
+/tools/texpaint/texturepaint
+
+# /tools/wad/
+/tools/wad/*.d
+/wad
+
+# /tools/wav/
+/tools/wav/*.d
+/qfwavinfo

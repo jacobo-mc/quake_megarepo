@@ -1,0 +1,84 @@
+//unfortunately, have to wrap the docs in a C comment for doxygen
+// vim:tw=74:formatoptions-=l
+/**
+\page server_timestamps Server Log Timestamps
+
+To enable time-stamped messages in the server, set the Cvar sv_timestamps to a
+value other than 0. When enabled, the string Cvar sv_timefmt is used to format
+the date and time.
+
+The following special codes are interpreted inside sv_timefmt strings.
+
+<dl>
+	<dt>\%a</dt>	<dd>The abbreviated weekday name according to the current
+					locale.</dd>
+
+	<dt>\%A</dt>	<dd>The full weekday name according to the current
+					locale.</dd>
+
+	<dt>\%b</dt>	<dd>The abbreviated month name according to the current
+					locale.</dd>
+
+	<dt>\%B</dt>	<dd>The full month name according to the current
+					locale.</dd>
+
+	<dt>\%c</dt>	<dd>The preferred date and time representation for the
+					current locale.</dd>
+
+	<dt>\%d</dt>	<dd>The day of the month as a decimal number (range 01
+					to 31).</dd>
+
+	<dt>\%h</dt>	<dd>Equivalent to %b. (SU)</dd>
+
+	<dt>\%H</dt>	<dd>The hour as a decimal number using a 24-hour clock
+					(range 00 to 23).</dd>
+
+	<dt>\%I</dt>	<dd>The hour as a decimal number using a 12-hour clock
+					(range 01 to 12).</dd>
+
+	<dt>\%j</dt>	<dd>The day of the year as a decimal number (range 001
+					to 366).</dd>
+
+	<dt>\%k</dt>	<dd>The hour (24-hour clock) as a decimal number (range
+					0 to 23); single digits are preceded by a blank.
+					(See also %H.) (TZ)</dd>
+
+	<dt>\%m</dt>	<dd>The month as a decimal number (range 01 to 12).</dd>
+
+	<dt>\%M</dt>	<dd>The minute as a decimal number (range 00 to 59).</dd>
+
+	<dt>\%p</dt>	<dd>Either `AM' or `PM' according to the given time
+					value, or the corresponding strings for the current
+					locale. Noon is treated as `pm' and midnight as
+					`am'.</dd>
+
+	<dt>\%S</dt>	<dd>The second as a decimal number (range 00 to 61).</dd>
+
+	<dt>\%U</dt>	<dd>The week number of the current year as a decimal
+					number, range 00 to 53, starting with the first
+					Sunday as the first day of week 01. See also %V and
+					%W.</dd>
+
+	<dt>\%w</dt>	<dd>The day of the week as a decimal, range 0 to 6,
+					Sunday being 0. See also %u.</dd>
+
+	<dt>\%W</dt>	<dd>The week number of the current year as a decimal
+					number, range 00 to 53, starting with the first
+					Monday as the first day of week 01.</dd>
+
+	<dt>\%x</dt>	<dd>The preferred date representation for the current
+					locale without the time.</dd>
+
+	<dt>\%X</dt>	<dd>The preferred time representation for the current
+					locale without the date.</dd>
+
+	<dt>\%y</dt>	<dd>The year as a decimal number without a century
+					(range 00 to 99).</dd>
+
+	<dt>\%Y</dt>	<dd>The year as a decimal number including the century.</dd>
+
+	<dt>\%Z</dt>	<dd>The time zone name or abbreviation.</dd>
+
+	<dt>\%\%</dt>	<dd>A literal `\%' character.</dd>
+</dl>
+*/

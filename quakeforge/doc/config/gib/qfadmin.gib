@@ -1,0 +1,493 @@
+// QFAdmin for QuakeForge 0.5.3+
+// Copyright (C) 2003 Harry Roberts
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//
+// See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to:
+//
+//	Free Software Foundation, Inc.
+//	59 Temple Place - Suite 330
+//	Boston, MA  02111-1307, USA
+
+// Installing:
+//   Put qfadmin.gib in your server's gamedir (or id1 to be globally available)
+//   and put "exec qfadmin.gib" in your server.cfg.
+
+// Configuring:
+//   All qfamdin configuration is done via the "qfadmin" command.
+//
+//   qfadmin sub-commands:
+//      help		- Show list of commands & brief description
+//
+//	enable <name>	- Enable a !function
+//	disable <name>	- Disable a !function
+//
+//	set <name> <value> - Manually set a configuration value
+//	unset <name>	- Manually unset a configuration value
+//	value <name>	- Show a configuration value
+//
+//	maps [map1 ...]	- Show/set the list of maps available for voting
+//	maplist <file>	- Load the maplist from a file
+//	motd [yes/no]	- Show the motd upon connect?
+//	motdfile <file>	- File containing the motd
+//
+//   qfadmin configuration values:	
+//      cheater.action	- What do do when somebody is !cheater'd out (kick or ban)
+//			  If an action is unknown (e.g. no kick/ban) it will default to kick
+//      cheater.bantime - How long they should be banned for (if action is ban)
+
+// Notes about the motd file:
+//   Special tokens can be embedded in the motd file which are replaced when sent to the client
+//	#players#	- Current number of players connected to the server
+//	#deathmatch#	- Current deathmatch mode
+
+// Sample Configuration:
+//   This example is taken from my server.cfg
+//
+//   exec qfadmin.gib
+//   qfadmin maps dm1 dm3 dm5 dm2
+//   qfadmin set cheater.action ban
+//   qfadmin set cheater.bantime 20
+//   qfadmin motd yes
+//   qfadmin motdfile welcome.txt
+
+// User commands:
+//   All these commands are used by saying !commandname as a regular user.
+//   Team talk is ignored.
+//
+//   !version		- Show the QFAdmin version running
+//   !cheater <id>	- Vote to kick/ban somebody
+//   !map <name>	- Vote to change map
+//   !maps		- Show a list of maps
+
+domain qfadmin
+
+global uservote cmds mapvote config
+//global cvsheader = "$Id$"
+global qfadminversion = "1.17"
+
+// QFAdmin console interface
+function qfadmin {
+	local cmd tmp
+
+	cmd = $args[1]
+
+	// Set a configuration value
+	if $(equal $cmd "set") {
+		tmp = $args[2]
+		config.$tmp = $args[3]
+
+	// Unset a configuration value
+	} else if $(equal $cmd "unset") {
+		tmp = $args[2]
+
+		ifnot $(length $config.tmp) {
+			echo "QFAdmin: value not set"
+			return
+		}
+
+		delete config.${tmp}
+
+	// Echo a configuration value
+	} else if $(equal $cmd "value") {
+		tmp = $args[2]
+
+		ifnot $(length ${config.$tmp}) {
+			echo "QFAdmin: value not set"
+			return
+		}
+
+		echo "QFAdmin: value of ", $tmp, " is \"", ${config.$tmp}, "\""
+
+	// Enable a command
+	} else if $(equal $cmd "enable") {
+		tmp = $args[2]
+
+		ifnot #cmd.$tmp {
+			echo "QFAdmin: command ", $tmp, " doesnt exist"
+			return
+		}
+
+		config.disable.${tmp} = "yes"
+
+	// Disable a command
+	} else if $(equal $cmd "disable") {
+		tmp = $args[2]
+
+		ifnot #cmd.$tmp {
+			echo "QFAdmin: command ", $tmp, " doesnt exist"
+			return
+		}
+
+		delete config.disable.$tmp
+
+	// View the list of voteable maps
+	} else if $(equal $cmd "maps") {
+		if (#args == 2) {
+			ifnot #config.maps {
+				echo "QFAdmin: no maps available"
+				return
+			}
+
+			echo "QFAdmin: maps available are" @config.maps
+			return
+		}
+
+		config.maps = @args[2:]
+
+	// Load a list of maps from a file
+	}  else if $(equal $cmd "maplist") {
+//		local line tmplist
+
+		if (#args == 2) {
+			echo "QFAdmin: must specify file to load maplist from"
+			return
+		}
+
+//		tmp = $args[2]
+
+//		for line in $(split $(file::read $tmp) "\n") {
+//			tmplist = $tmplist, " ", $line
+//		}
+
+//		config.maps = @tmplist
+		config.maps = $(split $(file::read $args[2]) "\n")
+
+	} else if $(equal $cmd "motd") {
+		if (#args == 2) {
+			ifnot $(length ${config.motd}) {
+				config.motd = "no"
+			}
+
+			echo  "QFAdmin: motd is set to \"", ${config.motd}, "\""
+			return
+		}
+
+		ifnot ($(equal $args[2] "yes") || $(equal $args[2] "no")) {
+			echo "QFAdmin: must be set either yes or no"
+			return
+		}
+
+		config.motd = $args[2]
+
+	} else if $(equal $cmd "motdfile") {
+		if (#args == 2) {
+			ifnot $(length ${config.motdfile}) {
+				echo "QFAdmin: no motd file set"
+				return
+			}
+
+			echo "QFAdmin: motd file is \"", ${config.motdfile}, "\""
+			return
+		}
+
+		ifnot $(count $(file::find $args[2])) {
+			echo "QFAdmin: cannot find motd file!"
+			return
+		}
+
+		config.motdfile = $args[2]
+
+	} else if $(equal $cmd "version") {
+		print "QFAdmin: ", $(qfadmin::getVersion), "\n"
+
+	// Print help information
+	} else if $(equal $cmd "help") {
+		echo "QFAdmin Help:"
+		echo "	set - set a config value"
+		echo "	unset - unset a config value"
+		echo "	value - display a config value"
+		echo "	enable - enable a command"
+		echo "	disable - disable a command"
+		echo "	maps - display/set the list of maps"
+		echo "	maplist - load the maplist from a file"
+		echo "	motd - show the motd upon connect"
+		echo "	motdfile - file to read motd from"
+		echo "	version - show qfadmin version"
+
+	} else {
+		echo "QFAdmin: unknown command \"", $cmd, "\""
+	}
+}
+
+// Initilize QFAdmin Settings
+function qfadmin::init {
+	function::export qfadmin
+	ifnot ${config.cheater.action} {
+		config.cheater.action = "ban"
+	}
+
+	ifnot ${config.cheater.bantime} {
+		config.cheater.bantime = 60
+	}
+}
+
+// Show version information
+function qfadmin::doVersion {
+	say $(qfadmin::getVersion)
+}
+
+// Return the current version
+function qfadmin::getVersion {
+//	local tmp tmp2
+
+//	tmp = $(split $cvsheader)
+
+//	if $(equal $tmp[6] "Exp") {
+//		tmp2 = "Beta"
+//	} else if $(equal $tmp[6] "Stab") {
+//		tmp2 = "Stable"
+//	} else if $(equal $tmp[6] "Rel") {
+//		tmp2 = "Release"
+//	}
+
+//	return "QFAdmin v", $tmp[2], " (", $tmp[3], " ", $tmp2, ") by Harry Roberts"
+	return "QFAdmin v", $qfadminversion, " by Harry Roberts"
+}
+
+// Clear uservore & mapvote vars
+function qfadmin::clearVars {
+	delete uservote
+	delete mapvote
+	global uservote
+	global mapvote
+}
+
+// Get the # of clients logged on
+function qfadmin::getClientNum {
+	return $(count $(client::getList))
+}
+
+// Vote to kick/ban somebody
+function qfadmin::doCheater {
+	local playerid isvalidid voteid lastvoteid
+	local name id
+
+	id = $args[1]
+	name = $args[2]
+	voteid = $args[3]
+	
+	// They cant cheater their own id!!!
+	if ($id == $voteid) {
+		tell $id You cant cheater yourself
+		return
+	}
+
+	// Check the player exists on the server
+	for playerid in $(client::getList) {
+		if ($playerid == $voteid) {
+			isvalidid = 1
+		}
+	}
+	if (0$isvalidid != 1) {
+		return
+	}
+
+	lastvoteid = ${uservote.${voteid}.cheater}
+
+	// Cant vote for same ID twice in a row
+	if $(equal $lastvoteid $voteid) {
+		return
+	}
+
+	// Decrease the count for the last person they cheatered
+	if (0${lastvoteid} > 0) {
+		uservote.${lastvoteid}.cheated = (${uservote.${lastvoteid}.cheated} - 1)
+	}
+
+	uservote.${id}.cheater = $voteid
+	uservote.${voteid}.cheated = (0${uservote.${voteid}.cheated} + 1)
+
+	if (0${uservote.${voteid}.cheated} >= ($(qfadmin::getClientNum) / 2)) {
+		say $(client::getInfo $voteid "name"), " has been kicked for cheating"
+		qfadmin::clearVars
+
+		if $(equal ${config.cheater.action} "ban") {
+			ban $voteid ${config.cheater.bantime}
+		} else {
+			kick $voteid
+		}
+
+		return
+	}
+
+	say $name, " voted to ", ${config.cheater.action}, " ", $(client::getInfo $voteid "name"), " - with ", ${uservote.${voteid}.cheated}, " votes"
+}
+
+// Vote to change maps
+function qfadmin::doMap {
+	local map lastmap tmp isvalidmap
+	local name id
+
+	id = $args[1]
+	name = $args[2]
+	map = $args[3]
+
+	// Opps, no map
+	ifnot $(length $map) {
+		return
+	}
+
+	// Check the map exists
+	for tmp in @config.maps {
+		if $(equal ${tmp} ${map}) {
+			isvalidmap = 1
+		}
+	}
+
+	if (0${isvalidmap} != 1) {
+		return
+	}
+
+	lastmap = ${uservote.${id}.map}
+
+	// They cant vote for the same map twice in a row!
+	if $(equal $lastmap $map) {
+		return
+	}
+
+	// Decrease the vote count for the last map they voted for
+	if $(length $lastmap) {
+		mapvote.$lastmap = (${mapvote.$lastmap} - 1)
+	}
+
+	uservote.${id}.map = $map
+	mapvote.$map = (0${mapvote.$map} + 1)
+
+	// Have the majority of the users voted for this map? if so change it
+	if ( 0${mapvote.${map}} >= ( $(qfadmin::getClientNum) / 2 ) ) {
+		say "Switching to ", $map, " - with ", ${mapvote.$map}, " votes"
+		qfadmin::clearVars
+		map $map
+		return
+	}
+
+	say $name, " voted for ", $map, " - with ", ${mapvote.$map} , " votes"
+}
+
+function qfadmin::doMaps {
+	local name id tmp count
+
+	id = $args[1]
+	name = $args[2]
+
+	if (0$(count @config.maps) < 1) {
+		client::print $id "There are no maps available for voting\n"
+		return
+	}
+
+	client::print $id "There are ", $(count @config.maps), " maps available for voting\n"
+	for tmp in @config.maps {
+		client::print $id $tmp, " "
+
+		count = (0${count} + 1)
+		if ($count == 5) {
+			client::print $id "\n"
+			count = 0
+		}
+	}
+
+	client::print $id "\n"
+}
+
+// Perform whatever needs to be done when the client connects
+function qfadmin::connectEvent {
+	local name id
+
+	id = $args[1]
+	name = $args[2]
+
+	// Send them the MOTD
+	if $(equal ${config.motd} "yes") {
+		client::print $id "This server is using ", $(qfadmin::getVersion), "\n"
+
+		if $(length ${config.motdfile}) {
+			if $(count $(file::find ${config.motdfile})) {
+				local motdline
+
+				for motdline in $(split $(file::read ${config.motdfile}) "\n") {
+					motdline = $(regex::replace $motdline "#players#" -- $(qfadmin::getClientNum))
+					motdline = $(regex::replace $motdline "#deathmatch#" -- $deathmatch)
+					client::print $id $motdline, "\n"
+				}
+			}
+		}
+	}
+}
+
+// Clean up when a person disconnects
+function qfadmin::disconnectEvent {
+	local lastmap lastvoteid
+	local id name
+
+	id = $args[1]
+	name = $args[2]
+
+	lastmap = ${uservote.${id}.map}
+	lastvoteid = ${uservote.${voteid}.cheater}
+
+	if $(length $lastmap) {
+		mapvote.$lastmap = (${mapvote.$lastmap} - 1)
+	}
+
+	if (0${lastvoteid} > 0) {
+		uservote.${lastvoteid}.cheated = (${uservote.${lastvoteid}.cheated} - 1)
+	}
+
+	delete uservote.$id
+}
+
+// Add a user triggerable command
+function qfadmin::addCmd {
+	cmds.$args[1] = $args[2]
+}
+
+// Called whenever somebody talks
+function qfadmin::chatEvent {
+	local cmd cmdarg prefix from
+
+	// Ignore spectator/team messages
+	if $args[3] {
+		return
+	}
+
+	// Check the command starts with a !
+	prefix = $(slice $args[2] 0 1)
+	ifnot $(equal $prefix "!") {
+		return
+	}
+
+	// Process the command
+	from = $(client::getInfo $args[1] "name")
+	cmd = $(split $(slice $args[2] 1))
+
+	// Check if the command has been disabled
+	if $(equal ${config.disable.${cmd}} "yes") {
+		return
+	}
+
+	if #{cmds.$cmd} {
+		${cmds.$cmd} $args[1] $from @cmd[1:];
+	}
+}
+
+qfadmin::init
+
+event::register chat qfadmin::chatEvent
+event::register client.connect qfadmin::connectEvent
+
+// QFAdmin Commands
+qfadmin::addCmd "version" qfadmin::doVersion
+qfadmin::addCmd "cheater" qfadmin::doCheater
+qfadmin::addCmd "map" qfadmin::doMap
+qfadmin::addCmd "maps" qfadmin::doMaps

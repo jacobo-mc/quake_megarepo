@@ -1,0 +1,232 @@
+#! /usr/bin/make -f
+# This file is public domain software, originally written by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=7
+
+PACKAGE 	:= quakeforge
+QFCC		:= qfcc
+common		:= $(PACKAGE)-common
+stub		:= $(PACKAGE)-stub
+maptools	:= $(PACKAGE)-maptools
+dev		:= $(PACKAGE)-dev
+
+alsa		:= $(PACKAGE)-alsa
+gllib		:= $(PACKAGE)-gl
+glsllib		:= $(PACKAGE)-glsl
+jack		:= $(PACKAGE)-jack
+oss		:= $(PACKAGE)-oss
+sdl		:= $(PACKAGE)-sdl
+servers		:= $(PACKAGE)-servers
+swlib		:= $(PACKAGE)-sw
+sw32lib		:= $(PACKAGE)-sw32
+utils		:= $(PACKAGE)-utils
+x11		:= $(PACKAGE)-x11
+
+build	:= $(shell pwd)/debian/tmp
+tmp	:= debian/tmp
+
+ifeq ($(DEB_BUILD_GNU_TYPE),)
+RETARGET=
+else
+RETARGET=	--build=$(DEB_BUILD_GNU_TYPE)
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	./bootstrap
+	./configure --prefix=/usr $(RETARGET) --bindir=/usr/games \
+		    --without-fbdev \
+		    --with-ipv6 \
+		    --disable-Werror \
+		    --disable-xmms \
+		    --mandir=/usr/share/man \
+		    --infodir=/usr/share/info \
+		    --with-sharepath=/usr/share/games/quake \
+		    --with-plugin-path=/usr/lib/quakeforge/plugins \
+		    --with-clients=sdl,x11 \
+		    --with-servers=master,nq,qw
+
+	touch $@
+
+build: configure-stamp changelog-stamp build-stamp
+build-stamp:
+	dh_testdir
+	$(MAKE) $(QFSMP)
+	touch $@
+
+changelog-stamp:
+	dh_testdir
+	# Add here commands to build the changelog
+	if test -d .git; then $(MAKE) changelog; fi
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp changelog-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) distclean
+	# VERY clean
+	./bootstrap clean
+
+	dh_clean
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+
+	# Add here commands to install the package into debian/tmp.
+	$(MAKE) DESTDIR=$(build) install
+	install -m644 -D debian/quakeforge.conf $(build)/etc/quakeforge.conf
+	mkdir $(build)/usr/share/games/quake/id1
+
+# Moving files to their right locations
+	# qfcc
+	install -D -m755 $(tmp)/usr/games/qfcc $(tmp)/usr/bin/qfcc
+	rm -f $(tmp)/usr/games/qfcc
+	install -D -m755 $(tmp)/usr/games/qfpreqcc $(tmp)/usr/bin/qfpreqcc
+	rm -f $(tmp)/usr/games/qfpreqcc
+	# quakeforge-utils
+	install -D -m755 $(tmp)/usr/games/pak $(tmp)/usr/bin/pak
+	install -D -m755 $(tmp)/usr/games/wad $(tmp)/usr/bin/wad
+	install -D -m755 $(tmp)/usr/games/zpak $(tmp)/usr/bin/zpak
+	install -D -m755 $(tmp)/usr/games/qfprogs $(tmp)/usr/bin/qfprogs
+	install -D -m755 $(tmp)/usr/games/qfwavinfo $(tmp)/usr/bin/qfwavinfo
+	rm -f $(tmp)/usr/games/pak \
+		$(tmp)/usr/games/wad \
+		$(tmp)/usr/games/zpak \
+		$(tmp)/usr/games/qfprogs \
+		$(tmp)/usr/games/qfwavinfo
+	# quakeforge-maptools
+	install -D -m755 $(tmp)/usr/games/qfbsp $(tmp)/usr/bin/qfbsp
+	install -D -m755 $(tmp)/usr/games/qflight $(tmp)/usr/bin/qflight
+	install -D -m755 $(tmp)/usr/games/qfvis $(tmp)/usr/bin/qfvis
+	rm -f $(tmp)/usr/games/qfbsp \
+		$(tmp)/usr/games/qflight \
+		$(tmp)/usr/games/qfvis
+
+	# quakeforge-common
+	dh_install -p$(common) --sourcedir=$(tmp)
+	dh_installdocs -p$(common) NEWS TODO
+	dh_installchangelogs -p$(common) ChangeLog
+
+	# quakeforge-stub
+	install -d -m755 debian/$(stub)/usr/share/games/quake/id1
+
+	# quakeforge-dev
+	dh_install -p$(dev) --sourcedir=$(tmp)
+	install -d -m755 debian/$(dev)/usr/share/doc
+	ln -s $(common) debian/$(dev)/usr/share/doc/$(dev)
+
+	# quakeforge-libs-gl
+	dh_install -p$(gllib) --sourcedir=$(tmp)
+	install -d -m755 debian/$(gllib)/usr/share/doc
+	ln -s $(common) debian/$(gllib)/usr/share/doc/$(gllib)
+
+	# quakeforge-libs-glsl
+	dh_install -p$(glsllib) --sourcedir=$(tmp)
+	install -d -m755 debian/$(glsllib)/usr/share/doc
+	ln -s $(common) debian/$(glsllib)/usr/share/doc/$(glsllib)
+
+	# quakeforge-libs-sw
+	dh_install -p$(swlib) --sourcedir=$(tmp)
+	install -d -m755 debian/$(swlib)/usr/share/doc
+	ln -s $(common) debian/$(swlib)/usr/share/doc/$(swlib)
+
+	# quakeforge-libs-sw32
+	dh_install -p$(sw32lib) --sourcedir=$(tmp)
+	install -d -m755 debian/$(sw32lib)/usr/share/doc
+	ln -s $(common) debian/$(sw32lib)/usr/share/doc/$(sw32lib)
+
+	# quakeforge-servers
+	dh_install -p$(servers) --sourcedir=$(tmp)
+	install -d -m755 debian/$(servers)/usr/share/doc
+	ln -s $(common) debian/$(servers)/usr/share/doc/$(servers)
+
+	# quakeforge-sdl
+	dh_install -p$(sdl) --sourcedir=$(tmp)
+	install -d -m755 debian/$(sdl)/usr/share/doc
+	ln -s $(common) debian/$(sdl)/usr/share/doc/$(sdl)
+
+	# quakeforge-x11
+	dh_install -p$(x11) --sourcedir=$(tmp)
+	install -d -m755 debian/$(x11)/usr/share/doc
+	ln -s $(common) debian/$(x11)/usr/share/doc/$(x11)
+
+	# quakeforge-alsa
+	dh_install -p$(alsa) --sourcedir=$(tmp)
+	install -d -m755 debian/$(alsa)/usr/share/doc
+	ln -s $(common) debian/$(alsa)/usr/share/doc/$(alsa)
+
+	# quakeforge-oss
+	dh_install -p$(oss) --sourcedir=$(tmp)
+	install -d -m755 debian/$(oss)/usr/share/doc
+	ln -s $(common) debian/$(oss)/usr/share/doc/$(oss)
+
+	# quakeforge-jack
+	dh_install -p$(jack) --sourcedir=$(tmp)
+	install -d -m755 debian/$(jack)/usr/share/doc
+	ln -s $(common) debian/$(jack)/usr/share/doc/$(jack)
+
+	# qfcc
+	dh_install -p$(QFCC) --sourcedir=$(tmp)
+	install -d -m755 debian/$(QFCC)/usr/share/doc
+	ln -s $(common) debian/$(QFCC)/usr/share/doc/$(QFCC)
+
+	# quakeforge-utils
+	dh_install -p$(utils) --sourcedir=$(tmp)
+	install -d -m755 debian/$(utils)/usr/share/doc
+	ln -s $(common) debian/$(utils)/usr/share/doc/$(utils)
+
+	# quakeforge-maptools
+	dh_install -p$(maptools) --sourcedir=$(tmp)
+	install -d -m755 debian/$(maptools)/usr/share/doc
+	ln -s $(common) debian/$(maptools)/usr/share/doc/$(maptools)
+
+	# quakeforge
+	find $(tmp) -type d -empty -print | xargs -r rmdir -p --ignore-fail-on-non-empty
+	dh_install -p$(PACKAGE) --sourcedir=$(tmp)
+	install -d -m755 debian/$(PACKAGE)/usr/share/doc
+	ln -s $(common) debian/$(PACKAGE)/usr/share/doc/$(PACKAGE)
+
+# Build architecture-independent files here.
+# Pass -i to all debhelper commands in this target to reduce clutter.
+binary-indep: DH_OPTIONS=-i
+binary-indep: build install
+# We don't have any packages with Architecture: all
+
+# Build architecture-dependent files here.
+# Pass -a to all debhelper commands in this target to reduce clutter.
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installexamples
+	dh_installmenu
+	dh_installman -p$(QFCC)
+	dh_installman -p$(maptools)
+	dh_installman -p$(utils)
+	dh_undocumented
+	dh_strip -Xshare/qfcc
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs -V -Xplugins
+	# You may want to make some executables suid here.
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

@@ -1,0 +1,32 @@
+#! /bin/sh
+# create pak files with gzipped internals
+
+if [ $# -eq 0 ]; then
+	echo "usage: $0 <pakfile> ..."
+	exit 1
+fi
+
+tmpdir=/var/tmp/zpak.$$
+
+for pakfile in $*; do
+	[ ! -f ${pakfile} ] && echo "${pakfile} not found" && continue
+	[ "${pakfile#/}" = "${pakfile}" ] && pakfile=${PWD}/${pakfile}
+
+	mkdir ${tmpdir}
+	cd ${tmpdir}
+	pak -vxf ${pakfile}
+
+	# cosmetic (gzip preserves timestamps.. could come in handy)
+	find * -type f \
+	-exec touch -r ${pakfile} {} \;
+
+	find * -type f \
+	! -name '*.gz' ! -name '*.jpg' ! -name '*.ogg' ! -name '*.png' \
+	-exec gzip -v9 {} \;
+
+	mv ${pakfile} ${pakfile}.bak
+	pak -vcf ${pakfile} $(find * -type f | sort)
+
+	cd -
+	rm -rf ${tmpdir}
+done

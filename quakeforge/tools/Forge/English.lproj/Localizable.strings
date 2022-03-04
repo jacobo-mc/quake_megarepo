@@ -1,0 +1,9 @@
+/* Menu names */
+"Windows" = "Windows";
+
+"Services" = "Services";
+
+/*
+	The other strings are located inside the .gorm files, so they need to be
+	edited there.
+*/

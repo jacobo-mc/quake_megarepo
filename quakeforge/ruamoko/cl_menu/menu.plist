@@ -1,0 +1,617 @@
+{
+	control_options = {
+		Class = MenuGroup;
+		Messages = (
+			(initWithBounds:, $rect),
+			(addViews:, $views),
+			(setBase:, 4)
+		);
+		rect = "[0, 0, 320, 200]";
+		views = (
+			{
+				Class = Pic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/qplaque.lmp\"")
+				);
+				rect = "[16, 4, 0, 0]";
+			},
+			{
+				Class = CenterPic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/p_option.lmp\"")
+				);
+				rect = "[160, 4, 0, 0]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"Controls\"")
+				);
+				rect = "[54, 40, 64, 8]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"--------\"")
+				);
+				rect = "[54, 50, 64, 8]";
+			},
+			{
+				Class = SubMenu;
+				Messages = (
+					(initWithBounds:title:menu:, $rect, $title,
+												"\"Bindings\""),
+				);
+				rect = "[70, 60, 64, 8]";
+				title = {
+					Class = Text;
+					Messages = (
+						(initWithBounds:, $rect),
+						(setText:, "\"Bindings\"")
+					);
+					rect = "[0, 0, 64, 8]";
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Grab mouse\"", $toggle),
+				);
+				rect = "[70, 70, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"in_grab\"")
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Auto run\"", $toggle)
+				);
+				rect = "[70, 80, 224, 8]";
+				toggle = {
+					Class = RunToggle;
+					Messages = (
+						(init)
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Mouse Invert\"", $toggle)
+				);
+				rect = "[70, 90, 224, 8]";
+				toggle = {
+					Class = MouseToggle;
+					Messages = (
+						(init)
+					);
+				};
+			},
+			{
+				Class = CvarRangeView;
+				Messages = (
+					(initWithBounds:title:sliderWidth::,
+						$rect, "\"Mouse amp:\"", 112, $range)
+				);
+				rect = "[70, 100, 232, 8]";
+				range = {
+					Class = CvarRange;
+					Messages = (
+						(initWithCvar:min:max:step:,
+							"\"in_mouse_amp\"", 0.0, 60.0, 1.0)
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Freelook\"", $toggle),
+				);
+				rect = "[70, 110, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"freelook\"")
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Lookspring\"", $toggle),
+				);
+				rect = "[70, 120, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"lookspring\"")
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Lookstrafe\"", $toggle),
+				);
+				rect = "[70, 130, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"lookstrafe\"")
+					);
+				};
+			}
+		);
+	};
+	video_options = {
+		Class = MenuGroup;
+		Messages = (
+			(initWithBounds:, $rect),
+			(addViews:, $views),
+			(setBase:, 4)
+		);
+		rect = "[0, 0, 320, 200]";
+		views = (
+			{
+				Class = Pic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/qplaque.lmp\"")
+				);
+				rect = "[16, 4, 0, 0]";
+			},
+			{
+				Class = CenterPic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/p_option.lmp\"")
+				);
+				rect = "[160, 4, 0, 0]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"Video\"")
+				);
+				rect = "[54, 40, 40, 8]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"-----\"")
+				);
+				rect = "[54, 50, 40, 8]";
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Fullscreen\"", $toggle),
+				);
+				rect = "[70, 60, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"vid_fullscreen\"")
+					);
+				};
+			},
+			{
+				Class = ProxyView;
+				Messages = (
+					(initWithBounds:title:view:, $rect, $title, $view),
+				);
+				rect = "[70, 70, 224, 8]";
+				title = {
+					Class = Text;
+					Messages = (
+						(initWithBounds:, $rect),
+						(setText:, "\"Crosshair\"")
+					);
+					rect = "[0, 0, 224, 8]";
+				};
+				view = {
+					Class = CrosshairView;
+					crosshair = {
+						Class = CrosshairCvar;
+						Messages = (
+							(initWithCvar:, "\"crosshair\"")
+						);
+					};
+					rect = "[186, -3, 14, 14]";
+					Messages = (
+						(initWithBounds::, $rect, $crosshair)
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Show FPS\"", $toggle)
+				);
+				rect = "[70, 80, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"hud_fps\"")
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Show time\"", $toggle)
+				);
+				rect = "[70, 90, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"hud_time\"")
+					);
+				};
+			},
+			{
+				Class = CvarRangeView;
+				Messages = (
+					(initWithBounds:title:sliderWidth::,
+						$rect, "\"Gamma\"", 136, $range)
+				);
+				rect = "[70, 100, 224, 8]";
+				range = {
+					Class = CvarRange;
+					Messages = (
+						(initWithCvar:min:max:step:,
+							"\"vid_gamma\"", 0.4, 3.0, 0.1)
+					);
+				};
+			},
+			{
+				Class = CvarRangeView;
+				Messages = (
+					(initWithBounds:title:sliderWidth::,
+						$rect, "\"Viewsize\"", 112, $range)
+				);
+				rect = "[70, 110, 224, 8]";
+				range = {
+					Class = CvarRange;
+					Messages = (
+						(initWithCvar:min:max:step:,
+							"\"viewsize\"", 30.0, 120.0, 10.0)
+					);
+				};
+			}
+		);
+	};
+	audio_options = {
+		Class = MenuGroup;
+		Messages = (
+			(initWithBounds:, $rect),
+			(addViews:, $views),
+			(setBase:, 4)
+		);
+		rect = "[0, 0, 320, 200]";
+		views = (
+			{
+				Class = Pic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/qplaque.lmp\"")
+				);
+				rect = "[16, 4, 0, 0]";
+			},
+			{
+				Class = CenterPic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/p_option.lmp\"")
+				);
+				rect = "[160, 4, 0, 0]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"Audio\"")
+				);
+				rect = "[54, 40, 40, 8]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"-----\"")
+				);
+				rect = "[54, 50, 40, 8]";
+			},
+			{
+				Class = CvarRangeView;
+				Messages = (
+					(initWithBounds:title:sliderWidth::,
+						$rect, "\"Volume:\"", 112, $range)
+				);
+				rect = "[70, 60, 136, 8]";
+				range = {
+					Class = CvarRange;
+					Messages = (
+						(initWithCvar:min:max:step:,
+							"\"volume\"", 0, 1.5, 0.1)
+					);
+				};
+			},
+			{
+				Class = CvarRangeView;
+				Messages = (
+					(initWithBounds:title:sliderWidth::,
+						$rect, "\"Music :\"", 112, $range)
+				);
+				rect = "[70, 68, 136, 8]";
+				range = {
+					Class = CvarRange;
+					Messages = (
+						(initWithCvar:min:max:step:,
+							"\"bgmvolume\"", 0, 1.5, 0.1)
+					);
+				};
+			},
+		);
+	};
+	feature_options = {
+		Class = MenuGroup;
+		Messages = (
+			(initWithBounds:, $rect),
+			(addViews:, $views),
+			(setBase:, 4)
+		);
+		rect = "[0, 0, 320, 200]";
+		views = (
+			{
+				Class = Pic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/qplaque.lmp\"")
+				);
+				rect = "[16, 4, 0, 0]";
+			},
+			{
+				Class = CenterPic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/p_option.lmp\"")
+				);
+				rect = "[160, 4, 0, 0]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"Features\"")
+				);
+				rect = "[54, 40, 64, 8]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"--------\"")
+				);
+				rect = "[54, 50, 64, 8]";
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Autorecord\"", $toggle),
+				);
+				rect = "[70, 60, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"cl_autorecord\"")
+					);
+				};
+			},
+			{
+				Class = CvarToggleView;
+				Messages = (
+					(initWithBounds:title::, $rect, "\"Frag Logging\"", $toggle),
+				);
+				rect = "[70, 70, 224, 8]";
+				toggle = {
+					Class = CvarToggle;
+					Messages = (
+						(initWithCvar:, "\"cl_fraglog\"")
+					);
+				};
+			},
+		);
+	};
+	network_options = {
+		Class = MenuGroup;
+		Messages = (
+			(initWithBounds:, $rect),
+			(addViews:, $views),
+			(setBase:, 4)
+		);
+		rect = "[0, 0, 320, 200]";
+		views = (
+			{
+				Class = Pic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/qplaque.lmp\"")
+				);
+				rect = "[16, 4, 0, 0]";
+			},
+			{
+				Class = CenterPic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/p_option.lmp\"")
+				);
+				rect = "[160, 4, 0, 0]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"Network\"")
+				);
+				rect = "[54, 40, 56, 8]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"-------\"")
+				);
+				rect = "[54, 50, 56, 8]";
+			},
+			{
+				Class = CvarStringView;
+				Messages = (
+					(initWithBounds:title:inputLength::, $rect, "\"Rate..:\"", 9, $cvstring)
+				);
+				rect = "[70, 68, 224, 8]";
+				cvstring = {
+					Class = CvarString;
+					Messages = (
+						(initWithCvar:, "\"rate\"")
+					);
+				};
+			},
+		);
+	};
+	player_options = {
+		Class = MenuGroup;
+		Messages = (
+			(initWithBounds:, $rect),
+			(addViews:, $views),
+			(setBase:, 4)
+		);
+		rect = "[0, 0, 320, 200]";
+		views = (
+			{
+				Class = Pic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/qplaque.lmp\"")
+				);
+				rect = "[16, 4, 0, 0]";
+			},
+			{
+				Class = CenterPic;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setPic:, "\"gfx/p_option.lmp\"")
+				);
+				rect = "[160, 4, 0, 0]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"Player\"")
+				);
+				rect = "[54, 40, 48, 8]";
+			},
+			{
+				Class = Text;
+				Messages = (
+					(initWithBounds:, $rect),
+					(setText:, "\"------\"")
+				);
+				rect = "[54, 50, 48, 8]";
+			},
+			{
+				Class = CvarStringView;
+				Messages = (
+					(initWithBounds:title:inputLength::, $rect, "\"Name  \"", 18, $cvstring)
+				);
+				rect = "[70, 68, 224, 8]";
+				cvstring = {
+					Class = CvarString;
+					Messages = (
+						(initWithCvar:, "\"menu_name\"")//aliased to real cvar
+					);
+				};
+			},
+			{
+				Class = CvarStringView;
+				Messages = (
+					(initWithBounds:title:inputLength::, $rect, "\"Team  \"", 7, $cvstring)
+				);
+				rect = "[70, 88, 224, 8]";
+				cvstring = {
+					Class = CvarString;
+					Messages = (
+						(initWithCvar:, "\"menu_team\"")//aliased to real cvar
+					);
+				};
+			},
+			{
+				Class = ProxyView;
+				Messages = (
+					(initWithBounds:title:view:, $rect, $title, $view),
+				);
+				rect = "[70, 105, 224, 8]";
+				title = {
+					Class = Text;
+					Messages = (
+						(initWithBounds:, $rect),
+						(setText:, "\"Shirt Color\"")
+					);
+					rect = "[0, 0, 224, 8]";
+				};
+				view = {
+					Class = CvarColorView;
+					color = {
+						Class = CvarColor;
+						Messages = (
+							(initWithCvar:, "\"topcolor\"")
+						);
+					};
+					rect = "[186, -8, 32, 24]";
+					Messages = (
+						(initWithBounds::, $rect, $color)
+					);
+				};
+			},
+			{
+				Class = ProxyView;
+				Messages = (
+					(initWithBounds:title:view:, $rect, $title, $view),
+				);
+				rect = "[70, 120, 224, 8]";
+				title = {
+					Class = Text;
+					Messages = (
+						(initWithBounds:, $rect),
+						(setText:, "\"Pants Color\"")
+					);
+					rect = "[0, 0, 224, 8]";
+				};
+				view = {
+					Class = CvarColorView;
+					color = {
+						Class = CvarColor;
+						Messages = (
+							(initWithCvar:, "\"bottomcolor\"")
+						);
+					};
+					rect = "[186, -8, 32, 24]";
+					Messages = (
+						(initWithBounds::, $rect, $color)
+					);
+				};
+			},
+		);
+	};
+}

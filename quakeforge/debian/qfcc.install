@@ -1,0 +1,6 @@
+usr/bin/qfcc
+usr/bin/qfpreqcc
+usr/bin/qfprogs
+usr/lib/pkgconfig/qfcc.pc
+usr/share/qfcc
+usr/share/man/man1/qfcc.1

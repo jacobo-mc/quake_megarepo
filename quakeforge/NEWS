@@ -1,0 +1,851 @@
+NEWS for the QuakeForge project
+-------------------------------
+Changes from 0.7.1
+    o Critical bug with incorrect key_dest fixed. (fixed in 0.7.1a)
+    o Alignment bug loading wav files fixed (affects only mips)
+    o Critical bug incorrect handling of progs code fixed (windows builds)
+    o Id style (r_particles_style 0) particle explosions fixed (windows)
+    o 64-bit windows target now supported (though untested).
+	o QF now writes all data only to the user's home directory (usually the
+      local application data dir) if it can be found, writing to the
+      current directory only if the local application data dir can't be
+      found and neither HOME nor USERPROFILE are set.
+
+Changes from 0.7.0
+    o General build fixes.
+        - gcc 4.7
+        - mingw cross build improvements (including moving to use MXE)
+        - android cross build improvements (still no actual support yet,
+          though)
+        - new cross scripts: mipsel-linux ps3-elf
+        - all cross build scripts now use the same setup of creating a
+          native directory (for qfcc and pak) and a target directory (using
+          the host tuple)
+        - DWARF debuggin available with recent enough gcc (pretty much any
+          system these days). Macros in gdb :)
+        - -funsafe-math-optimizations disabled for gcc. While -ffast-math
+          is considered to be "don't use that!" by general consensus on the
+          internet, more testing is needed for its effects on code speed,
+          but the unsafe-math-optimizations part of -ffast-math is nothing
+          but a source of headaches.
+        - Bison 2.6+ is now required.
+    o Various sbar/hud fixes for the software renderer.
+    o All keys in specific IMTs can be unbound via in_clear <imt>...
+    o Single player nq pauses when the window loses focus.
+    o Dynamic IMTs. The user now has full control over IMT names and
+      fallback paths.
+    o Higher precision for Sys_DoubleTime in windows (thanks to MH)
+    o Support for octal escapes in plists fixed.
+    o 255 char limit for strings in saved game data fixed.
+    o Centerprints now print over top of cshifts in gl and glsl.
+    o think functions cannot produce infinite loops anymore.
+    o Adjusting nearclip or farclip in gl or glsl now take effect
+      immediately.
+    o new crosshair (5). Just a circled dot, and still low res because it
+      is available in all renderers.
+    o glsl scrolling sky (id standard) texture requirements loosened: any
+      NxN or 2NxN texture is accepted (was 256x128).
+    o glsl and gl sky orientation corrected (was rotated on Z)
+    o glsl pointfile loading works
+    o BSP2 support (note: NOT 2PSB)
+    o Incorrect acceleration of fire particles fixed.
+    o Blender map addon: targets blender 2.65a+
+      Still only a work in progress, but maps/wads/qc quaked comments can
+      be loaded and browsed. As it is still WIP, no separate package will
+      be built at this stage.
+    o QC VM:
+        - very basic valgrind-like pointer access checking
+          (pr_boundscheck 2)
+        - vector * float and quaternion * float (either order) now work
+          correctly when source and destination operands overlap
+          (eg, v *= v.x;)
+    o Ruamoko:
+        - IMT_MAX definition corrected.
+    o qfcc:
+        - messages to nil ([nil message]) supported (weird, but legal).
+        - Creation of static class instances now correctly rejected.
+        - id <protocol> and classname <protocol> supported, along with the
+          attendant type checks.
+        - vector / float and quaternion / float emulated (* 1/float)
+        - much more robust in the face of compilation errors.
+        - local static variables fixed (were emitted to the wrong place)
+        - nosave from fteqcc added.
+        - Only Objective-C style keywords that normally have a leading @
+          require the @ in advanced or extended modes (better C
+          compatibility).
+        - break no longer supported as an identifier in advanced or
+          extended modes.
+        - binary constants using the 0b prefix (eg, 0b101010)
+        - all extended keywords that can be supported by v6 progs are now
+          always available when prefixed with an at sign (eg, "@typedef"),
+          even in traditional mode.
+            break   case    continue    default enum
+            extern  for     nil         nosave  static
+            struct  switch  typedef     union
+        - automated test suite: very basic, but it's a start
+        - qfprogs can now dump type encodings if present.
+        - qfprogs now uses quotes and escapes when dumping strings.
+        - type encodings now generated correctly, are can be accessed by
+          the progs code.
+        - pointer arithmetic now supported.
+        - simple pointer dereferences fixed (no code was generated!)
+        - grammar now supports ++*foo.
+        - local CSE optimizations when optimizing (-O).
+        - very aggressive dead code elimination when optimizing (some is
+          done even when not optimizing)
+        - temporary variable optimizations (was lost in the rewrite two
+          years ago)
+        - uninitialized variable detection supported again, but only when
+          optimizing.
+    o qfbsp:
+        - The source line of the entity is now reported in messages.
+        - Leak file improvements (more points for smart leak files, trails
+          centered for standard leak files).
+        - Map compilation correctness improvements.
+    o Blender MDL addon (not in 0.7.0a bugfix release)
+        - Support for meshes with multiple UV maps.
+    o Blender MDL addon (in 0.7.0a bugfix release):
+        - An exception when exporting a model with no image textures has
+          been fixed
+        - Vertex normals are now exported
+        - Multiple vertices sharing the one UV coordinate now work as
+          expected
+        - Quads and n-gons automatically get converted to triangles.
+        - The model's location, rotation and scale are now
+          non-destructively applied to the mesh (optional, default) before
+          exporting.
+        - If no frame information is available via the export script,
+          Blender's frames 1 to the current frame (inclusive) will be
+          exported as individual frames.
+
+Changes from 0.6.99 Beta 2
+    o GL shadows fixes.
+        - gl_alias_render_tri 1 no longer crashes
+        - Shading vector setup "correctly". It's still in a fixed direction,
+          but tumbling models (eg, grenades) no longer produce wild shadows.
+    o Blender import/export addon packaged properly.
+    o GLSL fog calculation fixes: no more ugly squares for smoke particles
+      in foggy maps.
+    o con_speed 0 now raises/lowers the console instantly.
+    o The player will no longer touch triggers when running around in
+      noclip mode.
+    o Better handling of progs built by compilers that strip function names
+      from builtins: saved game data now works.
+    o Renderers now support up to 128 dlights.
+    o Broken intermission scenes fixed.
+    o Console no longer shows when chaning levels in nq.
+    o Automatic backups of quick-save (F6: quick.sav) data. F9 still loads
+      quick.sav, but up to 5 copies (quick1.sav .. quick5.sav) are kept.
+      The backups are loadable via a sub-menu in the load (F3) menu.
+    o NQ will now bail gracefully (back to the game console) if the saved
+      game data has too many entities for the current settings.
+
+Changes from 0.6.99 Beta 1
+    o The inverted lighting in sw32 render has been fixed.
+    o The mdl import/export addon is now included in the distribution
+      tarball/zip.
+    o Server segfault when firing nails in qw has been fixed.
+    o Server segfault when cancelling mvd recording fixed.
+    o Unlimited signon buffers for qw.
+    o Fix entity scaling issues in nq demos (gl).
+    o An off-by-one error in qwe's substr implementation has been fixed.
+    o Add support for the \s escape sequence (toggle bold characters) to
+      qfcc, and fix many escape sequence handling bugs.
+    o Add an "extended" compilation mode to qfcc. It implies traditional,
+      but with extra keywords (switch, for, continue, case, default) that
+      work with v6 progs.
+    o Fix mis-handlihg of the output file specification in qfpreqcc.
+    o sw32 and sw dynamic plugins now work.
+    o Fix double drawing of the key-bindings menus.
+    o serverinfo and localinfo can now disaplay the value for a single key.
+    o "Prev. weapon" keybinding menu entry added.
+    o Default vid_gamma is now 1.0 instead of 1.45.
+
+Changes from 0.6.3
+    o Renderer plugins. This means the same program is used for all
+      renders. Which renderer to use is selected via the vid_render plugin
+      (one of gl, glsl, sw, sw32; defaults to gl). Currently selectable
+      only at startup ("+set vid_render gl" on the command line, or "set
+      vid_render gl" in a startup config file (not config.cfg))
+    o MDL skins can now be 1024x1024
+    o GLSL renderer now works on (recent) nvidia drivers.
+    o MDL import/export addon for blender can now export animated models
+      (skins and mesh deformations) and handles MD16 (QF extension: mdl
+      with 16 bit vertex data).
+	o Jumping is now independent of frame rate. Whether you get 72 fps or
+      22, you jump the same height. The height is the same as if you got
+      infinite fps.
+    o IQM support in all renderers.
+    o 32 bit x86 builds support asm again.
+    o inifinite think loop when playing honey fixed.
+    o jack sound driver tries to reconnect to the jack server if the
+      connection is lost.
+    o demo format auto-detection: no need to worry about mistakenly playing
+      a .qwd in nq or .dem in qw: the client will reject it with a message.
+      Also, the qw client now autodetects mvd and qwd demos, preferring mvd
+      over qwd if two demos have the same base name but different
+      extensions.
+    o view angles no longer messed up when loading a saved game.
+      Thanks to mh.
+    o frame-rate independe cshifts fades. Again, thanks to mh.
+    o r_flatlightstyles now supported.
+    o missing console prompt on demo stop fixed.
+    o missing health picup sound on aerowalk (qw) fixed.
+    o all entities lerped in nq.
+    o qw server now supports antilag (from fteqw).
+    o spectator name changes are no longer broadcast.
+    o preliminary support for chat info in qw (client and server). The
+      client currently only adds a dlight to the player (no icons yet).
+    o glsl renderer speedups (~2x for bigass1, ~2.5x for overkill)
+    o support for 32 mouse buttons added.
+    o excessive beams removed.
+    o "loading" plaque re-enabled.
+    o smarter entity counting: maps with many entities but most of them get
+      culled are now more likely to load with default settings (nq) or at
+      all (qw).
+    o qfcc changes
+        o now supports "vector = quaternion * vector" as a shortcut for
+          quaternion rotation. If the quaternion is not a unit quaternion,
+          scaling will be the square of the length of the quaternion (same
+          as for standard quaternion rotation).
+        o bug fixed where params and return slot were offset in v6 progs.
+        o progdefs.h now written correctly (with qfcc header, even, but the
+          CRC is still correct). Writing is optional, but default for v6
+          progs.
+        o jumps are now threaded, with some better dead-code elimination.
+        o qfcc's/ruamoko libs and headers are now in ${prefix}/share/qfcc
+        o The correct function name is reported for the function with the
+          most locals.
+        o constant folding for unary operators, including float/int
+          conversions.
+
+Changes from 0.6.2
+    o Compile fix for zlib 1.2.6.
+    o Use CURL compile flags correctly.
+    o Use the correct OpenGL library on OpenBSD.
+    o Fix a crash in qw gl renderers when skin data updates come in before
+      the player model has been loaded.
+    o libQFgamecode now part of libQFruamoko (first step in installed
+      libraries cleanup).
+    o None of the renderer libraries are installed now: they're all built
+      into the main binary.
+    o Build system cleanup: less empty recursion.
+    o Direct support for blender's environment maps as skyboxes. QF will
+      now load a single image with (${skyname}_map.*) using blender's
+      layout. That is, 3x2 with the top row being back, right, front and
+      the bottom row being bottom, top, left.
+	x Package building (deb and rpm) is broken.
+
+Changes from 0.6.1
+    o New renderer using GLSL. Currently looks very much like the original
+      software renderer with the additions of translucency, skyboxes and fog.
+      Also, it's mostly GLES ready.
+    o Screenshots now get written to $fs_userpath/QF (ie, QF in the quake
+      root) instead of the current gamedir.
+    o Demo playback can be recorded (currently to PNG files as
+      QF/qfnvNNNNNN.png) by adding "rec" as a second parameter to the
+      playdemo command. The recording is for 30fps playback. Sound is not
+      recorded at this stage.
+    o SDL sound now works in most cases.
+    o The blender mdl import/export script has been updated for blender
+      2.61.
+    o Partial cross-compile support for Android using the standalone ndk.
+      Doesn't produce a usable app yet.
+    o qfcc now has a --no-default-paths option to prevent qfcc including or
+      linking installed headers or libraries.
+    o Some more functions added to the Ruamoko draw api.
+    o Message buffer API for Ruamoko.
+
+Changes from 0.6.0
+    o qfprogs has been moved from tools to qfcc (windows packages).
+    o The software renderer can now cope with pics being off-screen.
+    o A potential issue with reading past the end of PCX files has been fixed.
+    o qfcc now accepts --no-default-paths. Mainly for building Ruamoko code in
+      the main source tree, but useful for those that want to avoid libr.
+    o A segfault involving old dirconfs has been fixed.
+    o OSS sound should be working now.
+
+Changes from 0.5.99 Beta 4.1
+    o Many more keys supported in X11 (-glx, -x11) clients: most of the keys
+      on a Microsoft Natural Ergonomic Keyboard 4000 v1.0 are supported (not
+      the five user keys or the zoom knob because Linux doesn't seem to
+      respond to them).
+
+Changes from 0.5.99 Beta 3
+    o Global fog now works for both multi and single texture rendering.
+    o Z_Realloc() zeros the expanded part of the memory (thanks to sezero).
+
+Changes from 0.5.99 Beta 2
+    o Possibly better ktpro support (server now informs the mod about its
+      MVDSV features)
+    o Due to it being incompatible with most clients, the MVD time skip
+      support has been removed.
+    o Global fog improvements for non-mtex rendering. Still not there yet,
+      though (hopefully next release).
+    o The OpenGL error on startup has been silenced: the cause was found and
+      taken out back of the barn.
+    o A mistake in an OpenGL version check has been fixed (thanks to MH).
+    o Setting gl_vaelements_max to -1 no longer causes QF to segfault
+      (console text and particles now support fake vertex arrays).
+    o Entity transform setup is now controled by the client rather than the
+      renderers. Amongst other things, this means that static entities now
+      setup their transform only once.
+    o Ruamoko
+        * Now has an __INFINITY__ built-in constant. It won't work on
+          machines that don't support IEEE single floats, but then again,
+          neither will quake.
+        * Old cvar() and cvar_set() functions moved from system.h to cvar.h.
+
+Changes from 0.5.99 Beta 1
+    o The "loading" plaque has been reenabled.
+    o The key for toggling the menu can now be adjusted via a cvar.
+    o Similar for toggling the console.
+    o The legacy "bind" and "unbind" commands have been reworked. They now
+      affect only one table (IMT_MOD) that is below the main game tables.
+      This protects the user's advanced bindings from mods.
+    o A new key binding table has been added for use during demo playback
+      (IMT_DEMO). This is separate to the main game tables, but above
+      IMT_MOD (so important keys like F10 still work).
+    o More OpenBSD fixes.
+    o An apparent hang (sometimes crash) on a failed download in
+      quakeworld has been fixed.
+    o Ruamoko
+        * More math functions and constants
+        * Existing math functions should be faster
+
+Changes from 0.5.5
+    o General enhancements
+        * many limits removed
+            o unlimited nails (client side)
+            o unlimited visible entities
+            o unlimited static entities
+            o for BSP files, only limits dictated by the format remain
+        * linux joystick improvements:
+            o default device is /dev/input/js0
+            o up to 18 buttons
+        * developer cvar is now a bit field
+            o    1 everything
+            o    2 warnings
+            o    4 video
+            o    8 file system: not found
+            o   16 file system: found
+            o   32 file system: general
+            o   64 networking
+            o  128 ruamoko: objects
+            o  256 ruamoko: messages
+            o  512 sound
+            o 1024 GL textures
+        * ALSA sound support now works with PulseAudio by default
+        * NQ now works on multi-homed hosts
+        * OpenBSD networking fixes
+        * loss of contact with the jack server is now detected. no more
+          hanging on shutdown after jack flakes out.
+        * fishey rendering fixed
+        * crash gracefully when a map has too many entities (rather than
+          silently dropping them: coag3 wasn't fun with missing ents)
+        * players can jump off pretty much anything (controllable via
+          sv_jump_any)
+        * funny size sound buffers no longer a problem
+        * RLE encoding for PCX output
+        * plugins moved to ${libdir}/quakeforge/plugins
+        * IPv6 support now working
+        * rotating bsp model support
+        * alsa 0.9 support dropped
+        * transparent map entities
+        * support map specified skyboxes
+        * NQ's maximum velocity is now spherical rather than cubical
+        * truncate long level names in NQ's HUD
+        * protocol 666 support from fitzquake (nq)
+        * large map support from fitzquake
+        * fullscreen mode is now compliant with modern window managers
+        * wide screens supported. Use the vid_aspect cvar to specify the
+          screen's aspect ratio (eg, 4:3, 16:9, 800:480 etc).
+        * lighting tweaks
+        * don't lose sound when switching workplaces in X
+        * correct resampling of sound effects for 48kHz sound output (or any
+          other rate, for that matter).
+        * support up to 7.1 channel sound files. However, output is still
+          limited to two channels.
+        * "lagged dlights" in mvds fixed
+        * flac sound file support
+        * support multiple directories in fs_sharepath
+        * new savegame format (property list)
+        * map entities can use property lists
+        * JACK audio output
+        * http download support
+        * CPQW support
+        * gold-key/radiation-symbol bug in rock2 fixed
+        * support for very big maps (eg marcher.bsp)
+        * beams (lightning etc) can be any length
+        * unlimited beams
+        * unlimited loaded models
+        * unlimited efrags
+        * support for Japanese keyboards
+        * particle improvements
+        * nq can now release the CPU when it is not needed (cl_usleep 1)
+    o Ruamoko (QuakeC)
+        * installed headers/libs now in ${prefix}/lib/qfcc
+        * plist access
+        * entity parsing support
+        * quake script parsing support
+        * dynamic strings
+        * mutable strings
+        * progs can provide their own entity parsing function. A sample
+          implementation is available.
+    o qfcc
+        * major rewrite of parser and code generation
+            o C style declarations fully supported (bit fields ignored)
+            o dead code elimination
+            o better constant folding
+            o Objective-QC runtime data moved into far data to avoid taking
+              precious near data defs.
+            o missing return statements in non-void functions now detected
+              with a suitable warning
+            o pointers and arrays now use C syntax
+            o "integer" now "int"
+        * field aliasing: .SEL thinkMethod = think;
+        * diagnostic variables
+          __PRETTY_FUNCTION__ __FUNCTION__ __LINE__ and __FILE__
+        * NIL renamed to nil
+        * man page documentation
+        * function overloading
+        * allow entity.vector.x (etc) instead of entity.vector_x
+        * many ObjectiveQuakeC fixes
+        * optional constant-vector parameter space optimisation (slows down
+          the code, though): can compile the version of frogbot that has
+          waypoints for almost 300 maps.
+        * rcall support
+        * static local vars
+        * more pointer support
+        * better compatibility with qcc
+        * preprocess progs.src
+        * one-pass compilation of progs.src based code when using cpp
+        * qccx escape codes supported. As there are conflicts with qfcc's
+          escape codes, --qccx-escapes can be used to select qccx instead of
+          qfcc.
+        * explicit references to classes and categories via
+          "@reference ClassName;" or "@reference ClassName(CategoryName);"
+    o Tools
+        * filter for displaying item information from a map (itemslist.py)
+        * wad tool improvements
+        * qfbsp can extract the entities data from bsp files.
+        * qflmp: converts between lmp and pcx
+        * io_mesh_qfmdl: blender mdl import/export script
+
+Changes from 0.5.4
+    o General enhancements
+        * bring back a bunch of fixes from 0.5.3 (including news items) that
+          got lost in the rushed release of 0.5.4
+        * more cvar renaming: scr_consize -> con_size, scr_conspeed ->
+          con_speed, gl_conalpha -> con_alpha, vid_conwidth -> con_width,
+          vid_conheight -> con_height, show_fps -> hud_fps, show_ping ->
+          hud_ping, show_pl -> hud_pl, show_time -> hud_time, show_scoresuid ->
+          hud_scoreboard_uid
+        * demo_speed no longer affects console scrolling or cursor blink rate
+        * save game loading fixed
+        * FPS display now updated every 0.2 seconds and displays to the tenth
+          of an fps
+        * improper placement of fullscreen window on startup in -x11 and -glx
+          fixed (ie, starting with +set vid_fullscreen 1)
+        * QNX fixes from Mike Gorchak <mike@malva.ua>
+        * DirectX is now the default sound driver for windows
+        * renderer speedups
+        * demo_quit cvar to cause qf to quit automaticly at the end of a
+          timedemo to make automation of profiling easier
+        * server clients work with mvds
+        * never allow IP ports < 1024
+        * prettier particles. affected by gravity in qw (protocol restrictions
+          in nq)
+        * Darwin compile fixes
+        * fix a segfault when using 1 component lightmaps
+        * don't display the connect message when +connect is given on the
+          command line (thanks to Qize)
+        * mouse acceleration support in X11 thanks to Qize
+        * fix alpha blending in 2d mode when 3d has never been rendered
+        * don't flush garbage to the screen on the first render frame
+        * PNG support thanks to DrSpliff
+        * ALSA 0.5 support dropped
+        * ALSA 1.x support is "alsa", 0.9 is "alsa0_9" (only one is built)
+        * MIDI BGM support using libWildMidi
+        * GIB objects
+        * external conchars thanks to DrSpliff
+        * sv_logfile gets flushed on each print
+        * don't parse qsg protocol bits if the server isn't qsg compliant
+        * GIB functions and methods support named arguments
+        * many server features taken from QWE/mvdsv (HighlandeR): most notably
+          ktpro support
+        * plug most (if not all) potential buffer overflows
+        * nq deathmatch score fix from xi
+        * find radius bug fixes thanks to Grievre
+        * Luma texture support for brush models (From Fuh, by way of Grievre)
+        * --disable-static now works thanks to raorn
+        * treat server clients like non-client entities for GIB "frag" event
+        * expand ~ for fs_dirconf
+        * don't write config.cfg until /after/ it's been read :)
+        * ATI's libGL needed to be loaded with global symbols in order to work
+          properly
+        * oss sound doesn't block if the sound device is busy (from Grievre)
+        * add snd_bits/rate/stereo cvars to win and dx sound targets
+        * file based cd plugin from ashridah. oggs, wavs and midis can now be
+          used for background music. default cd plugin for all platforms
+        * many menu improvements
+        * win32 server console now has working input
+        * curses server console scrollback works
+        * qfdefs nuked. no longer needed as "standard" progs get resolved
+          staticly
+        * Anisotropy support, controlled by gl_anisotropy
+        * TruForm support, controlled by gl_tessellate
+        * Improvements in time accounting. Accurate to +-0.5ms, instead of -1,0
+          like others. Based on Grievre's and zquake's code
+        * mangled sounds on gamedir change fixed thanks to Grievre
+        * mtex support for world rendering.
+        * alias models use GL lighting
+        * support for 7 mouse buttons
+        * all archived cvars get written to config.cfg prefixed with "seta"
+          (new command that sets the archive bit)
+        * x11/glx fullscreen toggling fixes (window placement, mouse input etc)
+        * add optional reason to kick and ban for qw-server
+        * DrSpliff's qfadmin script updated
+        * quaternion support in progs engine and qfcc
+        * optionally allow recomte commands from a specified host address
+        * add a -novideo option to fbdev target to allow for headless operation
+        * full path reporting when writing screenshots
+        * one level of .. allowed in file access (eg, exec ../configs/foo.cfg)
+        * add r_norefresh support to sw and sw32 and rename the console side of
+          the cvar to cooperate better with the evil in customtf
+        * new cvar from Grievre to control "fake" filtering and change the fake
+          kick default
+        * fix bug where certain looped sounds would cause a hang
+        * 64 bit compile fixes
+        * alias models are no longer black on maps with no lighting info
+    o qfcc enhancements.
+        * conforms better to Objective-C sematics
+        * "struct" support closer to that of C (ie, separate namespace)
+        * now supports the "unsigned" type (32 bit unsigned integer)
+        * correct handling of ! and &&/|| for traditional code
+        * linker error message improvements
+        * better error checking in
+        * can cast between pointers and integers
+        * --traditional operator precedence conforms to qcc but --advanced to C
+        * --traditional is default for progs.src and --advanced for separate
+          compilation
+        * much better qcc conformance in general for --traditional
+        * more informative error reporting
+        * if (const) now works properly (though dead code doesn't get
+          eliminated)
+        * allow constant expressions to be used for builtin numbers
+        * better constant folding with auto-conversion between scalar types
+        * warn on if (a = b)
+        * better detection of function calls in binary expressions
+        * give temp defs a name, making it easier to read disassembly output
+        * ensure a op= b treats b as if it was (b)
+        * ; at end of functions optional. C style function declarations
+          available
+        * short circuit logic for && and || (breaks --traditional when enabled)
+        * non-const expressions for frame in state operator valid
+        * computed functions for state think allowed
+        * change --include FILE to pre-include a file rather than add a
+          directory search path. Maps to -include FILE on the cpp command line.
+        * all warnings (except for @self and self) are now fully controllable
+        * --traditional now auto-inits uninitialized local vars
+        * fast-float code option (defaults to on). kills almost 3000 statements
+          from prozac
+    o tools enhancements
+        * wad utilty along the lines of pak. can't yet be used for wad creation
+          (that's a little more complicated), but it can be used for listing
+          and extracting the contents of a wad file. watch out for *foo :)
+        * qfbsp
+            - no longer zaps the bsp file when given a bsp instead of a map
+              when compiling a map
+            - watervis support
+            - handle multiple wad files properly
+            - better whilespace support for windows
+            - bring in many of LordHavoc's changes to qbsp: HalfLife WorldCraft
+              texture alighnment, partial "point of plane" autocorrection,
+              hipnotic entity rotation
+            - remove many arbitrary limits (edgs, points on windong, tokens and
+              keys)
+            - force axis aligned planes to truely be axis aligned (fixes
+              degenerate polygons being generated by ClipWinding)
+            - bsp to prt support (for watervising sourceless maps)
+            - can now dump a map's textures to a wad file
+            - various impovements from Vic via hqbsp (lordhavoc)
+        * qflight
+            - colored lighting support (from LordHavoc's hlight)
+            - use vis data to speed up light passes
+            - gzipped bsp support (reading only)
+            - threading works
+            - OpenQuartz's extentions (except -ikmap) brought in. id's light
+              model is default
+            - support properties files for setting default light settings for
+              different light entity types
+            - spotlight now works
+        * pak
+            - can specify files to extract from a pak
+        * qfvis
+            - support old-style portal files again
+    o Progs engine/Ruamoko enhancements
+        * Object root class revamped
+        * progs debug/disassemble improvements
+        * progs version update due to missing pointer in the symtab struct
+
+        * progs string revamp: temp strings (eg, result from string + string)
+          get freed when the creating funciton exits
+        * new internal printf engine for progs
+        * report all bad builtins rather than just the first. make the bad
+          builtin number a warning and provide a suitable function in case the
+          function is called: allows progs with bad (but unused) builtins to
+          run anyway
+        * progs dump print an address if the def name is blank
+        * ruamoko math functions from Grievre
+        * while not yet perfect, qfprogs now works with qfo files
+        * new opcode: state.f. same as state, but takes a 3rd float operand to
+          specify the step for calculating nextthink. accessed using
+          [frame, think, step] (state is [frame, think])
+        * progs handle x % 0 by giving a 0 result
+
+Changes from 0.5.3
+    o CRITICAL: exploitable buffer overflow in qw-server fixed
+    o more gib regex and other text manipuation support
+    o snd_oss_rw ditched in favour of just trying both ways
+
+Changes from 0.5.2
+
+    o General enhancements.
+        * MVD playback in the qw clients.
+        * MVD recording in the qw server.
+          MVD support thanks to qwex 0.165b and highlander
+        * sv_maxrate changes now take effect immediately rather than when
+          clients (re)connect or change their rate
+        * segfault when using "snd_output null" fixed
+        * qw server "status" command now gives the server's uptime
+        * "map" will display the amount of time the current map has been active
+        * nq-server will now auto-load the start map if none is specified
+        * streaming for large sound files
+        * support for two channel sound files
+        * partial string buffer audit
+        * native Windows (win) sound driver finally works and is now default
+        * DirectX sound support added (dx)
+        * highchars stripped infokeys terminated properly so they don't contain
+          garbage
+        * WGL (nq-wgl.exe and qw-client-wgl.exe) resolution selection brought
+          in line with all other targets giving the vid_width and vid_height
+          cvars. Automatic aspect ratio support dropped.
+        * X11 (nq-x11 and qw-client-x11) no longer hangs on 32bpp displays
+        * new `view' system giving easier to control hud elements, centered
+          menus and locatable scoreboard (hud_scoreboard_gravity)
+        * OSS sound driver fixes: some kernel drivers need write-only access,
+          others need read/write
+        * able to load/unload semi-arbitrary plug-ins using console commands
+        * streaming for large sound files (eg., full length oggs)
+        * stereo sample support
+        * map command in the rcon admin list
+        * configurable "quake" directory layout
+        * server now actually runs properly when there's no network or
+          console input (eg, bots continue to battle unattended)
+        * skydome (gl_sky_clip 0) renders correctly
+        * external entity file support (maps/foo.bsp will use maps/foo.ent if
+          available)
+        * map specific config files
+        * map specific external textures in "textures/mapname/"
+        * support for more tga formats
+        * vid_conwidth cvar
+        * cleaner mouse enter/leave handling for x11 and glx windows
+        * hexenworld master server
+        * software and gl (some cards) fish-eye support
+        * "crosshair 3" for gl clients
+        * remote screen shots work
+        * curses console no longer default
+        * more key-names supported
+        * Matthew Wong's bsp2bmp `imported' as bsp2img. only pcx output
+          currently.
+        * console operator chat messages get echoed
+        * BSD fseek bug fixed
+        * no_pogo_stick 3 mode forcing friction independent of jump being
+          active
+        * rcon password /never/ gets written as it may be legitimate for
+          another server (ie, confused person :)
+
+    o GIB enhancements
+        * events system (map change, client enter/leave etc)
+        * several bug fixes
+        * documentation
+
+    o qfcc enhancements.
+        * @argc and @argv deprecated in favor of @args.count and @args.list
+          (@args is a struct with type @va_list)
+        * structure copy
+        * -L lib search paths and -l now behaves in a more expected manner
+        * default search paths for includes and libs
+        * updated man page and command line help
+        * [super ...] messages work
+        * categories work
+        * nested and struct block initializers work
+        * can access vector elements as vec.x as well as vec_x
+        * void (void) func; is now valid (no params)
+        * initialized globals can be used any place a true constant is expected
+
+    o qfbsp/qflight/qfvis enhancements
+        * various crash bug fixes
+        * hint, skip and detail brush support
+        * emit clipnodes in the correct order
+        * groks quest's "map2" format in addition to the original format
+
+    o Progs engine enhancements.
+        * arbitrary size data copying
+        * optionally handle division by 0 gracefully
+
+Changes from 0.3.0
+
+    o General enhancements.
+        * NQ (quake1, single player, NetQuake, WinQuake) is back.
+        * Video (driver and renderer), audio, gamecode (progs), console,
+          model loading and general utility code shared in common libs between
+          NQ and QW
+        * Plugin system for sound and cd drivers.
+        * Ogg Vorbis compression for sound effect samples (streamed ogg support
+          is planned).
+        * Menu system re-written in QuakeC/Ruamoko
+        * Curses console for servers in Unix.
+        * New key binding system.
+
+    o Progs engine enhancements.
+        * Fully modular. Mod/Server-independent, allowing for
+          stand-alone QuakeC interpreter and client-side code.
+        * The engine is no longer dependent on progdefs.h. This makes
+          QuakeForge have trouble with QuakeC compilers that strip
+          symbol names -- but those can be repaired using the new
+          "qfdefs" tool.
+        * New basic types, and instructions for using them, for version
+          0.fff.002 progs (Quake's Version 6 is still supported).
+        * Better dynamic string handling. Dynamic strings are
+          garbage-collected.
+        * Object-oriented runtime system, in the style of Objective-C.
+        * Runtime fixups of built-in functions whose builtin number is
+          zero. If a built-in function is available to the engine, with
+          the same name given in the source code (e.g.
+          "void (void) coredump = #0;"), the engine will set the value
+          to the actual number used by the engine.
+        * Debugging support (needs compiler support, which qfcc
+          provides), including line-number information. Can display the
+          line of text in the source on which an error occurred, if the
+          new Cvar "pr_source_path" is set correctly.
+        * Instruction-level code dumps are now formatted in an
+          easier-to-read "assembly-code" format.
+
+    o QuakeForge Code Compiler, qfcc -- a replacement for qcc.
+        * Uses libQFutil for general utility functions such as hash
+          tables, file access (incomplete), and pak files.
+        * Uses libQFgamecode for progs information, such as opcode
+          tables, enums, types, etc.)
+        * Uses a lex/yacc (actually, Flex and Bison) scanner/parser
+          architecture, like a "real" compiler does.
+        * Drastically reduces the number of global defs needed for
+          a given progs, by reusing temporary globals when possible.
+        * All functions use the same block of defs for their local
+          variables (compatible with all known servers), which further
+          reduces the number of global defs needed.
+        * Nested/chained function calls work properly.
+        * Simple expressions, such as "a = b + c", compile to a single
+          instruction instead of two, and do not use a temporary
+          variable.
+        * Local variables can be initialized to known values, as in
+          "local float foo = 0.1;".
+        * Uses the C preprocessor, so header files are now possible and
+          useful.
+        * The compiler checks for uninitialized and unused variables in
+          functions, to help in finding errors.
+        * The compiler can generate and use object files, for separate
+          compilation (you don't have to compile all of your source all
+          the time, only the parts that have changed). Normally, object
+          files have a .qfo extension.
+        * The compiler can link libraries, which are implemented as .qfo
+          files inside pak archives.
+        * The compiler implements stricter type checking, to assist in
+          finding and fixing code errors.
+        * The C language's "for", "do...while", and "switch" control
+          structures have been adopted to provide a richer set of
+          structures for programmers to use.
+        * Additional functionality is given for progs that are to be
+          used with QuakeForge's more advanced progs engine:
+
+            x IMPORTANT:
+              The order of operations is slightly different in "native"
+              mode. The evaluation of "!foo & bar" is no longer
+              "!(foo & bar)", but rather "(!foo) & bar". The new order of
+              operations rules is more correct, but is different from how
+              QCC evaluated. If you give the --traditional switch to
+              qfcc's command-line, the old behavior is used.
+            x The compiler now allows you to create your own functions
+              that can accept a variable number of arguments, using the
+              special "..." notation. The special constants "@argc" and
+              "@argv" help with this. @argc contains the number of
+              arguments, and @argv contains a list of those arguments. The
+              handling of this is an improvement on C's vararg function
+              handling, in our opinion, made possible by how the Quake
+              system works.
+            x New basic types: integer, pointer, enum, and id.
+            x You can create new complex types, like arrays, structures,
+              and unions, and allocate them at runtime.
+            x String operators. You can add strings together to
+              concatenate them, and you can compare their contents using
+              the <=, <, >, >= operators.
+            x The integer type has the full array of C operations
+              available to it.
+            x QFCC and QuakeForge now contain an object-oriented
+              programming system, in the style of Objective-C and
+              Smalltalk. It's *very* powerful, and can be used to create
+              lots of interesting new things with rather little effort. If
+              you don't wish to use the new system, you can safely ignore
+              it with no danger to your code. :)
+            x Special support for using the "self" special variable inside
+              OO methods as well as the entity of the same name. If you
+              use OO support for entities and want to assign a method as a
+              touch/think/etc. function, "self" always refers to the
+              object that "owns" the method being executed. The special
+              variable "@self" was created to refer to the self entity.
+              "@this" refers to the object.
+
+    o Enhanced console scripting - GIB (GIB Isn't Bash)
+        * New language derived from the quake console.
+        * Functions with arguments and return values.
+        * Looping (while, for) and branching (if) commands.
+        * Local and global variables as well as access to cvars.
+          Supports Python-like slicing of variables.
+        * A basic math interpreter that respects order of operations
+          and provides most arithmetic and logic operators.
+        * Non-preemptive threading and callbacks to GIB functions in
+          response to game events (limited but functional at the moment)
+        * File reading, writing, and searching.
+        * Integrates with console -- GIB functions can be exported as
+          console commands to be used at the console or in binds.
+        * See gib.html in doc for more information.
+
+    o Enhanced time cheat ("speed cheat") protection
+        * Time cheats work for only a split-second before protection
+          kicks in.
+        * Players moving with wrong timings are sped up/slowed down to
+          the correct speed.
+        * Delay before protection activates means that lag and normal
+          network latency won't affect protection.
+        * People who aren't really trying to cheat won't be kicked :)
+
+    o Rendering enhancements
+        * Experimental 32 bit software renderer.
+        * Dynamic lights don't shine through walls.
+        * Colored alias model lighting for GL.
+        * Vertex Array use for sprites, particles and text. No fallbacks yet,
+          so QF wont work with old or broken GL drivers. 
+        * Switchable particle styles: r_particles_style 0 for Id. Default is 1,
+          for lower particle count, larger texture particle effects.
+        * 16 bit vertex alias model format.
+        * Improved software gamma that more closely resembles hardware gamma.
+        * Countless speed improvements.
+
+Known problems in 0.5.2:
+    o Doesn't work with 3dfx cards in MS Windows due to vertex array use.
+    o SDL clients don't reliably support fullscreen mode in MS Windows
+    o MS Windows support in general is sorely under-tested.
+    o Starting an SDL client (-sdl, -sgl or -sdl32) in fullscreen mode
+      and then going windowed requires in_grab to be toggled from 0 to 1
+      and back to 0 before the mouse will be released.
