@@ -1,0 +1,15 @@
+*.o
+*.d
+*.orig
+*.rej
+*.patch
+*.diff
+*.exe
+
+gmqcc
+gmqpak
+qcvm
+testsuite
+
+build/
+.idea/
