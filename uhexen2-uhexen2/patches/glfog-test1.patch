@@ -1,0 +1,248 @@
+
+Basic experimental fog code extracted from jshexen2 (activate with
+"gl_fog 1", see the cvars for other options):
+- underwater fogging removed
+- no menu entries in Options :: OpenGL Features, yet
+- slightly cleaned-up according to original quake code
+- there is some striped view in fogged areas ;(
+- seems NOT working correctly without multitexturing
+- obviously still needs fixing ;)  the only reason I
+  revived this crap is that the glowed missiles look
+  somewhat better in fog (personal liking), sigh...
+
+diff --git a/engine/h2shared/gl_func.h b/engine/h2shared/gl_func.h
+index f51975c..2ef3f6a 100644
+--- a/engine/h2shared/gl_func.h
++++ b/engine/h2shared/gl_func.h
+@@ -70,6 +70,11 @@ GL_FUNCTION(void, glColor3ubv, (const GLubyte *))
+ GL_FUNCTION(void, glColor3f, (GLfloat,GLfloat,GLfloat))
+ GL_FUNCTION(void, glClearColor, (GLclampf,GLclampf,GLclampf,GLclampf))
+ 
++GL_FUNCTION(void, glFogf, (GLenum,GLfloat))
++GL_FUNCTION(void, glFogfv, (GLenum, const GLfloat *))
++GL_FUNCTION(void, glFogi, (GLenum,GLint))
++GL_FUNCTION(void, glFogiv, (GLenum, const GLint *))
++
+ GL_FUNCTION(void, glAlphaFunc, (GLenum,GLclampf))
+ GL_FUNCTION(void, glBlendFunc, (GLenum,GLenum))
+ GL_FUNCTION(void, glShadeModel, (GLenum))
+@@ -145,6 +150,11 @@ GL_FUNCTION(void, glClearStencil, (GLint))
+ #define glColor3f_fp		glColor3f
+ #define glClearColor_fp		glClearColor
+ 
++#define glFogf_fp		glFogf
++#define glFogfv_fp		glFogfv
++#define glFogi_fp		glFogi
++#define glFogiv_fp		glFogiv
++
+ #define glAlphaFunc_fp		glAlphaFunc
+ #define glBlendFunc_fp		glBlendFunc
+ #define glShadeModel_fp		glShadeModel
+diff --git a/engine/h2shared/gl_rlight.c b/engine/h2shared/gl_rlight.c
+index 788eed3..2bc6824 100644
+--- a/engine/h2shared/gl_rlight.c
++++ b/engine/h2shared/gl_rlight.c
+@@ -175,6 +175,10 @@ void R_RenderDlights (void)
+ 
+ 	r_dlightframecount = r_framecount + 1;	// because the count hasn't
+ 						//  advanced yet for this frame
++
++	// disable drawing fog on lights
++	if (gl_fogenable.integer)
++		glDisable_fp(GL_FOG);
+ 	glDepthMask_fp (0);
+ 	glDisable_fp (GL_TEXTURE_2D);
+ 	glShadeModel_fp (GL_SMOOTH);
+@@ -194,6 +198,9 @@ void R_RenderDlights (void)
+ 	glEnable_fp (GL_TEXTURE_2D);
+ 	glBlendFunc_fp (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+ 	glDepthMask_fp (1);
++	// re-enable fog
++	if (gl_fogenable.integer)
++		glEnable_fp(GL_FOG);
+ }
+ 
+ 
+diff --git a/engine/h2shared/glquake.h b/engine/h2shared/glquake.h
+index 128aeb0..cc73912 100644
+--- a/engine/h2shared/glquake.h
++++ b/engine/h2shared/glquake.h
+@@ -260,6 +260,16 @@ extern	cvar_t	gl_glows;
+ extern	cvar_t	gl_other_glows;
+ extern	cvar_t	gl_missile_glows;
+ 
++extern	cvar_t	gl_fogenable;
++extern	cvar_t	gl_fogstart;
++extern	cvar_t	gl_fogend;
++extern	cvar_t	gl_fogdensity;
++extern	cvar_t	gl_fogalpha;
++extern	cvar_t	gl_fogred;
++extern	cvar_t	gl_fogblue;
++extern	cvar_t	gl_foggreen;
++extern	cvar_t	gl_underwaterfog;
++
+ extern	cvar_t	gl_coloredlight;
+ extern	cvar_t	gl_colored_dynamic_lights;
+ extern	cvar_t	gl_extra_dynamic_lights;
+diff --git a/engine/hexen2/gl_rmain.c b/engine/hexen2/gl_rmain.c
+index 89d2f82..f7fae66 100644
+--- a/engine/hexen2/gl_rmain.c
++++ b/engine/hexen2/gl_rmain.c
+@@ -44,6 +44,8 @@ mplane_t	*mirror_plane;
+ 
+ static float	model_constant_alpha;
+ 
++static GLfloat	fog_colours[4];
++
+ static float	r_time1;
+ static float	r_lasttime1 = 0;
+ 
+@@ -104,6 +106,14 @@ cvar_t	gl_waterripple = {"gl_waterripple", "2", CVAR_ARCHIVE};
+ cvar_t	gl_glows = {"gl_glows", "0", CVAR_ARCHIVE};	// torch glows
+ cvar_t	gl_other_glows = {"gl_other_glows", "0", CVAR_ARCHIVE};
+ cvar_t	gl_missile_glows = {"gl_missile_glows", "1", CVAR_ARCHIVE};
++cvar_t	gl_fogenable = {"gl_fog", "0", CVAR_ARCHIVE};
++cvar_t	gl_fogstart = {"gl_fogstart", "400.0", CVAR_ARCHIVE};
++cvar_t	gl_fogend = {"gl_fogend", "2000.0", CVAR_ARCHIVE};
++cvar_t	gl_fogdensity = {"gl_fogdensity", "0.2", CVAR_ARCHIVE};
++cvar_t	gl_fogred = {"gl_fogred", "0.5", CVAR_ARCHIVE};
++cvar_t	gl_foggreen = {"gl_foggreen", "0.5", CVAR_ARCHIVE};
++cvar_t	gl_fogblue = {"gl_fogblue", "0.5", CVAR_ARCHIVE};
++cvar_t	gl_fogalpha = {"gl_fogalpha", "0.5", CVAR_ARCHIVE};
+ 
+ cvar_t	gl_coloredlight = {"gl_coloredlight", "0", CVAR_ARCHIVE};
+ cvar_t	gl_colored_dynamic_lights = {"gl_colored_dynamic_lights", "0", CVAR_ARCHIVE};
+@@ -1338,6 +1348,9 @@ static void R_DrawAllGlows (void)
+ 	if (!r_drawentities.integer)
+ 		return;
+ 
++	if (gl_fogenable.integer)
++		glDisable_fp(GL_FOG);
++
+ 	glDepthMask_fp (0);
+ 	glDisable_fp (GL_TEXTURE_2D);
+ 	glShadeModel_fp (GL_SMOOTH);
+@@ -1358,6 +1371,9 @@ static void R_DrawAllGlows (void)
+ 		}
+ 	}
+ 
++	if (gl_fogenable.integer)
++		glEnable_fp(GL_FOG);
++
+ 	glDisable_fp (GL_BLEND);
+ 	glEnable_fp (GL_TEXTURE_2D);
+ 	glBlendFunc_fp (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+@@ -1784,6 +1800,23 @@ static void R_RenderScene (void)
+ 
+ 	R_MarkLeaves ();	// done here so we know if we're in water
+ 
++#if 0
++/* WHY DID JSHEXEN2 PUT THIS HERE ??!! */
++	if (gl_fogenable.integer)
++	{
++		glFogi_fp(GL_FOG_MODE, GL_LINEAR);
++
++		fog_colours[0] = gl_fogred.value;
++		fog_colours[1] = gl_foggreen.value;
++		fog_colours[2] = gl_fogblue.value;
++
++		glFogfv_fp(GL_FOG_COLOR, fog_colours);
++		glFogf_fp(GL_FOG_START, gl_fogstart.value);
++		glFogf_fp(GL_FOG_END, gl_fogend.value);
++		glEnable_fp(GL_FOG);
++	}
++#endif
++
+ 	R_DrawWorld ();		// adds static entities to the list
+ 
+ 	S_ExtraUpdate ();	// don't let sound get messed up if going slow
+@@ -1792,6 +1825,8 @@ static void R_RenderScene (void)
+ 
+ 	R_DrawAllGlows();
+ 
++//	glDisable_fp(GL_FOG);	// already done in R_RenderDlights ()
++
+ 	R_RenderDlights ();
+ }
+ 
+@@ -1987,6 +2022,39 @@ void R_RenderView (void)
+ 
+ 	R_Clear ();
+ 
++	if (gl_fogenable.integer)
++	{
++		if (gl_fogstart.value < 5)
++			Cvar_SetQuick (&gl_fogstart, "5");
++		if (gl_fogstart.value > 4095)
++			Cvar_SetQuick (&gl_fogstart, "4095");
++		if (gl_fogend.value < 6)
++			Cvar_SetQuick (&gl_fogend, "6");
++		if (gl_fogend.value > 4096)
++			Cvar_SetQuick (&gl_fogend, "4096");
++		if (gl_fogstart.value >= gl_fogend.value)
++			Cvar_SetValueQuick (&gl_fogend, gl_fogstart.value + 1);
++
++		fog_colours[0] = (GLfloat) gl_fogred.value;
++		fog_colours[1] = (GLfloat) gl_foggreen.value;
++		fog_colours[2] = (GLfloat) gl_fogblue.value;
++		fog_colours[3] = (GLfloat) 1;	//gl_fogalpha.value;
++
++		glFogi_fp (GL_FOG_MODE, GL_LINEAR);
++	//	glFogi_fp (GL_FOG_MODE, GL_EXP);
++	//	glFogi_fp (GL_FOG_MODE, GL_EXP2);
++		glFogfv_fp (GL_FOG_COLOR, fog_colours);
++		glFogf_fp (GL_FOG_START, gl_fogstart.value);
++		glFogf_fp (GL_FOG_END, gl_fogend.value);
++		glFogf_fp (GL_FOG_DENSITY, gl_fogdensity.value);
++	//	glHint_fp (GL_FOG_HINT, GL_NICEST);
++		glEnable_fp (GL_FOG);
++	}
++	else
++	{
++		glDisable_fp (GL_FOG);
++	}
++
+ 	// render normal view
+ 	R_RenderScene ();
+ 
+@@ -2002,6 +2070,9 @@ void R_RenderView (void)
+ 
+ 	R_DrawViewModel();
+ 
++	if (gl_fogenable.integer)
++		glDisable_fp(GL_FOG);
++
+ 	// render mirror view
+ 	R_Mirror ();
+ 
+@@ -2009,5 +2080,7 @@ void R_RenderView (void)
+ 
+ 	if (r_speeds.integer)
+ 		R_PrintTimes ();
++
++	glDepthMask_fp(1);
+ }
+ 
+diff --git a/engine/hexen2/gl_rmisc.c b/engine/hexen2/gl_rmisc.c
+index 2876490..cb76c37 100644
+--- a/engine/hexen2/gl_rmisc.c
++++ b/engine/hexen2/gl_rmisc.c
+@@ -246,6 +246,15 @@ void R_Init (void)
+ 	Cvar_RegisterVariable (&gl_missile_glows);
+ 	Cvar_RegisterVariable (&gl_other_glows);
+ 
++	Cvar_RegisterVariable (&gl_fogenable);
++	Cvar_RegisterVariable (&gl_fogstart);
++	Cvar_RegisterVariable (&gl_fogend);
++	Cvar_RegisterVariable (&gl_fogdensity);
++	Cvar_RegisterVariable (&gl_fogalpha);
++	Cvar_RegisterVariable (&gl_fogred);
++	Cvar_RegisterVariable (&gl_fogblue);
++	Cvar_RegisterVariable (&gl_foggreen);
++
+ 	Cvar_RegisterVariable (&gl_coloredlight);
+ 	Cvar_RegisterVariable (&gl_colored_dynamic_lights);
+ 	Cvar_RegisterVariable (&gl_extra_dynamic_lights);
+
+-- 
+1.7.1

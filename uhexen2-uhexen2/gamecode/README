@@ -1,0 +1,317 @@
+Hexen II: Hammer of Thyrion (uHexen2) - GAMECODE
+------------------------------------------------
+
+Changes
+-------
+
+2018-02-20 (1.29b):
+===================
+- soul.hc (necro_soul_touch): Necromancer soul devour no longer prints
+  a stray number (bug #65.)  Thanks to Raymond Martineau for reporting
+  the issue.
+
+2016-05-30 (1.29a):
+===================
+- rider_death(), rider_pestilence(), rider_war():  set max_health along
+  with health.  these bosses rely on the multiplayer_health() function
+  to set health, and without max_health set, it used to set health to 0
+- multiplayer_health():  made sure that torncount doesn't go negative.
+
+2015-10-31 (1.29):
+===================
+- change lots of statements like x=x|y; into x(+)y; so that it's simply
+  done with the BITSET op. also changed a few statements like x=x-(x&y);
+  into x(-)y; so that it's simply done with the BITCLR op.  other minor
+  tidy-ups.
+- meteor.hc (tornato_spin): fixed typo in pain_finished equality check:
+  if(self.pain_finished==-1), not if(self.pain_finished=-1). issue was
+  present since at least v0.42.
+- stats.hc (AwardExperience): eliminated the duplicated IsPlayer check.
+  Crusader partial healing at certain experience thresholds now starts
+  at level 3 to be consistent with the manual.
+- specials.hc (CheckAbilities): fixed missing parens around two OR'ed
+  constants in the drawflags bittest. (issue was present since at least
+  v1.03.)
+- ravenai.hc: commented out all functions except for LocateTarget() and
+  CheckMonsterAttack(). all of them are unused.
+- fangel.hc (fangel_deathframes): removed an unused local.
+- fablacde.hc: commented out unused frame_BLADE
+- client.hc (changelevel_touch): fixed parens around noxit cvar checks
+  (typo was introduced in v1.15.) in siege version, remove the start map
+  check (no such map in hexen2/hexen2world.)
+- allplay.hc (DeathBubbles,DeathSound), mummy.hc (mummy_die), rat.hc
+  (rat_touch), triggers.hc (hurt_touch): removed the useless return
+  statements from the end of the functions.
+- MG_AI.hc (CheckJump): changed several else if statements to simple ifs
+  whose parent if already always return.
+- triggers.hc (quake_shake_next): remove useless initialization of local
+  entity variable to world.
+- portals/damage.hc (T_Damage): make sure target is a player (FL_CLIENT)
+  before checking its camera_time and return: spider.spiderActiveCount
+  and player.camera_time overlap in entity union and can make spiders
+  invincible, otherwise. issue has been there since Raven's v1.12.
+- siege/client.hc: in Climb(), changed a bitwise and to logical and to
+  better match the code to v0.15 (was a typo from KS's changes.)  in
+  PlayerPostThink(), fixed a misplaced else case for the landing sound
+  code to better match the code to v0.15 (was a typo from KS's changes.)
+  in ClientObituary(), changed targ.deathtype check from falling to fall
+  to match the v0.15.x code elsewhere in client.hc.
+- siege: removed again raven, snake, spider, scorpion, skullwiz, medusa,
+  archer, hydra, faspell, fablade and fangel hc files from build. they
+  were added to build along with KS's siege changes back in 2005, but
+  they aren't really used, and they weren't in siege-v0.15 either...
+- combat.hc (FireMelee): broke the long if condition for the assassin's
+  backstab into smaller 3 nested ifs ordered in the likelihood of truth.
+  in siege version, changed some of the if conditions into else if (the
+  player class checks.)
+- ravenstf.hc (create_raven_shot2, hw and siege versions): removed the
+  DAMAGE_YES assignment to missile.solid, just like we did for the h2
+  and portals versions years ago. (must have been there by mistake as
+  noticed by Pa3PyX; used to cause missiles to be of SOLID_TRIGGER type
+  and collide with each other.)
+- ravenstf.hc (missle_straight, hw and siege versions): removed useless
+  return statement from the end of the function.
+
+2013-03-08 (1.28):
+===================
+- Map cycling: abandoned the old community-invented (Kor Skarn) method
+  of abusing strings.txt: it was intrusive and unsafe and ugly. The hw
+  and siege hcode now use the standart quakeworld method of localinfo
+  variables: see client.hc:NextLevel() for details. docs/README.hwsv is
+  updated for brief user instructions on setting up a map cycling.
+
+2012-10-01 (1.27):
+===================
+- client.hc, invntory.hc: artifact_active/artifact_low setting/clearing
+  of ART_TOMEOFPOWER, ART_INVINCIBILITY, ART_INVISIBILITY and ART_HASTE
+  are now done simply by using BITSET and BITCLR ops.
+- h2/cube.hc (cube_find_target): fixed parens in the if construct. don't
+  choose a monster whose controller is the same as the cube's controller
+  i.e. the player's summoned imp. assign self as the cube's controller
+  in UseCubeOfForce(). fixes backported from the mission pack version.
+- breakabl.hc,client.hc,doors.hc,subs.hc,weapons.hc,world.hc: replaced
+  several while(1){} and do{}while(1) loops by loop{} which is shorter.
+- weapons.hc (CycleWeaponCommand, CycleWeaponReverseCommand): removed an
+  unnecessary local variable and changed the loop into a while(1) loop
+  and simplified a bit. made them to return in in an impossible case of
+  weapon not being one of IT_WEAPON1..4. changed the portals version to
+  use switch statements.
+- h2/items.hc, portals/items.hc (weapon_touch): IT_WEAPON4 must be OR'ed
+  to new items, not added to. fix copied over from hexenworld version.
+- h2/items.hc (weapon_touch) : commented out other.oldweapon assignment
+  to other.weapon. was causing weapon switching to get stuck if several
+  weapons were picked up too fast. see:
+  http://sourceforge.net/projects/uhexen2/forums/forum/425206/topic/5635367
+- h2/weapons.hc (W_DeselectWeapon): added else cases for the necromancer
+  for self.oldweapon == IT_WEAPON2 && self.oldweapon != IT_WEAPON3, and
+  for self.oldweapon == IT_WEAPON3 && self.oldweapon != IT_WEAPON2,
+  simply calling W_SetCurrentAmmo() same as the portals and hw versions
+  do.
+- setstaff.hc (scarab_die): fixed a typo in chain removal code. the bug
+  was at least as old as v0.42 of hexen2. noticed the fix in hexenworld.
+- commented out several dprints, several whitespace adjustments.
+- Bumped version number to 1.27.
+
+2012-05-22 (1.26):
+===================
+- fish.hc (fish_follow):  Proceed only if the goalentity is a valid one.
+  Also made it to return if the function puts the fish into bored state.
+- Bumped version number to 1.26.
+
+2012-01-15 (1.25):
+===================
+- h2/axe.hc (axetail_run): if no owner, remove self and return (just
+  in case. merged from the mission pack.)
+- h2/weapons.hc: Fixed occasional crashes with Paladin's axe (H2MP 1.12a
+  patch to the rescue...)
+- some minor clean up
+- Bumped version number to 1.25.
+
+2011-07-03 (1.20):
+===================
+- Bumped version number to 1.20.
+- Commented out unreferenced create_swarm() from h2 version of pstboar.hc
+  (already disabled or removed in all other versions.)
+- Reset skull wizard's .enemy and .goalentity fields to world. Fixes bug
+  #3314808 where, if there were a summoned imp around, a blinked away
+  wizard wouldn't reappear even after imp went away. From Thomas Freundt.
+- Fixed bug where the summoned imp didn't pick the Egypt snake boss as an
+  enemy. (Set the snake's ALIVE flag. From Thomas Freundt.)
+- Soul spheres: Made the soul sphere in sync with the skull or the cross.
+  Changed the model lighting style to fullbright so now the skull and the
+  cross are well discernible in dark places. The soul sphere can now gain
+  momentum during spawning and fly around instead of hovering over the
+  dead body and sometimes got stuck. Scaled down the soul at the end of
+  its lifetime. Added the demoness among the list of bad people in the
+  portals version in parallel to the hw version. Corrected minor errors
+  and some inconsistencies.  From Thomas Freundt.  Also, in case of rider
+  bosses, don't spawn a soul sphere because it won't be accessible anyway
+  and may confuse the player.
+- Now that we added a modified ent file for the Cathedral level, removed
+  the ugly hack of reducing the teleport push speed to 225 for this level
+  from triggers.hc::teleport_touch.
+- Made sure that gaze attack sound doesn't persist when medusa is dead.
+- When an imp lord dies, clear the ALIVE flag before removing, otherwise
+  eidolon might get confused and rendered idle. From Thomas Freundt.
+- Fixed mezzoman.hc bug which would prevent yakman from appearing during
+  the 'Trial of Strength' in the Temple of Phurbu (tibet7) level of the
+  mission pack, rendering the level not completable (bug #1112533). From
+  Thomas Freundt.
+- Fixed a mission pack T_Damage() bug where a pentacle monster in tibet1
+  became invulnerable when it got crushed by a door. The design flaw in
+  the union in entity.hc is documented.
+- Fixed a bug where werepanthers became "undead" when an assassin killed
+  them by her bombs. From Thomas Freundt.
+- Fixed a bug which might prevent Eidolon to land. From Thomas Freundt.
+- Fixed Eidolon bugs which might prevent the finale screen to trigger.
+  From Thomas Freundt.
+- Fixed a bug which used to prevent the finale screen to trigger if
+  Praevus were killed too quickly in buddha_die() and buddha_run().
+  From Thomas Freundt.
+- Fixed trigger_crosslevel() with spawnflag 8, i.e. the clash with
+  SPAWNFLAG_ACTIVATED, which used to prevent one of the prizes in Temple
+  of Mars to appear. We now just set inactive property back to FALSE
+  after calling InitTrigger(). From Keith Rozett.
+- Added a "mapfixes" section. Added entity fixes for cath, demo2, egypt4,
+  egypt5, romeric5 and tower maps of the original game and tibet2 and
+  tibet9 maps of the expansion pack among the mapfixes.
+- strings.txt: Fixed egypt2 wheel of ages message to report 360 degrees
+  instead of 30 when it "points to a jackal". From Sander van Dijk.
+
+2008-01-01 (1.19a):
+===================
+- Updated the patch shell scripts for much better compatibility with BSD
+  and other systems. No other source code or binary data change.
+2006-03-18 (1.19):
+===================
+- Origin fixes for tomed fires of vorpal sword and purifier: paladin used
+  to fire them always from the non-crouched eye position, and it was even
+  the worst when he was looking up (and down). You won't be shooting your
+  back when standing just in front of a wall and fire your tomed purifier
+  to the sky, from now on ;)
+
+2006-12-01 (1.16a):
+===================
+- Fixed an obscure bug where the assasin with her 4th weapon uses the tome
+  of power and can't fire it. The bug was reported by Mathias Schlueter to
+  Jacques 'Korax' Krige who forwarded the report to us.  (The bug seems to
+  have been introduced in gamecode-1.12g when a patch from Pa3PyX's sources
+  was merged. Pa3PyX's own progs as part of his 1.15 package also has the
+  same bug.)
+
+2006-10-30 (1.16) :
+===================
+- Fixed the dreaded mezzoman bug causing the following error:
+	SV_StartSound: fangel/deflect.wav not precached
+	ADDRESS -14227(?) 537(last_attack).last_attack -14226(?)
+	mezzoman.hc : mezzo_reflect_trig_touch
+	<NO FUNCTION>
+	assignment to world entity
+	Host_Error: Program error
+- Merged a probably better fix for the above bug. (from Steven).
+- Disabled impulse 11 (ServerflagsCommand): it is a dev command, can
+  be issued from any client and may screw up the server pretty bad..
+- Made the hexen2 progs to work with demo version 1.11: the original
+  demo version excluded the necromancer and crusader classes, but the
+  later one didn't care and included them. changing some precache_model3
+  and precache_sound3 to precache_model and precache_sound solves it.
+  the pak file of 1.11 demo version already contains the necessary stuff.
+- Made the hexenworld progs to work with demo version 1.11: Raven
+  actually did all of the changes, but they seem to have missed
+  changing the precache_model2 calls to precache_model in wp_art.hc
+  which prevented crusader and necromancer classes to be played with.
+- Ported the demo-1.11 precache compatibility changes from hexen2 to
+  the mission pack. the mission pack actually has nothing to do with
+  the demo version, but this is for the sake of the two trees being
+  in sync as much as possible.
+- Ported the demo-1.11 precache compatibility changes from hexenworld to
+  siege. siege actually doesn't have much to do with the demo, but this
+  is for the sake of the two trees being in sync as much as possible.
+- Cleaned up and tweaked hexenworld and siege map cycling.
+- Fixed hexen2 and hexenworld server crashes upon deathmatch level change
+  in cases of a custom map being run and there is no map cycling. mission
+  pack actually didn't used to crash but it always failed changing into
+  a new level. it is now fixed, as well.
+- Since version 1.11 of hexen2 demo already contains the demo3 level and
+  it also has necessary stuff for running the hexenworld dm maps, added
+  demo3 and the hw dm maps to FindDMLevel(). Similarly changed the hexen2
+  and the mission pack versions.
+
+2006-03-20 (1.15) :
+===================
+- hw: fixed the server crash when the server is spawned with dmmode 1.
+  solution found in the ghost mod.
+- hw: properly notify users when dmmode is changed. also remove the
+  brightfield from the icon holder when dmmode 1 is abandoned. code
+  found in the the ghost mode.
+- hw / siege: broadcast the names of the current map and the
+  next map in cycle to all clients
+- noexit is supposed to matter only for deathmatch, not for coop
+  and singleplayer
+- CheckRules (timelimit and fraglimit) is supposed to matter only
+  for deathmatch, not for coop and singleplayer
+- fixed those double semicolons.
+- hw: killed the irritating Poisong_die dprint
+- fixed those famous spelling errors.
+
+2005-08-09 (1.14) :
+===================
+- Disallowed cycling to a weapon without proper mana (S.A)
+- Enabled impulse 34, (puzzle piece inventory list)  (S.A)
+- Map cycling: minor cleanups
+- Bumped the teleport-push speed to a highest safe value of 225
+  (250 is still safe, but just in case)  and restricted that to
+  the Cathedral map when not in deathmatch.  Otherwise, Raven's
+  original value (300) is used.
+- added Pa3PyX' fire delay bits for paladin's staff
+
+2005-03-17 (1.12h):
+===================
+Merged the actual H2MP 1.12-1.12a patch and it has been missing
+here in the CVS for ages. That no one told me about it is a bit
+embarassing....
+
+2005-02-23 (1.12g):
+===================
+Merged a bunch of fixes/adjustments from Pa3PyX' sources:
+- fixed ravenstaff bug where splitting missiles would collide
+  with each other
+- setstaff tomed and untomed fire rates now fps independent
+- crossbow fire rate fps now independent (also makes fire rate
+  slightly faster, but I liked it ;)
+- no more 20 tornadoes per second from meteor staff at 200 fps
+- framerate independent Flame Orb fire procedure
+- fix demoness abilities according to the manual
+- assasin backstab starts at level 6
+- crusader holy strength starts at level 6
+- necromancer sickle steal adjustments to make it really useful
+- assasin cloak ability re-write
+- start crusader full-mana ability at level3
+
+2005-02-15 (1.12f):
+===================
+- added an optional patch file which allows compiling boss maps into
+  hwprogs.dat. this is not of much use, because coop seems broken..
+- updated the hexenworld boss files according to H2MP. although coop
+  is broken as of now, maybe someone messes with these one day...
+- added stubs for the hexenworld missing boss-map functions. hwsv no
+  longer crashes on maps rider1a, rider2c, romeric6, meso9 and eidolon.
+- Applied Kor Skarn's further changes to the Siege hcode: this is the
+  code to the hwprogs.dat in "sgcycle.zip" (seems to be first intended
+  for the Rival Kingdoms mod?)
+- Applied map cycling patch for Siege (similar to the one below)
+- Added the hcode for Siege.
+- Applied map cycling for HexenWorld (by Kor Skarn).
+
+1.12d	Reduce the speed of the teleporting process' pushing you
+	forward. Fixes the unreachable Cathedral balcony issue for
+	me (for both Hexen2 and H2MP) (2005-01-06).
+
+1.12c	fixed eidolon losing his hostility upon destruction of the orb.
+	(2005-01-05, adaptation of eidolon.hc from H2MP)
+1.12b	fixed eidolon not jumping off the ledge (hc/h2/triggers.hc)
+	(2004-12-09)
+
+1.12a   Raven's original 1.12a hcode for the mission pack (initial)
+
+1.11    Raven's original 1.11 hcode for original Hexen2 (initial)

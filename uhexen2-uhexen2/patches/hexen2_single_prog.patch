@@ -1,0 +1,152 @@
+Allows running the original Hexen2 game with a single
+progs.dat file instead of progs.dat + progs2.dat files.
+Not tested much.
+
+In addition, place a file named maplist.txt with only a 0 in
+it in your data1 directory (a sample file is provided here),
+so that the game wouldn't look for a progs2.dat
+
+diff --git a/gamecode/hc/h2/ai.hc b/gamecode/hc/h2/ai.hc
+index a6382f2..a5feb53 100644
+--- a/gamecode/hc/h2/ai.hc
++++ b/gamecode/hc/h2/ai.hc
+@@ -32,7 +32,13 @@ void()SpiderMeleeBegin;
+ void()spider_onwall_wait;
+ float(entity targ , entity from)infront_of_ent;
+ void(entity proj)mezzo_choose_roll;
++void()multiplayer_health;
++void()riderpath_init;
++void(float move_speed)riderpath_move;
++float(float move_speed)eidolon_riderpath_move;
++void() eidolon_guarding;
+ void()hive_die;
++float()eidolon_check_attack;
+ 
+ //void()check_climb;
+ 
+@@ -376,7 +382,18 @@ float		r;
+ 			if (!infront (client))
+ 				return FALSE;
+ 		}
+-	
++
++	if (r == RANGE_NEAR)
++	{
++		if (client.show_hostile < time && !infront (client))
++			return FALSE;
++	}
++	else if (r == RANGE_MID)
++	{
++		if (!infront (client))
++			return FALSE;
++ 	}
++
+ 	if (!visible (client))
+ 		return FALSE;
+ 
+@@ -481,7 +498,20 @@ void(float dist) ai_walk =
+ 	if (FindTarget (FALSE))
+ 		return;
+ 
+-	movetogoal (dist);
++	if(self.classname=="monster_eidolon")
++	{
++		if (!self.path_current)
++			riderpath_init();
++		if(!eidolon_riderpath_move(dist))
++		{
++			if(self.think==self.th_walk)
++				self.think=eidolon_guarding;
++		}
++		else if(self.think==eidolon_guarding)
++			self.think=self.th_walk;
++	}
++	else
++		movetogoal (dist);
+ };
+ 
+ 
+@@ -591,6 +621,11 @@ float() CheckAnyAttack =
+ 
+ 	if(self.goalentity==self.controller)
+ 		return FALSE;
++	if(self.classname=="monster_eidolon")
++		if(self.goalentity==self.controller)
++			return FALSE;
++		else
++			return eidolon_check_attack();
+ 
+ 	return CheckAttack ();
+ };
+@@ -737,11 +772,13 @@ void(float dist) ai_run =
+ 
+ 	enemy_infront = infront(self.enemy);
+ 	enemy_range = range(self.enemy);
+-	enemy_yaw = vectoyaw(self.goalentity.origin - self.origin);
++	if(self.classname!="monster_eidolon")
++		enemy_yaw = vectoyaw(self.goalentity.origin - self.origin);
+ 	
+ 	if ((self.attack_state == AS_MISSILE) || (self.attack_state == AS_MELEE))  // turning to attack
+ 	{
+-		ai_attack_face ();
++		if(self.classname!="monster_eidolon")
++			ai_attack_face ();
+ 		return;
+ 	}
+ 
+@@ -757,7 +794,20 @@ void(float dist) ai_run =
+ // head straight in
+ //	if(self.netname=="spider")
+ //		check_climb();
+-	movetogoal (dist);		// done in C code...
++	if(self.classname=="monster_eidolon")
++	{
++		if(!self.path_current)
++			riderpath_init();
++		if(!eidolon_riderpath_move(dist))
++		{
++			if(self.think==self.th_run)
++				eidolon_guarding();
++		}
++		else if(self.think==eidolon_guarding)
++			self.th_run();
++	}
++	else
++		movetogoal (dist);		// done in C code...
+ };
+ 
+ 
+@@ -1122,6 +1172,6 @@ void func_monsterspawn_spot (void)
+ 		self.use=spawnspot_activate;
+ }
+ 
+-void hive_die(){}
+-void spawn_ghost (entity attacker){}
++//void hive_die(){}
++//void spawn_ghost (entity attacker){}
+ 
+diff --git a/gamecode/hc/h2/progs.src b/gamecode/hc/h2/progs.src
+index 9555c14..1114c5a 100644
+--- a/gamecode/hc/h2/progs.src
++++ b/gamecode/hc/h2/progs.src
+@@ -120,11 +120,11 @@ fangel.hc
+ 
+ eric.hc
+ 
+-//rider.hc
+-//pstboar.hc
+-//famhorse.hc
+-//warhorse.hc
+-//dthhorse.hc
+-//eidolon.hc
++rider.hc
++pstboar.hc
++famhorse.hc
++warhorse.hc
++dthhorse.hc
++eidolon.hc
+ 
+ stats.hc
+
+-- 
+1.7.1

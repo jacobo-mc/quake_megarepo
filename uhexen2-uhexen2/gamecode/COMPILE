@@ -1,0 +1,17 @@
+In order to compile the hcode (the HexenC *.hc files) into the progs.dat
+files, you need the hcc program (the hcode compiler). You can find the
+sources for this utility either in released uhexen2 sources, or in the
+uhexen2 svn repository.
+
+In order to compile the original hexen2 hcode, don't use the -oi and -on
+command line switches of hcc for compatibility with old saved games.  If
+you use the -oi and -on optimizations, loading old saves make the engine
+to emit warnings at runtime. They are actually harmless, but annoying...
+
+$  hcc -os				# this compiles progs.dat
+$  hcc -os -name progs2.src		# this compiles progs2.dat
+
+In order to compile the mission pack, hexenworld or siege hcode, do:
+
+$  hcc -os -oi -on
+

@@ -1,0 +1,59 @@
+NAME
+	HWTerm -- HexenWorld Remote Console Terminal
+
+SYNOPSIS
+	hwterm ipaddress[:port] password
+
+DESCRIPTION
+	This is a remote terminal that acts similar to the console
+	of a hexenworld server, using the RCON interface. It acts as
+	a light-weight hexenworld client that will send rcon commands
+	on your behalf.  This allows you to administer the server
+	without being at the console, and without starting a full
+	hexenworld client.  As a neat side effect, CTRL-D will resend
+	the last command.  Use CTRL-C to quit. It is aimed mainly for
+	linux (unix) users, but works just as fine on windows, too.
+
+OPTIONS
+	None.
+
+SEE ALSO
+	hwrcon - Command line version of hwterm
+	tail(1) - output the last part of files
+
+NOTES
+	You need to know the rcon_password to use this program on a
+	server.  It will return the responses from the server, as well.
+	You might think that you could just tail the server log
+	(log_file 2). This is a neat idea, but it doesn't work either,
+	unless you operate your command through an alias.
+	   alias whatsup status
+	   set rcon_password boom
+
+	   $ hwterm 127.0.0.1 boom
+	   whatsup
+
+	This will produce output on the console log.  You may use
+	tail(1) in another window.
+
+AUTHOR
+	O.Sezer <sezero@users.sourceforge.net>, loosely based on QTerm
+	v1.1 by Michael Dwyer/N0ZAP <mdwyer@holly.colostate.edu>. See
+	http://www.ibiblio.org/pub/Linux/games/quake/ for the original
+	RCon tool for quake2.
+
+BUGS
+	None. Please report, if you find any.
+
+COPYRIGHT
+	Copyright (C) 1998 Michael Dwyer
+	Copyright (C) 2006-2011 O. Sezer
+	Uses code from HexenWorld engine (C) Raven Software, ID Software.
+
+	HWTerm is free software;  you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published
+	by the Free Software Foundation; either version 2, or (at your
+	option) any later version.
+
+hwterm Version 1.2.7		10-November-2011
+

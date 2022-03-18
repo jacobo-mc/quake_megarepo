@@ -1,0 +1,45 @@
+Hexen II: Hammer of Thyrion (uHexen2) / Utilities:
+--------------------------------------------------
+
+This package is put together essentially by merging two files
+released by Raven, namely H2_UTILS.EXE (for original Hexen II)
+and h2mputil.zip (for the mission pack), with addition of a few
+other tools written by the community.
+
+The tools, as they were released, lacked proper documentation.
+I extracted most of the information below from quake utilities
+packages.
+
+hcc	: HCode (HexenC) compiler. From Raven's h2mputil package.
+	  Reads "progs.src", then compiles all of the files listed
+	  there.  Generates progs.dat for use by hexen2 at runtime,
+	  progdefs.h for use in engine compilation, and files.dat
+	  to be used as input for qfiles.
+
+maputils (qbsp, light, vis): Map compiling tools. From Raven's
+	  h2mputil package. Also includes bspinfo, which dumps
+	  the count and size statistics on a .bsp file.
+
+texutils: bsp2wal: extracts all textures from a bsp file. WAL
+	  format is documented in the hwal.h header.
+	  lmp2pcx: converts hexen2 texture data into pcx and tga.
+
+genmodel: The 3-D model grabber. From Raven's h2mputil package.
+	  Combines skin graphics with 3d frames to produce a .mdl
+	  file. The commands are parsed out of .hc files.
+
+pak	: A few small PAK file tools.
+
+qfiles	: From Raven's h2mputil package. Builds pak files based
+	  on the contents of "files.dat" writen out by hcc. It
+	  can also regenerate all of the .bsp models used in a
+	  project, which is required if any changes to the file
+	  format have been made.
+
+jsh2color: A light colouring utility that generates .LIT files.
+	  Taken from the old jshexen2 sources.
+
+dcc	: An old progs.dat decompiler (and compiler) for Hexen2 by
+	  Eric Hobbs. It may be of interest due to its decompiler
+	  facilities.
+

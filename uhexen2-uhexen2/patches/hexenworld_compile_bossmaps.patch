@@ -1,0 +1,190 @@
+allows compiling boss maps into hwprogs.dat of hexenworld.
+this is not of much use, because coop seems broken.. maybe
+someone messes with these someday...
+
+diff --git a/gamecode/hc/hw/ai.hc b/gamecode/hc/hw/ai.hc
+index 502509c..01e0645 100644
+--- a/gamecode/hc/hw/ai.hc
++++ b/gamecode/hc/hw/ai.hc
+@@ -32,7 +32,13 @@ void()SpiderMeleeBegin;
+ void()spider_onwall_wait;
+ float(entity targ , entity from)infront_of_ent;
+ void(entity proj)mezzo_choose_roll;
++void()multiplayer_health;
++void()riderpath_init;
++void(float move_speed)riderpath_move;
++float(float move_speed)eidolon_riderpath_move;
++void() eidolon_guarding;
+ void()hive_die;
++float()eidolon_check_attack;
+ 
+ //void()check_climb;
+ 
+@@ -379,7 +385,18 @@ float		r;
+ 			if (!infront (client))
+ 				return FALSE;
+ 		}
+-	
++
++	if (r == RANGE_NEAR)
++	{
++		if (client.show_hostile < time && !infront (client))
++			return FALSE;
++	}
++	else if (r == RANGE_MID)
++	{
++		if (!infront (client))
++			return FALSE;
++ 	}
++
+ 	if (!visible (client))
+ 		return FALSE;
+ 
+@@ -485,7 +502,20 @@ void(float dist) ai_walk =
+ 	if (FindTarget (FALSE))
+ 		return;
+ 
+-	movetogoal (dist);
++	if(self.classname=="monster_eidolon")
++	{
++		if (!self.path_current)
++			riderpath_init();
++		if(!eidolon_riderpath_move(dist))
++		{
++			if(self.think==self.th_walk)
++				self.think=eidolon_guarding;
++		}
++		else if(self.think==eidolon_guarding)
++			self.think=self.th_walk;
++	}
++	else
++		movetogoal (dist);
+ };
+ 
+ 
+@@ -595,6 +625,11 @@ float() CheckAnyAttack =
+ 
+ 	if(self.goalentity==self.controller)
+ 		return FALSE;
++	if(self.classname=="monster_eidolon")
++		if(self.goalentity==self.controller)
++			return FALSE;
++		else
++			return eidolon_check_attack();
+ 
+ 	return CheckAttack ();
+ };
+@@ -741,11 +776,13 @@ void(float dist) ai_run =
+ 
+ 	enemy_infront = infront(self.enemy);
+ 	enemy_range = range(self.enemy);
+-	enemy_yaw = vectoyaw(self.goalentity.origin - self.origin);
++	if(self.classname!="monster_eidolon")
++		enemy_yaw = vectoyaw(self.goalentity.origin - self.origin);
+ 	
+ 	if ((self.attack_state == AS_MISSILE) || (self.attack_state == AS_MELEE))  // turning to attack
+ 	{
+-		ai_attack_face ();
++		if(self.classname!="monster_eidolon")
++			ai_attack_face ();
+ 		return;
+ 	}
+ 
+@@ -761,6 +798,19 @@ void(float dist) ai_run =
+ // head straight in
+ //	if(self.netname=="spider")
+ //		check_climb();
+-	movetogoal (dist);		// done in C code...
++	if(self.classname=="monster_eidolon")
++	{
++		if(!self.path_current)
++			riderpath_init();
++		if(!eidolon_riderpath_move(dist))
++		{
++			if(self.think==self.th_run)
++				eidolon_guarding();
++		}
++		else if(self.think==eidolon_guarding)
++			self.th_run();
++	}
++	else
++		movetogoal (dist);		// done in C code...
+ };
+ 
+diff --git a/gamecode/hc/hw/plats_mp.hc b/gamecode/hc/hw/plats_mp.hc
+index 02980b6..a64b06e 100644
+--- a/gamecode/hc/hw/plats_mp.hc
++++ b/gamecode/hc/hw/plats_mp.hc
+@@ -4,7 +4,7 @@ float USE_ORIGIN	= 64;
+ float ANGLE_WAIT	= 128;
+ void() train_next_mp;
+ void() func_train_find_mp;
+-void rider_die(){}
++void rider_die();
+ 
+ void() train_blocked_mp =
+ {
+diff --git a/gamecode/hc/hw/progs.src b/gamecode/hc/hw/progs.src
+index d3f3f98..fd0d7c8 100644
+--- a/gamecode/hc/hw/progs.src
++++ b/gamecode/hc/hw/progs.src
+@@ -125,11 +125,11 @@ fangel.hc
+ 
+ eric.hc
+ 
+-//rider.hc
+-//pstboar.hc
+-//famhorse.hc
+-//warhorse.hc
+-//dthhorse.hc
+-//eidolon.hc
++rider.hc
++pstboar.hc
++famhorse.hc
++warhorse.hc
++dthhorse.hc
++eidolon.hc
+ 
+ stats.hc
+diff --git a/gamecode/hc/hw/spawner.hc b/gamecode/hc/hw/spawner.hc
+index 279a315..2538149 100644
+--- a/gamecode/hc/hw/spawner.hc
++++ b/gamecode/hc/hw/spawner.hc
+@@ -360,16 +360,5 @@ void func_monsterspawn_spot (void)
+ 		self.use=spawnspot_activate;
+ }
+ 
+-//stubs for the missing boss map funcs
+-void hive_die(){}
+-void spawn_ghost (entity attacker){}
+-void rider_path(){}
+-void rider_famine(){}
+-void rider_pestilence(){}
+-void rider_death(){}
+-void rider_war(){}
+-void rider_quake(){}
+-void rider_quake_center(){}
+-void rider_trigger_once(){}
+-void rider_trigger_multiple(){}
+-void monster_eidolon(){}
++void hive_die();
++void spawn_ghost (entity attacker);
+diff --git a/gamecode/hc/hw/triggers.hc b/gamecode/hc/hw/triggers.hc
+index 4769689..8ab64d6 100644
+--- a/gamecode/hc/hw/triggers.hc
++++ b/gamecode/hc/hw/triggers.hc
+@@ -1429,6 +1429,11 @@ void() trigger_monsterjump_touch =
+ 		return;
+ 
+ // set XY even if not on ground, so the jump will clear lips
++	if(other.classname=="monster_eidolon")
++	{//blah
++		self.height*=1.3;
++		self.speed*=1.3;
++	}
+ 	other.velocity_x = self.movedir_x * self.speed;
+ 	other.velocity_y = self.movedir_y * self.speed;
+ 
+
+-- 
+1.7.1
