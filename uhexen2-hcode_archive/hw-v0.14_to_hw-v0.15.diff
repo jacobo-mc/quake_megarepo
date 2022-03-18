@@ -1,0 +1,60 @@
+diff -urNp hw-0.14/client.hc hw-0.15/client.hc
+--- hw-0.14/client.hc	1998-05-11 14:22:36.000000000 +0300
++++ hw-0.15/client.hc	1999-01-26 17:56:12.000000000 +0200
+@@ -488,6 +488,12 @@ entity lastleader,newking;
+ 	}
+ };
+ 
++void() SmitePlayer =//server doesn't like you!
++{
++	self.deathtype="smitten";
++	T_Damage(self,self,self,10000);
++};
++
+ float(vector v) CheckSpawnPoint =
+ {
+ 	return FALSE;
+@@ -2412,6 +2418,12 @@ void(entity targ, entity attacker, entit
+ 	if (targ.classname != "player")
+ 		return;
+ 
++	if(self.deathtype=="smitten")
++	{
++		centerprint(self,"GOD Has Stricken You Down!\n");
++		return;
++	}
++
+ 	if(dmMode == DM_CAPTURE_THE_TOKEN)
+ 	{	// scoring only takes place when one of the two characters has the token in this game mode
+ 		if((!(targ.gameFlags & GF_HAS_TOKEN))&&(!(attacker.gameFlags & GF_HAS_TOKEN)))
+diff -urNp hw-0.14/global.hc hw-0.15/global.hc
+--- hw-0.14/global.hc	1998-05-11 14:22:36.000000000 +0300
++++ hw-0.15/global.hc	1999-01-26 17:56:14.000000000 +0200
+@@ -129,6 +129,8 @@ void SetNewParms(void);	// called when a
+ void SetChangeParms(void);	// call to set parms for self so they can
+ 							// be saved for a level transition
+ 
++void SmitePlayer();	// Server smites a player
++
+ // END SYSTEM GLOBALS ------------------------------------------------------
+ 
+ // Flag the compiler.
+@@ -168,4 +170,6 @@ float g_init_timelimit;
+ float g_fraglimit;
+ string g_keyname;
+ string g_keymdl;
++float gamestarted;
++float newsiege;
+ 
+diff -urNp hw-0.14/stats.hc hw-0.15/stats.hc
+--- hw-0.14/stats.hc	1998-05-11 14:22:36.000000000 +0300
++++ hw-0.15/stats.hc	1999-01-26 17:56:20.000000000 +0200
+@@ -165,7 +165,7 @@ void PlayerSpeed_Calc (void)
+ 	}
+ 
+ 	if (self.artifact_active & ART_HASTE)
+-		self.hasted *= 2.9;
++		self.hasted *= 1.6;
+ 
+ 	if (self.hull==HULL_CROUCH)   // Player crouched
+ 		self.hasted *= .6;

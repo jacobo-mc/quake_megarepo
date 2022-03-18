@@ -1,0 +1,93 @@
+Changes For v0.15:
+
+There have been a few changes from version 0.13/0.14 to 0.15.  Most of
+them are transparent to gameplay, but some are necessary to know:
+
+1) You may now use the "kill" command only if the game hasn't started
+   or you have not selected a team.
+
+2) It is much easier to escape from jail now, just look for a weak spot
+   and dig- be sure to bring a torch with you as you dig.
+
+3) Barrels now autoload by default.  Just push them up to a catapult
+   and they should push up onto them.
+
+4) The Crusader now has the "Divine Intervention" special ability, not
+   the Paladin.
+
+5) The Paladin has lost the "Divine Intervention" ability.
+
+6) Crusader's Spells have changed some, here is the new layout... (note
+   the Crusader has a max mana of 100 now)
+
+-  Heal(5)
+   Can be cast on himself or others.  Heals 5 points of damage, but
+   will not raise your health above your maximum health.
+
+-  Enchant Hammer(20)
+   Turns your hammer into a magically enchanted hammer you can throw a
+   short distance and will magically return to you.  This spell lasts
+   60 seconds.
+
+-  Dispel Magic(30)
+   Eliminates magic effects on people.  Destroys Imps.
+
+-  Berzerker(50)
+   Multiplies the strength of the crusader or target player times 4.
+   This strength fades quickly.
+
+-  Mercurial Speed(70)
+   Gives you or a target player the speed of Mercury.
+
+-  Cloak of Perseus(80)
+   Turns crusader or target invisible except for a trail of magical
+   footsteps.
+
+-  Wrath of God(max)
+   You must have a full load of mana to cast this spell.  It will cause
+   everyone in front of you to be struck down by lightning and kills
+   you as well.
+
+7) The Necromancer's spells have changed somewhat too.  He now has a
+   higher max mana as well.  Poison only costs 15, and Become Beast
+   now costs 200 and lasts for 2 minutes.
+
+8) The Assassin may not climb until she has aquired the Boots of
+   Climbing.  For Defenders, it is available from the start.
+   For Attackers, it is available in their armoury.
+
+9) The Armories do not open up until the chains on the drawbridge are
+   broken.
+
+10) The Assassin must have a lit torch to fire flaming sniper arrows.
+    If she doesn't have a torch lit, she can still shoot normal sniping
+    arrows.
+
+11) If an arrow hits someone in the head, there is a good chance it
+    will be a fatal blow.
+
+12) The Assassin's backstab should be working correctly now.
+
+13) The Succubus' mana regenerates slower now and flight lasts only 20
+    seconds.
+
+14) The KeyMaster will find that they are not quite as fast as they
+    were without the key- the person carrying the key is somewhat
+    slower, attacks less often, and does not regenerate mana.
+
+15) Defenders cannot now open their own throne room door by accident.
+
+16) You can no longer crouch-jump into the throne case, you MUST
+    destroy it to get at the crown.
+
+17) There is a new friend in the center pond...
+
+18) Fire is not quite as easy to spread or as dangerous.
+
+19) Attackers now have only twice as many people as defenders.
+
+20) Don’t piss off God... or you may be Smitten!
+
+
+-Michael Gummelt & Perfecto Cuervo
+ with:  Josh Weier, Jeremy Statz, Mark Morgan, and Nathan Albury

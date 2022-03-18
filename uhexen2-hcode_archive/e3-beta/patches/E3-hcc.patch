@@ -1,0 +1,54 @@
+Initial patch so that hcc builds hcode without Raven calling convention.
+Compile with -DE3BETA
+
+diff --git a/utils/hcc/expr.c b/utils/hcc/expr.c
+index 56b24cb..93ab887 100644
+--- a/utils/hcc/expr.c
++++ b/utils/hcc/expr.c
+@@ -420,6 +420,7 @@ static def_t *ParseFunctionCall (def_t *func)
+ 			}
+ 
+ 			def_parms[argCount].type = t->parm_types[argCount];
++			#ifndef E3BETA
+ 			if (argCount < 2)
+ 			{
+ 				args[argCount] = e;
+@@ -438,6 +439,9 @@ static def_t *ParseFunctionCall (def_t *func)
+ 							&def_parms[argCount]);
+ 				}
+ 			}
++			#else
++			CO_GenCode(&pr_opcodes[OP_STORE_V], e, &def_parms[argCount]);
++			#endif
+ 			argCount++;
+ 		} while (TK_CHECK(TK_COMMA));
+ 		LX_Require(")");
+@@ -448,7 +452,11 @@ static def_t *ParseFunctionCall (def_t *func)
+ 		PR_ParseError("too few parameters");
+ 	}
+ 
++	#ifndef E3BETA
+ 	CO_GenCodeDirect(&pr_opcodes[OP_CALL0+argCount], func, args[0], args[1]);
++	#else
++	CO_GenCodeDirect(&pr_opcodes[OP_CALL0+argCount], func, NULL, NULL);
++	#endif
+ 
+ 	ex_FunctionCallCount++;
+ 
+@@ -601,6 +609,7 @@ static def_t *ParseIntrinsicFunc (const char *name)
+ {
+ 	def_t	*expr1, *expr2;
+ 
++#ifndef E3BETA
+ 	if (strcmp(name, "random") == 0)
+ 	{
+ 		LX_Require("(");
+@@ -634,6 +643,7 @@ static def_t *ParseIntrinsicFunc (const char *name)
+ 		def_ret.type = &type_float;
+ 		return &def_ret;
+ 	}
++#endif /**/
+ 
+ 	if (strcmp(name, "randomv") == 0)
+ 	{
+

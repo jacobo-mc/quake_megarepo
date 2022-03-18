@@ -1,0 +1,3823 @@
+diff -urNp h2-1.03/ai2.hc h2-1.09/ai2.hc
+--- h2-1.03/ai2.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/ai2.hc	1997-09-11 11:34:02.000000000 +0300
+@@ -356,9 +356,6 @@ float		r;
+ 	if (r == RANGE_FAR)
+ 		return FALSE;
+ 
+-	if (!visibility_good(client))
+-		return FALSE;
+-
+ 	if (r == RANGE_NEAR)
+ 	{
+ 		if (client.show_hostile < time && !infront (client))
+diff -urNp h2-1.03/ai.hc h2-1.09/ai.hc
+--- h2-1.03/ai.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/ai.hc	1997-09-25 14:17:02.000000000 +0300
+@@ -127,11 +127,19 @@ vector	spot1, spot2;
+ 
+ 	if(trace_ent.thingtype>=THINGTYPE_WEBS)
+ 		traceline (trace_endpos, spot2, TRUE, trace_ent);
+-	else if (trace_inopen && trace_inwater)//FIXME?  Translucent water?
+-		return FALSE;			// sight line crossed contents
++//	else if (trace_inopen && trace_inwater)//FIXME?  Translucent water?
++//		return FALSE;			// sight line crossed contents
+ 
+ 	if (trace_fraction == 1)
++	{
++		if(forent.flags&FL_MONSTER)
++		{
++			if(visibility_good(targ,0.15 - skill/20))
++				return TRUE;
++		}
++		else
+ 			return TRUE;
++	}
+ 
+ 	return FALSE;
+ }
+@@ -332,7 +340,7 @@ float		r;
+ 	if(!deathmatch&&(self.classname=="monster_imp_lord"||self.classname=="cube_of_force"))
+ 		return FindMonsterTarget();
+ 
+-	if (sight_entity_time >= time)
++	if (sight_entity_time >= time&&sight_entity!=world)
+ 	{
+ 		client = sight_entity;
+ 		if (client.enemy == self.enemy)
+@@ -355,7 +363,7 @@ float		r;
+ 	if (r == RANGE_FAR)
+ 		return FALSE;
+ 
+-	if(!visibility_good(client))
++	if(!visibility_good(client,5))
+ 	{
+ //		dprint("Monster has low visibility on ");
+ //		dprint(client.netname);
+@@ -782,17 +790,17 @@ float monster_spawn_precache (void)
+ float have_monsters;
+ 	if (self.spawnflags & IMP)
+ 	{
+-		precache_model2 ("models/imp.mdl");
+-		precache_model2 ("models/h_imp.mdl");//empty for now
+-		precache_sound2("imp/up.wav");
+-		precache_sound2("imp/die.wav");
+-		precache_sound2("imp/swoop.wav");
+-		precache_sound2("imp/fly.wav");
+-		precache_model2 ("models/shardice.mdl");
++		precache_model3 ("models/imp.mdl");
++		precache_model3 ("models/h_imp.mdl");//empty for now
++		precache_sound3("imp/up.wav");
++		precache_sound3("imp/die.wav");
++		precache_sound3("imp/swoop.wav");
++		precache_sound3("imp/fly.wav");
++		precache_model3 ("models/shardice.mdl");
+ 		precache_model ("models/fireball.mdl");
+-		precache_sound2("imp/swoophit.wav");
+-		precache_sound2("imp/fireball.wav");
+-		precache_sound2("imp/shard.wav");
++		precache_sound3("imp/swoophit.wav");
++		precache_sound3("imp/fireball.wav");
++		precache_sound3("imp/shard.wav");
+ 		precache_sound("hydra/turn-s.wav");
+ 		have_monsters=TRUE;
+ 	}
+diff -urNp h2-1.03/allplay.hc h2-1.09/allplay.hc
+--- h2-1.03/allplay.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/allplay.hc	1997-09-12 11:25:52.000000000 +0300
+@@ -5,17 +5,17 @@ void() bubble_bob;
+ 
+ void PlayerSpeed_Calc (void)
+ {
+-	if (self.playerclass==CLASS_PALADIN)
++	if (self.playerclass==CLASS_ASSASSIN)
+ 		self.hasted=1;
+-	else if (self.playerclass==CLASS_ASSASSIN)
+-		self.hasted=.97;
++	else if (self.playerclass==CLASS_PALADIN)
++		self.hasted=.96;
+ 	else if (self.playerclass==CLASS_CRUSADER)
+-		self.hasted=.95;
+-	else if(self.playerclass==CLASS_NECROMANCER)
+ 		self.hasted=.93;
++	else if(self.playerclass==CLASS_NECROMANCER)
++		self.hasted=.9;
+ 
+ 	if (self.artifact_active & ART_HASTE)
+-		self.hasted *= 2.75;
++		self.hasted *= 2.9;
+ 
+ 	if (self.hull==HULL_CROUCH)   // Player crouched
+ 		self.hasted *= .6;
+@@ -79,7 +79,7 @@ void PainSound (void)
+ 	// FIXME:  Are we doing seperate sounds for these different pains????
+ 	if (self.model=="models/sheep.mdl")
+ 		sheep_sound(1);
+-	else if (self.watertype == CONTENT_WATER && self.waterlevel == 3)
++	else if (/*self.watertype == CONTENT_WATER &&*/ self.waterlevel == 3)
+ 	{
+ 		if(self.playerclass==CLASS_ASSASSIN)
+ 			sound (self, CHAN_VOICE, "player/assdrown.wav", 1, ATTN_NORM);
+@@ -123,12 +123,12 @@ void player_pain (void)
+ //if (self.weaponframe)
+ //		return;
+ 
+-	if (self.attack_finished > time)
++	if (self.last_attack + 0.5 > time || self.button0)
+ 		return;
+ 
+ 	PainSound();
+ 
+-	self.weaponframe=0;
++//	self.weaponframe=0;//Why?
+ 
+ 	if (self.hull==HULL_PLAYER)
+ 		self.act_state=ACT_PAIN;
+@@ -266,7 +266,7 @@ vector org;
+ 			self.movedir_z=0;
+ 		}
+ 		traceline(self.origin + self.view_ofs, self.origin+self.view_ofs+self.movedir*100, FALSE, self);
+-		if (trace_fraction < 1&&!trace_ent.flags2&FL_ALIVE)
++		if (trace_fraction < 1&&!trace_ent.flags2&FL_ALIVE&&trace_ent.solid==SOLID_BSP)
+ 		{
+ 			self.wallspot=trace_endpos;
+ 			ZeBrains(trace_endpos, trace_plane_normal, random(1.3,2), rint(random(1)),random(360));
+@@ -550,7 +550,7 @@ entity corpse;
+         if(self.angles_z>15||self.angles_z<-15)
+                 self.angles_z=0;
+         corpse.angles = self.angles;
+-        corpse.model = self.model;
++		setmodel(corpse,self.model);
+         corpse.frame = self.frame;
+         corpse.colormap = self.colormap;
+         corpse.movetype = self.movetype;
+@@ -579,7 +579,7 @@ void player_behead () 
+ 	self.frame=self.level+self.cnt;
+ 	makevectors(self.angles);
+ 	if(!self.cnt)
+-		MeatChunks (self.origin + '0 0 50',v_up*200, 3);
++		MeatChunks (self.origin + '0 0 50',v_up*200, 3,self);
+ 	else if (self.cnt==1)
+ 	{
+ 		SpawnPuff (self.origin+v_forward*8, '0 0 48', 30,self);
+diff -urNp h2-1.03/archer.hc h2-1.09/archer.hc
+--- h2-1.03/archer.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/archer.hc	1997-09-11 11:34:02.000000000 +0300
+@@ -114,6 +114,31 @@ void archermissile(void);
+ 
+ void()archer_check_defense;
+ 
++float archer_check_shot(void)
++{
++	vector spot1,spot2;
++
++	makevectors(self.angles);	
++	// see if any entities are in the way of the shot
++	spot1 = self.origin + v_right * 10 + v_up * 36;
++	spot2 = self.enemy.origin + self.enemy.view_ofs;
++
++	traceline (spot1, spot2, FALSE, self);
++
++	if (trace_ent.thingtype >= THINGTYPE_WEBS)
++		traceline(trace_endpos, spot2, FALSE, trace_ent);
++
++	if (trace_ent != self.enemy)
++	{
++		if ((trace_ent.thingtype!=THINGTYPE_GLASS) || !trace_ent.takedamage || 
++			(trace_ent.flags & FL_MONSTER && trace_ent.classname!="player_sheep"))
++		{
++			return FALSE;			
++		}
++	}
++	return TRUE;
++}
++
+ void archer_duck () [++ $duck1..$duck14]
+ {
+ 	ai_face();
+@@ -472,7 +497,6 @@ void archerredraw () [++ $redraw1..$redr
+ void archerdrawhold ()
+ {
+ float chance,startframe,endframe;
+-vector spot1,spot2;
+ 
+ 	if(visible(self.enemy))
+ 		ai_face();
+@@ -511,26 +535,13 @@ vector spot1,spot2;
+ 		archermissile();
+ 	else if (cycle_wrapped||random()<skill/20+self.skin/10)
+ 	{
+-		makevectors(self.angles);
+-		// see if any entities are in the way of the shot
+-		spot1 = self.origin + v_right * 10 + v_up * 36;
+-		spot2 = self.enemy.origin + self.enemy.view_ofs;
+-
+-		traceline (spot1, spot2, FALSE, self);
+-
+-		if (trace_ent.thingtype >= THINGTYPE_WEBS)
+-			traceline(trace_endpos, spot2, FALSE, trace_ent);
+-
+-		if (trace_ent != self.enemy)
++		if (!archer_check_shot())
+ 		{
+-		    if ((trace_ent.health > 25 && trace_ent.thingtype!=THINGTYPE_GLASS) || !trace_ent.takedamage ||
+-			(trace_ent.flags & FL_MONSTER && trace_ent.classname!="player_sheep"))
+-		    {
+ 			sound (self, CHAN_WEAPON, "misc/null.wav", 1, ATTN_NORM);
+ 			self.attack_state = AS_STRAIGHT;					
+ 			self.think = archer_run;
++			thinktime self : HX_FRAME_TIME;
+ 			return;
+-		    }
+ 		}
+ 
+ 		if (self.classname == "monster_archer")   // Monster archer's not so smart
+@@ -557,33 +568,17 @@ vector spot1,spot2;
+   -----------------------------------------*/
+ void archerdraw () [++ $tranA1..$tranA13]
+ {
+-	vector spot1,spot2;
+ 
+ 	archer_check_defense();
+ 
+ 	if (self.frame == $tranA1)	// See if he should even try to shoot
+ 	{
+-		makevectors(self.angles);
+-		// see if any entities are in the way of the shot
+-		spot1 = self.origin + v_right * 10 + v_up * 36;
+-		spot2 = self.enemy.origin + self.enemy.view_ofs;
+-
+-		traceline (spot1, spot2, FALSE, self);
+-
+-		if (trace_ent.thingtype >= THINGTYPE_WEBS)
+-			traceline(trace_endpos, spot2, FALSE, trace_ent);
+-
+-		if (trace_ent != self.enemy)
++		if (!archer_check_shot())
+ 		{
+-		    if ((trace_ent.health > 25 && trace_ent.thingtype!=THINGTYPE_GLASS) || !trace_ent.takedamage ||
+-			(trace_ent.flags & FL_MONSTER && trace_ent.classname!="player_sheep"))
+-		    {
+-			sound (self, CHAN_WEAPON, "misc/null.wav", 1, ATTN_NORM);
+ 			self.attack_state = AS_STRAIGHT;					
+ 			self.think = archer_run;
+ 			thinktime self : HX_FRAME_TIME;
+ 			return;
+-		    }
+ 		}
+ 	}
+ 
+diff -urNp h2-1.03/artifact.hc h2-1.09/artifact.hc
+--- h2-1.03/artifact.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/artifact.hc	1997-09-11 11:34:02.000000000 +0300
+@@ -42,7 +42,7 @@ void artifact_touch()
+ 	}
+ 	else if(self.netname == STR_HEALTHBOOST)   // 25 limit
+ 	{
+-		if ((other.cnt_h_boost + 1)  > 25)
++		if ((other.cnt_h_boost + 1)  > 30||(other.playerclass!=CLASS_CRUSADER&&other.cnt_h_boost + 1  > 15))
+ 			return;	
+ 		else
+ 			other.cnt_h_boost += 1; 
+diff -urNp h2-1.03/boner.hc h2-1.09/boner.hc
+--- h2-1.03/boner.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/boner.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -206,9 +206,11 @@ vector shard_vel;
+ 	newmis=spawn();
+ 	newmis.owner=self.owner;
+ 	newmis.movetype=MOVETYPE_BOUNCE;
+-	newmis.solid=SOLID_BBOX;
++	newmis.solid=SOLID_PHASE;
+ 	newmis.touch=bone_shard_touch;
+ 	newmis.dmg=15;
++	newmis.think=SUB_Remove;
++	thinktime newmis : 3;
+ 
+ 	newmis.speed=777;
+ 	trace_fraction=0;
+@@ -224,7 +226,6 @@ vector shard_vel;
+ 	setmodel(newmis,"models/boneshrd.mdl");
+ 	setsize(newmis,'0 0 0','0 0 0');
+ 	setorigin(newmis,self.origin+shard_vel*8);
+-
+ }
+ 
+ void bone_shatter ()
+@@ -265,18 +266,18 @@ vector randomvec;
+ 	particle4(self.origin,50,random(368,384),PARTICLETYPE_GRAV,10);
+ 	remove(self);	
+ }
+-
++/*
+ void power_trail()
+ {
+ 	if(self.owner.classname!="player")
+-		bprint("ERROR: Bone powered owner not player!\n");
++		dprint("ERROR: Bone powered owner not player!\n");
+ 	if(self.touch==SUB_Null)
+-		bprint("ERROR: Bone powered touch is null!\n");
++		dprint("ERROR: Bone powered touch is null!\n");
+ 
+ 	particle4(self.origin,10,random(368,384),PARTICLETYPE_SLOWGRAV,3);
+ 	thinktime self : 0.05;
+ }
+-
++*/
+ 
+ void bone_smoke_fade ()
+ {
+@@ -339,7 +340,7 @@ vector org;
+ 		self.punchangle_x=-2;
+ 		sound(self,CHAN_WEAPON,"necro/bonefpow.wav",1,ATTN_NORM);
+ 		self.attack_finished=time + 1.3;
+-		newmis.dmg=200;
++		newmis.dmg=100;//was 200
+ 		newmis.frags=TRUE;
+ 		newmis.takedamage=DAMAGE_YES;
+ 		newmis.health=3;
+@@ -348,9 +349,9 @@ vector org;
+ 		newmis.avelocity=randomv('777 777 777','-777 -777 -777');
+ 		setmodel(newmis,"models/bonelump.mdl");
+ 		setsize(newmis,'0 0 0','0 0 0');
+-newmis.think=power_trail;
+-thinktime newmis : 0;
+-		self.greenmana-=10;
++//newmis.think=power_trail;
++//thinktime newmis : 0;
++		self.greenmana-=20;
+ 	}
+ 	else
+ 	{
+diff -urNp h2-1.03/breakabl.hc h2-1.09/breakabl.hc
+--- h2-1.03/breakabl.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/breakabl.hc	1997-09-11 11:34:04.000000000 +0300
+@@ -40,10 +40,10 @@ float breakhealth[21] = 
+ 	90,		// THINGTYPE_METAL_STONE
+ 	60,		// THINGTYPE_METAL_CLOTH
+ 	10,		// THINGTYPE_WEB
+-	25,		// THINGTYPE_GLASS
++	10,		// THINGTYPE_GLASS
+ 	50,		// THINGTYPE_ICE
+-	25,		// THINGTYPE_CLEARCLASS
+-	25		// THINGTYPE_CLEARCLASS
++	10,		// THINGTYPE_CLEARCLASS
++	10		// THINGTYPE_CLEARCLASS
+ };
+ 
+ //============================================================================
+diff -urNp h2-1.03/builtin.hc h2-1.09/builtin.hc
+--- h2-1.03/builtin.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/builtin.hc	1997-09-10 16:50:56.000000000 +0300
+@@ -204,3 +204,7 @@ entity spawn_temp(void) : 93;
+ vector v_factor(vector factor) : 94;
+ 	// returns (v_right * factor_x) + (v_forward * factor_y) + (v_up * factor_z)
+ vector v_factorrange(vector start, vector end) : 95;
++
++string precache_sound3(string s) : 96;
++string precache_model3(string s) : 97;
++string precache_file3(string s) : 98;
+diff -urNp h2-1.03/camera.hc h2-1.09/camera.hc
+--- h2-1.03/camera.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/camera.hc	1997-09-11 11:34:08.000000000 +0300
+@@ -190,6 +190,18 @@ vector spot1,spot2;
+ 
+ void MakeCamera ()
+ {
++entity oself,nself;
++	if(!self.flags&FL_CLIENT)
++	{
++		if(coop||deathmatch)
++			return;
++		nself=find(world,classname,"player");
++		if(!nself.flags&FL_CLIENT)
++			return;
++		oself=self;
++		self=nself;
++	}
++
+ 	if(self.viewentity.classname=="chasecam")
+ 	{
+ //Turn off camera view
+@@ -200,6 +212,7 @@ void MakeCamera ()
+ 		self.view_ofs=self.proj_ofs+'0 0 6';
+ 		self.attack_finished=0;
+ 		self.weaponmodel=self.lastweapon;
++		self.oldweapon=FALSE;
+ 		W_SetCurrentWeapon();
+ 	}
+ 	else
+@@ -228,5 +241,7 @@ void MakeCamera ()
+ 		self.viewentity.think=CameraThink;
+ 		thinktime self.viewentity : 0;
+ 	}
++	if(oself)
++		self=oself;
+ }
+ 
+diff -urNp h2-1.03/chunk.hc h2-1.09/chunk.hc
+--- h2-1.03/chunk.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/chunk.hc	1997-09-11 11:34:08.000000000 +0300
+@@ -99,7 +99,7 @@ void ThrowSingleChunk (string chunkname,
+ }
+ 
+ 
+-void MeatChunks (vector org,vector dir,float chunk_count)
++void MeatChunks (vector org,vector dir,float chunk_count,entity loser)
+ {
+ float final;
+ entity chunk;
+@@ -110,7 +110,16 @@ entity chunk;
+ 		chunk_count-=1;
+ 		final = random();
+ 
+-		if (final < 0.33)
++		if(loser.model=="models/spider.mdl")
++		{
++			if (final < 0.33)
++				setmodel (chunk, "models/sflesh1.mdl");
++			else if (final < 0.66)
++				setmodel (chunk, "models/sflesh2.mdl");
++			else
++				setmodel (chunk, "models/sflesh3.mdl");
++		}
++		else if (final < 0.33)
+ 			setmodel (chunk, "models/flesh1.mdl");
+ 		else if (final < 0.66)
+ 			setmodel (chunk, "models/flesh2.mdl");
+diff -urNp h2-1.03/client.hc h2-1.09/client.hc
+--- h2-1.03/client.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/client.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -178,7 +178,7 @@ void() execute_changelevel =
+ 	other = find (world, classname, "player");
+ 	while (other != world)
+ 	{
+-		other.sv_flags=serverflags;
++//		other.sv_flags=serverflags;
+ 		thinktime other : 0.5;
+ 		other.takedamage = DAMAGE_NO;
+ 		other.solid = SOLID_NOT;
+@@ -197,7 +197,7 @@ void FindDMLevel(void)
+ 
+ 	nextmap = string_null;
+ 
+-	if (cvar("registered"))
++	if (cvar("registered") != 0 || cvar("oem") != 0)
+ 	{
+ 		if (mapname == "demo1")
+ 			nextmap = "demo2";
+@@ -321,7 +321,7 @@ void() changelevel_touch =
+ 	}
+ 
+ 	//FIXME: temp server flags fix
+-	other.sv_flags=serverflags;
++//	other.sv_flags=serverflags;
+ 	if (coop || deathmatch)
+ 	{
+ 		bprint (other.netname);
+@@ -338,7 +338,7 @@ void() changelevel_touch =
+ 
+ 	SUB_UseTargets ();
+ 
+-	if (!cvar("registered") && nextmap == "village1")
++	if (cvar("registered") == 0 && cvar("oem") == 0 && nextmap == "village1")
+ 	{
+ 		remove(self);
+ 		intermission_running = 2;
+@@ -436,6 +436,9 @@ void() respawn =
+ 	}
+ 	else
+ 	{	// restart the entire server
++		if(parm7)
++			changelevel (mapname, startspot);
++		else
+ 			localcmd ("restart restore\n");
+ 	}
+ };
+@@ -454,7 +457,7 @@ void() ClientKill =
+ 	bprint (" suicides\n");
+ 	self.model=self.init_model;
+ 	GibPlayer();
+-	self.frags = self.frags - 2;	// extra penalty
++	self.frags -= 2;	// extra penalty
+ 	drop_level(self,2);
+ 	respawn ();
+ };
+@@ -485,6 +488,17 @@ entity() SelectSpawnPoint =
+ 		return spot;
+ 		
+ // choose a info_player_deathmatch point
++	if(self.newclass)
++	{
++		spot = find(world, classname, "classchangespot");
++		if(spot)
++		{
++			spot.think=SUB_Remove;
++			thinktime spot : 1;
++			return spot;
++		}
++	}
++
+ 	if (coop)
+ 	{
+ 		spot = lastspawn;
+@@ -592,8 +606,8 @@ entity spot;
+ 		self.items(-)IT_WEAPON4|IT_WEAPON3|IT_WEAPON4_1|IT_WEAPON4_2|IT_WEAPON2;
+ 		self.skin=0;
+ 	}
+-	else if(self.sv_flags)
+-		serverflags=self.sv_flags;
++//	else if(self.sv_flags)
++//		serverflags=self.sv_flags;
+ 
+ 
+ 	self.classname = "player";
+@@ -653,9 +667,30 @@ entity spot;
+ 	self.plaqueflg = 0;
+ 	self.artifact_active(-)ARTFLAG_FROZEN|ARTFLAG_STONED;
+ 
++	if(self.newclass)
++	{
++		bprint(self.netname);
++		bprint(" becomes a ");
++		if(self.newclass==CLASS_PALADIN)
++			bprint("Paladin!\n");
++		else if(self.newclass==CLASS_CRUSADER)
++			bprint("Crusader!\n");
++		else if(self.newclass==CLASS_NECROMANCER)
++			bprint("Necromancer!\n");
++		else
++			bprint("Assassin!\n");
++		self.playerclass=self.newclass;
++		setclass(self,self.playerclass);
++		stats_NewClass(self);
++		self.newclass=FALSE;
++	}
++
++	if(deathmatch&&randomclass)
++		self.playerclass=CLASS_NONE;
++
+ 	if (self.playerclass == CLASS_NONE)
+ 	{ // Default it to the paladin if not selected
+-		if (cvar("registered"))
++		if (cvar("registered") != 0 || cvar("oem") != 0)
+ 			setclass(self,rint(random(1,4)));
+ 		else
+ 		{
+@@ -699,6 +734,14 @@ entity spot;
+ 	if(deathmatch)
+ 		self.weapon=IT_WEAPON1;
+ 
++	if(coop)
++	{//Need more mana in coop, especially if you die
++		if(self.bluemana<25)
++			self.bluemana=25;
++		if(self.greenmana<25)
++			self.greenmana=25;
++	}
++	
+ 	W_SetCurrentAmmo ();
+ 
+ 	SetModelAndThinks();
+@@ -765,7 +808,7 @@ void ClientReEnter(float TimeDiff)
+ entity spot;
+ //string tempmodel;
+ 
+-	if(!self.flags2&FL_ALIVE||self.health<1)
++	if(!self.flags2&FL_ALIVE||self.health<1||(self.newclass&&!deathmatch&&!coop))
+ 	{//If dead, put them in the right spot.
+ 		self.weapon=IT_WEAPON1;
+ 		PutClientInServer();
+@@ -782,8 +825,8 @@ entity spot;
+ 		self.items(-)IT_WEAPON4|IT_WEAPON2|IT_WEAPON3|IT_WEAPON4_1|IT_WEAPON4_2;
+ 		self.skin=0;
+ 	}
+-	else if(self.sv_flags)
+-		serverflags=self.sv_flags;
++//	else if(self.sv_flags)
++//		serverflags=self.sv_flags;
+ 
+ 	self.movetype=MOVETYPE_WALK;
+ 	self.viewentity=self;
+@@ -830,7 +873,9 @@ entity spot;
+ 	self.show_hostile+= TimeDiff;
+ 	self.invisible_time+= TimeDiff;
+ 	self.camptime+= TimeDiff;
+-	self.last_attack += TimeDiff;
++	self.last_attack= self.attack_finished=0;
++
++	self.light_level = 128;		// So the assassin doesn't go invisible coming out of the teleporter
+ 
+ 	self.dmg = 2;   		// initial water damage
+ 
+@@ -1215,7 +1260,12 @@ void() WaterMove =
+ 	// Completely submerged and no air
+ 	else if ((self.air_finished < time) && (!self.rings & RING_WATER))
+ 	{
+-		if (self.pain_finished < time)
++		if(self.playerclass==CLASS_PALADIN&&self.flags&FL_SPECIAL_ABILITY1)
++		{
++			self.air_finished = time + 12;
++			self.dmg = 2;
++		}
++		else if (self.pain_finished < time)
+ 		{// Drown
+ 			self.dmg = self.dmg + 2;
+ 			if (self.dmg > 15)
+@@ -1501,6 +1551,7 @@ void() PlayerPreThink =
+ 					if ((trace_fraction == 1.0) || (trace_ent.classname!="plaque"))
+ 					{
+ 						self.plaqueflg=0;
++						msg_entity = self;
+ 						plaque_draw(MSG_ONE,0);
+ 					}
+ 				}
+@@ -1814,15 +1865,20 @@ void() CheckPowerups =
+ 			particleexplosion((self.absmin+self.absmax)*0.5,random(144,159),self.absmax_z-self.absmin_z,50);
+ 			GenerateTeleportEffect(self.origin,1);
+ 
+-			setsize (self, '-16 -16 0', '16 16 56');	
+-			self.hull=HULL_PLAYER;
+-			self.view_ofs = '0 0 50';
+-			self.proj_ofs='0 0 44';
++//			setsize (self, '-16 -16 0', '16 16 56');	
++//			self.hull=HULL_PLAYER;
++//			self.view_ofs = '0 0 50';
++//			self.proj_ofs='0 0 44';
+ 
+ 			SetModelAndThinks();
++			self.oldweapon = IT_WEAPON1;
++			self.weapon = IT_WEAPON1;
++			W_SetCurrentWeapon();
+ 
+ //			W_SetCurrentAmmo ();
+ 
++			setsize (self, '-16 -16 0', '16 16 28');	
++			self.hull=HULL_CROUCH;
+ 			PlayerSpeed_Calc();
+ 
+ 			self.think=player_frames;
+@@ -2012,7 +2068,7 @@ string deathstring, deathstring2,iclass;
+ 		bprint (targ.netname);
+ 		bprint ("'s telefrag\n");
+ 
+-		targ.frags = targ.frags - 1;
++		targ.frags -= 1;
+ 		return;
+ 	}
+ 
+@@ -2023,7 +2079,7 @@ string deathstring, deathstring2,iclass;
+ 		bprint (targ.netname);
+ 		bprint (", his own teammate!\n");
+ 
+-		attacker.frags = attacker.frags - 1;
++		attacker.frags -= 1;
+ 		return;
+ 	}
+ 
+@@ -2034,7 +2090,7 @@ string deathstring, deathstring2,iclass;
+ 		bprint (targ.netname);
+ 		bprint ("'s invincibility and mutual annihilation resulted!\n");
+ 
+-		targ.frags = targ.frags - 1;
++		targ.frags -= 1;
+ 		return;
+ 	}
+ 
+@@ -2044,7 +2100,7 @@ string deathstring, deathstring2,iclass;
+ 		if (targ == attacker)
+ 		{
+ 			// killed self
+-			attacker.frags = attacker.frags - 1;
++			attacker.frags -= 1;
+ 			bprint (targ.netname);
+ 			
+ 			if(random()<0.5)
+@@ -2065,24 +2121,17 @@ string deathstring, deathstring2,iclass;
+ 				deathstring = " loses another friend\n";
+ 			bprint (attacker.netname);
+ 			bprint (deathstring);
+-			attacker.frags = attacker.frags - 1;
++			attacker.frags -= 1;
+ 			return;
+ 		}
+ 		else
+ 		{
+-			attacker.frags = attacker.frags + 1;
++			attacker.frags += 1;
+ 
+ 			rnum = attacker.weapon;
+ 			if(attacker.model=="models/sheep.mdl")
+ 			{
+-				if (random() < 0.3)
+-					deathstring = " was nibbled to death by ";
+-				else if (random() < 0.5)
+-					deathstring = " says 'HELLO DOLLY!' to ";
+-				else if (tclass == CLASS_ASSASSIN)
+-					deathstring = " got the wool pulled over her eyes by ";
+-				else
+-					deathstring = " got the wool pulled over his eyes by ";
++				deathstring = " was nibbled to death by ";
+ 				deathstring2 = " the sheep!!\n";
+ 			}
+ 			else if(targ.decap==1)
+@@ -2096,15 +2145,20 @@ string deathstring, deathstring2,iclass;
+ 			{
+ 				if (tclass==CLASS_ASSASSIN)
+ 				{
+-					deathstring = " got her head blown off by ";
++					deathstring = " got her head blown clean off by ";
+ 					deathstring2 = "!\n";
+ 				}
+ 				else
+ 				{
+-					deathstring = " got his head blown off by ";
++					deathstring = " got his head blown clean off by ";
+ 					deathstring2 = "!\n";
+ 				}
+ 			}
++			else if (iclass=="cube_of_force")
++			{
++				deathstring = " was ventilated by ";
++				deathstring2 = "'s Force Cube!\n";
++			}
+ 			else if(iclass=="tripwire")
+ 			{
+ 				deathstring = " tripped on ";
+@@ -2145,6 +2199,11 @@ string deathstring, deathstring2,iclass;
+ 				deathstring =" was jacked up by ";
+ 				deathstring2 ="'s Summoned Imp Lord!\n";
+ 			}
++			else if(inflictor.frags==2)
++			{
++				deathstring = " was destroyed by the power of ";
++				deathstring2 = "'s Disc of Repulsion!\n";
++			}
+ 			else if (rnum == IT_WEAPON1) 
+ 			{
+ 				if(attacker.artifact_active&ART_TOMEOFPOWER)
+@@ -2158,9 +2217,8 @@ string deathstring, deathstring2,iclass;
+ 				}
+ 				else if(aclass==CLASS_CRUSADER)
+ 				{
+-					if(powered_up)
++					if(exp_mult==1.5)
+ 					{
+-						exp_mult = 1.5;
+ 						deathstring = " was fried by the holy lightning of ";
+ 						deathstring2 = "'s Mjolnir!\n";
+ 					}
+@@ -2382,7 +2440,7 @@ string deathstring, deathstring2,iclass;
+ 	// was not killed by a player
+ 	else
+ 	{
+-		targ.frags = targ.frags - 1;
++		targ.frags -= 1;
+ 		bprint (targ.netname);
+ 
+ 		if (attacker.flags & FL_MONSTER)
+diff -urNp h2-1.03/constant.hc h2-1.09/constant.hc
+--- h2-1.03/constant.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/constant.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -418,6 +418,8 @@ float   CE_MAGIC_MISSILE_EXPLOSION	= 34;
+ float   CE_GHOST					= 35;//	ghost.spr- translucent
+ float   CE_BONE_EXPLOSION			= 36;//	bonexpld.spr
+ float   CE_REDCLOUD					= 37;//	rcloud.spr
++float   CE_TELEPORTERPUFFS			= 38;
++float   CE_TELEPORTERBODY			= 39;
+ 
+ // Temporary entities
+ float	TE_SPIKE					= 0;
+diff -urNp h2-1.03/corpse.hc h2-1.09/corpse.hc
+--- h2-1.03/corpse.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/corpse.hc	1997-09-12 11:25:54.000000000 +0300
+@@ -69,6 +69,8 @@ vector newmaxs;
+ 	self.experience_value = 0;
+ 	if(self.classname!="monster_hydra")
+ 		self.movetype = MOVETYPE_STEP;//Don't get in the way	
++	if(!self.mass)
++		self.mass=1;
+ 
+ //To fix "player stuck" probem
+ 	newmaxs=self.maxs;
+diff -urNp h2-1.03/crossbow.hc h2-1.09/crossbow.hc
+--- h2-1.03/crossbow.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/crossbow.hc	1997-09-11 12:04:20.000000000 +0300
+@@ -65,6 +65,7 @@ void() FallAndRemove =
+ 		remove(self);
+ 	self.movetype=MOVETYPE_BOUNCE;
+ 	self.velocity_z=random(-60,-150);
++	self.flags(-)FL_ONGROUND;
+ 	self.avelocity=RandomVector('50 50 50');
+ 	self.think=SUB_Remove;
+ 	thinktime self : self.wait;
+@@ -176,6 +177,8 @@ float rad,stick;
+ 				else if(random()<0.5)
+ 				{
+ 					self.movetype=MOVETYPE_BOUNCE;
++					self.velocity_z=-20;
++					self.flags(-)FL_ONGROUND;
+ 					self.avelocity_x=random(-360,360);
+ 					self.avelocity_y=random(-360,360);
+ 					self.avelocity_z=random(-360,360);
+@@ -192,7 +195,7 @@ float rad,stick;
+ 
+ //FIXME: only stick in if thingtype is wood or flesh,
+ //otherwise, no damage and bounce off!
+-        if(other.movetype)
++        if(other.movetype||other.takedamage||stick||self.health)
+         {
+ 			if(stick)
+ 			{
+@@ -284,6 +287,8 @@ local entity missile;
+         missile.solid=SOLID_BBOX;
+ 		missile.hull=HULL_POINT;
+ 		missile.health=3;
++		if(deathmatch)
++			offset*=.333;
+ 		if(powered_up)
+ 		{
+ 			missile.frags=TRUE;
+diff -urNp h2-1.03/cube.hc h2-1.09/cube.hc
+--- h2-1.03/cube.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/cube.hc	1997-09-11 12:04:20.000000000 +0300
+@@ -5,6 +5,12 @@
+ 
+ float cube_distance = 500;
+ 
++void CubeDie(void)
++{
++	self.owner.artifact_flags(-)self.artifact_flags;
++	remove(self);
++}
++
+ float cube_find_target(void)
+ {
+ 	entity item;
+@@ -53,8 +59,7 @@ void cube_fire(void)
+ 
+ 	if (time > self.monster_duration || self.owner.health <= 0 || self.shot_cnt >= 10)
+ 	{
+-		self.owner.artifact_flags(-)self.artifact_flags;
+-		remove(self);
++		CubeDie();
+ 		return;
+ 	}
+ 
+@@ -79,10 +84,10 @@ void cube_fire(void)
+ 
+ 	if (self.enemy)
+ 	{
+-		if (random() < .25)
++		if (random() < .7)
+ 		{
+ 			Distance = vlen(self.origin - self.enemy.origin);
+-			if (Distance > cube_distance)
++			if (Distance > cube_distance*2)
+ 			{
+ 				self.enemy = world;
+ 				//self.drawflags (+) DRF_TRANSLUCENT;
+@@ -136,7 +141,7 @@ void CubeThinkerB(void)
+ 
+ 	if (!self.owner.flags2 & FL_ALIVE) 
+ 	{
+-		remove(self);
++		CubeDie();
+ 		return;
+ 	}
+ 
+@@ -222,11 +227,6 @@ void CubeThinkerB(void)
+ 	setorigin(self,NewSpot);
+ }
+ 
+-void CubeDie(void)
+-{
+-	remove(self);
+-}
+-
+ void UseCubeOfForce(void)
+ {
+ 	entity cube;
+diff -urNp h2-1.03/damage.hc h2-1.09/damage.hc
+--- h2-1.03/damage.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/damage.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -208,7 +208,7 @@ float exp_bonus;
+ 			(inflictor.classname=="player"&&
+ 				(
+ 					(attacker.playerclass==CLASS_ASSASSIN&&attacker.weapon==IT_WEAPON1)||
+-					(attacker.playerclass==CLASS_PALADIN&&attacker.weapon<IT_WEAPON4)||
++					(attacker.playerclass==CLASS_PALADIN&&attacker.weapon!=IT_WEAPON4)||
+ 					(attacker.playerclass==CLASS_NECROMANCER&&attacker.weapon==IT_WEAPON1)
+ 				)
+ 			)
+@@ -217,7 +217,7 @@ float exp_bonus;
+ 				self.decap=2;
+ 			else
+ 				self.decap=TRUE;
+-		else if(vlen(inflictor.origin-self.origin+self.view_ofs)<=17&&self.health>=-40&&self.health<-10)
++		else if(inflictor.classname!="player"&&vlen(inflictor.origin-self.origin+self.view_ofs)<=17&&self.health>=-40&&self.health<-10)
+ 			if(random()<0.4)
+ 			{
+ 				self.movedir=normalize(self.origin+self.view_ofs-inflictor.origin);
+@@ -266,15 +266,18 @@ float exp_bonus;
+ 					bprint(" took out the King of the Hill (");
+ 					bprint(targ.netname);
+ 					bprint(")!!!\n");
+-					targ.experience_value+=500*(num_players - 2);	//Give an extra 500* num players,you beat others to the kill
++					if(num_players>2)//Only give bonus if more than 2 players
++						targ.experience_value+=500*num_players - 2;	//Give an extra 500* num players,you beat others to the kill
+ 				}
+-
+-				if(attacker.level<targ.level || attacker==targ)
++				if((self.classname=="player"&&attacker.classname=="player"&&teamplay&&attacker.team==self.team)||attacker==targ)
++					drop_level(attacker,1);//Killed someone on your team, or killed self, lose a level, get no exp
++				else
++				{
++					if(attacker.level<targ.level)
+ 						drop_level(targ,1); //If killed by a lower level player, lose 1 level
+ 
+-				if(attacker != targ)
+ 						AwardExperience(attacker,self,self.experience_value+exp_bonus);
+-
++				}
+ 				if(FindExpLeader()!=lastleader)
+ 				{//Tell everyone if the king of the hill has changed
+ 					sound (world, CHAN_BODY, "misc/comm.wav", 1, ATTN_NONE);
+@@ -286,7 +289,7 @@ float exp_bonus;
+ 		else if(self.classname=="player"&&attacker.classname=="player"&&(coop||teamplay&&attacker.team==self.team))
+ 			drop_level(attacker,1);	//Killed friend in coop, lose a level
+ 
+-		else if(attacker.flags&FL_CLIENT&&attacker!=self.controller)
++		else if(attacker.flags&FL_CLIENT&&attacker!=self.controller&&(self.monsterclass<CLASS_BOSS||self.classname=="obj_chaos_orb"))//Bosses award Exp themselves, to all players in coop
+ 			AwardExperience(attacker,self,self.experience_value+exp_bonus);
+ 	}
+ 
+@@ -336,6 +339,18 @@ float exp_bonus;
+ 
+ void monster_pissed (entity attacker)
+ {
++entity found;
++	if(self.controller.classname=="player")
++	{//Summoned/controlled monsters
++		if(coop)
++			if(found.classname=="player")
++				return;
++
++		if(deathmatch&&teamplay)
++			if(found.team==self.controller.team)
++				return;
++	}
++
+ 	if (self.enemy.classname == "player")
+ 		self.oldenemy = self.enemy;
+ 	self.enemy = attacker;
+@@ -493,7 +508,7 @@ void(entity targ, entity inflictor, enti
+ vector	dir;
+ entity	oldself;
+ float	save;
+-float	total_damage;
++float	total_damage,do_mod;
+ float armor_damage;
+ entity holdent;
+ 
+@@ -559,6 +574,31 @@ entity holdent;
+ // used by buttons and triggers to set activator for target firing
+ 	damage_attacker = attacker;
+ 
++	if(attacker.flags&FL_CLIENT&&attacker==inflictor)
++	{//Damage mod for strength using melee weaps
++		if(attacker.weapon==IT_WEAPON1)
++		{
++			if(attacker.playerclass==CLASS_CRUSADER)
++			{
++				if(!attacker.artifact_active&ART_TOMEOFPOWER)
++					do_mod=TRUE;
++			}
++			else
++				do_mod=TRUE;
++		}
++		else if(attacker.playerclass==CLASS_PALADIN)
++			if(attacker.weapon==IT_WEAPON2&&!attacker.artifact_active&ART_TOMEOFPOWER)
++				do_mod=TRUE;
++		if(do_mod)
++		{
++			do_mod = attacker.strength - 11;
++			damage+=damage*do_mod/30;//from .84 - 1.23
++		}
++	}
++
++	if(targ.flags&FL_MONSTER&&inflictor.flags2&FL2_ADJUST_MON_DAM)
++		damage*=2;//Special- more damage against monsters
++
+ 	if (attacker.super_damage)
+ 		damage += attacker.super_damage * damage;
+ 
+@@ -606,6 +646,7 @@ entity holdent;
+ 			self = targ;
+ 			use_super_healthboost();
+ 			centerprint(self,"Saved by the Mystic Urn!\n");
++			stuffcmd(self,"bf\n");
+ 			sound (self, CHAN_AUTO, "misc/comm.wav", 1, ATTN_NORM);
+ 			self.deathtype="";
+ 			self = holdent;
+@@ -731,9 +772,6 @@ vector	inflictor_org, org;
+ 					else
+ 						points*=0.5;
+ 
+-				if ((head.flags & FL_MONSTER) && (self.flags2 & FL2_ADJUST_MON_DAM))
+-					points = 2;
+-
+ 		//following stops multiple grenades from blowing each other up
+ 				if(head.owner==inflictor.owner&&
+ 					head.classname==inflictor.classname&&
+diff -urNp h2-1.03/dthhorse.hc h2-1.09/dthhorse.hc
+--- h2-1.03/dthhorse.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/dthhorse.hc	1997-09-12 11:25:56.000000000 +0300
+@@ -797,7 +797,7 @@ void deathhorse_move(void)
+ 					self.enemy = find(self.enemy, classname, "player");
+ 			}
+ 
+-			if (self.enemy != world && random() < 0.7+skill/10&&(!self.cnt||coop))
++			if (self.enemy != world && random() < 0.7+skill/10&&!self.cnt)
+ 			{
+ 				r = random();
+ 
+diff -urNp h2-1.03/eidolon.hc h2-1.09/eidolon.hc
+--- h2-1.03/eidolon.hc	1997-09-04 21:57:36.000000000 +0300
++++ h2-1.09/eidolon.hc	1997-09-29 14:24:04.000000000 +0300
+@@ -146,9 +146,10 @@ void()eidolon_face_orb;
+ void orb_die()
+ {
+ 	self.owner.health=4000+skill*2000;
+-	self.owner.think=eidolon_ready_roar;
++	self.th_save=eidolon_ready_roar;
+ 	self.owner.controller=world;
+ 	self.owner.goalentity=self.owner.enemy;
++	self.owner.think=multiplayer_health;
+ 	thinktime self.owner : 0;
+ 	sound(self,CHAN_AUTO,"eidolon/orbxpld.wav",1,ATTN_NONE);
+ 	MonsterQuake(500);
+@@ -751,6 +752,7 @@ float pain_chance;
+ 		pain_chance=0.2;
+ 		self.dmg=0;
+ 	}
++	pain_chance-=self.torncount*0.02;
+ 	if(self.movetype!=MOVETYPE_NONE)
+ 		return;
+ 
+@@ -814,8 +816,11 @@ entity missile;
+ 	makevectors (self.angles);
+ 	missile.enemy=self.enemy;
+ 
+-	missile.wallspot=normalize((self.enemy.absmin+self.enemy.absmax)*0.5-
+-				   (self.origin + self.proj_ofs + v_right*36+v_forward*128));
++	setmodel (missile, "models/eidoball.mdl");
++	setsize (missile, '0 0 0', '0 0 0');		
++	setorigin (missile, self.origin + v_forward*128 + self.proj_ofs+v_right*24-v_up*12);
++
++	missile.wallspot=normalize((self.enemy.absmin+self.enemy.absmax)*0.5-missile.origin);
+ 	missile.movedir=v_forward;
+ 	missile.movedir_z=missile.wallspot_z;
+ 	missile.speed=1000;
+@@ -826,9 +831,6 @@ entity missile;
+ 
+ 	sound(self,CHAN_AUTO,"eidolon/fireball.wav",1,ATTN_NONE);
+ 
+-	setmodel (missile, "models/eidoball.mdl");
+-	setsize (missile, '0 0 0', '0 0 0');		
+-	setorigin (missile, self.origin + v_forward*128 + self.proj_ofs+v_right*36);
+ 
+ 	thinktime missile : 0.15;
+ 	missile.think = pmissile2_puff;
+@@ -955,7 +957,7 @@ vector forward_dir;
+ 		newmis.lifetime=time+2;
+ 
+ 		forward_dir=v_forward;
+-		newmis.o_angle=self.origin+self.proj_ofs+forward_dir*128+v_right*20;
++		newmis.o_angle=self.origin+self.proj_ofs+forward_dir*128+v_right*20-v_up*12;
+ 		newmis.wallspot=normalize(self.enemy.origin-newmis.o_angle);
+ 		newmis.movedir=forward_dir;
+ 		newmis.movedir_z=newmis.wallspot_z*1.7;
+@@ -1205,7 +1207,11 @@ float num_players;
+ 				num_players+=1;
+ 			lastent=find(lastent,classname,"player");
+ 		}
+-		self.max_health=self.health=self.health*num_players;
++		if(num_players>4)
++			num_players=4;
++		self.max_health+=1000*num_players;
++		self.health=self.max_health;
++		self.torncount=num_players - 1;
+ 	}
+ 	if(self.th_save!=SUB_Null)
+ 		self.th_save();
+@@ -1292,6 +1298,6 @@ void monster_eidolon(void)
+ 
+ 	self.th_save=walkmonster_start;
+ 	self.think=multiplayer_health;
+-	thinktime self : 1;
++	thinktime self : 2;
+ }
+ 
+diff -urNp h2-1.03/entity.hc h2-1.09/entity.hc
+--- h2-1.03/entity.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/entity.hc	1997-09-11 11:34:10.000000000 +0300
+@@ -314,6 +314,7 @@ void end_sys_fields;
+ 		float divine_time;		// Amount of time flash happens in divine intervention
+ 		float act_state;		// Anim info
+ 		float raven_cnt;		// Number of raven's this guys has in the world
++		float newclass;			// If doing a quick class change
+ 	};
+ 	struct
+ 	{ // Fallen Angel
+diff -urNp h2-1.03/fablade.hc h2-1.09/fablade.hc
+--- h2-1.03/fablade.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/fablade.hc	1997-09-11 11:34:10.000000000 +0300
+@@ -78,7 +78,7 @@ vector vec;
+    vec = self.enemy.origin - missile.origin + self.enemy.proj_ofs + dest_offset;
+ 	vec = normalize(vec);
+ 
+-	missile.velocity = vec * set_speed;
++	missile.velocity = (vec+aim_adjust(self.enemy))*set_speed;
+ 	missile.angles = vectoangles(missile.velocity);
+ 	
+ 	missile.touch = faBladeTouch;
+diff -urNp h2-1.03/famhorse.hc h2-1.09/famhorse.hc
+--- h2-1.03/famhorse.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/famhorse.hc	1997-09-23 23:22:14.000000000 +0300
+@@ -511,6 +511,13 @@ void famhorse_rear(void)
+ 	}
+ }
+ 
++void check_remove ()
++{
++	thinktime self : 1;
++	if(pulltime<time)
++		remove(self);
++}
++
+ /* ---------------------------
+ 	The horse is running around
+    ---------------------------*/
+@@ -613,7 +620,9 @@ void famhorse_move(void)
+ 			newent = spawn();
+ 			setorigin (newent, self.origin + '0 0 120');
+ 			setmodel (newent, "models/soulball.mdl");
+-			self.goalentity = newent;
++			self.controller = newent;
++			self.controller.think=check_remove;
++			thinktime self.controller : 0;
+ 		}
+ 
+ 		if ((self.movechain.frame == $Fscale10) && (self.enemy.health > 0))
+@@ -645,12 +654,14 @@ void famhorse_move(void)
+ 				do_fambeam (self,1,STREAM_ATTACHED, 1, self.origin + '0 0 120', self.enemy.origin);
+ 				self.enemy.velocity = '0 0 0';
+ 
+-				setorigin (self.goalentity, self.origin + '0 0 120');
++				setorigin (self.controller, self.origin + '0 0 120');
+ 
+ 				diff = self.enemy.origin - self.origin;
+ 				hold_velocity = normalize(diff);
+-				hold_velocity = hold_velocity * -100;
++				hold_velocity = hold_velocity * -250;
+ 				self.enemy.velocity = self.enemy.velocity + hold_velocity; 
++				if(vlen(self.enemy.velocity)>500)
++					self.enemy.velocity=normalize(self.enemy.velocity)*500;
+ 				self.enemy.flags (-) FL_ONGROUND;
+ 			}
+ 
+@@ -666,7 +677,8 @@ void famhorse_move(void)
+ 				T_Damage (self.enemy, self, self, damage);
+ 				if (self.enemy.health <= 0)
+ 				{
+-					remove(self.goalentity);
++					if(self.controller)
++						remove(self.controller);
+ 					sound(self,CHAN_WEAPON,"misc/null.wav",1,ATTN_NORM);
+ 				}
+ 
+@@ -675,7 +687,8 @@ void famhorse_move(void)
+ 
+ 			if (pulltime < time)
+ 			{
+-				remove(self.goalentity);
++				if(self.controller)
++					remove(self.controller);
+ 				sound(self,CHAN_WEAPON,"misc/null.wav",1,ATTN_NORM);
+ 
+ 				self.movechain.drawflags(-)MLS_ABSLIGHT;
+@@ -734,24 +747,24 @@ void rider_famine(void)
+ 		return;
+ 	}
+ 
+-	precache_model2 ("models/boss/famhorse.mdl");
+-	precache_model2 ("models/boss/famrider.mdl");
++	precache_model3 ("models/boss/famhorse.mdl");
++	precache_model3 ("models/boss/famrider.mdl");
+ 
+-	precache_model2 ("models/famshot.mdl");
++	precache_model3 ("models/famshot.mdl");
+ 
+-	precache_sound2 ("famine/die.wav");
+-	precache_sound2 ("famine/laugh.wav");
+-	precache_sound2 ("famine/whinny.wav");
+-	precache_sound2 ("famine/pull.wav");
+-	precache_sound2 ("famine/shot.wav");
+-	precache_sound2 ("famine/snort.wav");
+-	precache_sound2 ("famine/clop1.wav");
+-	precache_sound2 ("famine/clop2.wav");
+-	precache_sound2 ("famine/clop3.wav");
+-	precache_sound2 ("misc/null.wav");
+-	precache_sound2 ("raven/blast.wav");
+-	precache_sound2 ("skullwiz/blinkout.wav");
+-	precache_sound2 ("skullwiz/blinkin.wav");
++	precache_sound3 ("famine/die.wav");
++	precache_sound3 ("famine/laugh.wav");
++	precache_sound3 ("famine/whinny.wav");
++	precache_sound3 ("famine/pull.wav");
++	precache_sound3 ("famine/shot.wav");
++	precache_sound3 ("famine/snort.wav");
++	precache_sound3 ("famine/clop1.wav");
++	precache_sound3 ("famine/clop2.wav");
++	precache_sound3 ("famine/clop3.wav");
++	precache_sound3 ("misc/null.wav");
++	precache_sound3 ("raven/blast.wav");
++	precache_sound3 ("skullwiz/blinkout.wav");
++	precache_sound3 ("skullwiz/blinkin.wav");
+ 
+ 	rider_init();
+ 
+diff -urNp h2-1.03/fangel.hc h2-1.09/fangel.hc
+--- h2-1.03/fangel.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/fangel.hc	1997-09-25 14:17:10.000000000 +0300
+@@ -147,6 +147,9 @@ void() fangel_check_wing =
+ {
+ float retval;
+ 
++	if(!self.enemy)
++		return;
++
+ 	enemy_infront = visible(self.enemy);
+ 
+ 	// If we are flying, don't attack as often
+@@ -214,6 +217,8 @@ vector vec;
+ 
+ void() fangel_init =
+ {  // Set the fallen angel ready
++	dprint(self.enemy.classname);
++	dprint("- Found enemy\n");
+ 	self.ideal_yaw = vectoyaw(self.enemy.origin - self.origin);
+ 	self.think=self.th_stand;
+ 	thinktime self : random(.1,.6);
+@@ -234,7 +239,8 @@ void() fangel_init =
+ void fangel_wait (void)
+ {
+ 	thinktime self : 0.15;
+-	if(LocateTarget()) // We found a target
++	LocateTarget();
++	if(self.enemy) // We found a target
+ 		fangel_init();
+ 	else if(random(100)<5&&self.t_width<time)
+ 	{
+@@ -370,6 +376,7 @@ void fangel_move (float thrust)
+ 
+ 	if (self.monster_stage == FANGEL_STAGE_WAIT)
+ 	{
++		dprint("Waiting\n");
+ 		fangel_wait();
+ 		return;
+ 	}
+@@ -467,7 +474,7 @@ float chance;
+ 	   self.fangel_Count -= 1;
+ 	   RetVal = 3;
+ 	}
+-	else if(fov(self,self.enemy,30)&&self.enemy.last_attack+0.75>time)
++	else if(fov(self,self.enemy,30)&&self.enemy.last_attack+0.75>time&&self.frame == $fblock13)
+ 		self.fangel_Count+=1;
+ 	else
+ 		RetVal = AdvanceFrame($fblock1,$fblock21);
+diff -urNp h2-1.03/faspell.hc h2-1.09/faspell.hc
+--- h2-1.03/faspell.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/faspell.hc	1997-09-11 11:34:10.000000000 +0300
+@@ -126,7 +126,7 @@ vector vec;
+     vec = self.enemy.origin - missile.origin + self.enemy.proj_ofs;
+ 	vec = normalize(vec);
+ 
+-	missile.velocity = vec * set_speed;
++	missile.velocity = (vec+aim_adjust(self.enemy))*set_speed;
+ 	missile.angles = vectoangles(missile.velocity);
+ 	missile.spell_angle = random(360);
+ 	missile.count = 1;
+diff -urNp h2-1.03/fight.hc h2-1.09/fight.hc
+--- h2-1.03/fight.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/fight.hc	1997-09-11 11:34:12.000000000 +0300
+@@ -188,7 +188,10 @@ float 	ldmg;
+ 	if(!trace_ent.takedamage)
+ 		return;
+ 
+-	ldmg = random(9);
++	if(self.model=="models/spider.mdl")
++		ldmg=random(self.scale*3);
++	else
++		ldmg = random(9);
+ 
+ 	T_Damage (trace_ent, self, self, ldmg);
+ }
+diff -urNp h2-1.03/fireball.hc h2-1.09/fireball.hc
+--- h2-1.03/fireball.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/fireball.hc	1997-09-22 13:54:30.000000000 +0300
+@@ -53,7 +53,7 @@ void() fireballTouch =
+ 	if (other.health)
+ 	{
+ 		if (self.owner.classname == "cube_of_force")
+-			T_Damage (other, self, self.owner.owner, damg );
++			T_Damage (other, self.owner, self.owner.owner, damg );
+ 		else
+ 			T_Damage (other, self, self.owner, damg );
+ 	}
+@@ -133,7 +133,7 @@ vector vec;
+ 	vec = self.enemy.origin - missile.origin + self.enemy.view_ofs;
+ 	vec = normalize(vec);
+ 
+-	missile.velocity = vec * missile.speed;
++	missile.velocity = (vec+aim_adjust(self.enemy))*missile.speed;
+ 	missile.angles = vectoangles('0 0 0'-missile.velocity);
+ 	
+ 	missile.touch = fireballTouch;
+diff -urNp h2-1.03/fx.hc h2-1.09/fx.hc
+--- h2-1.03/fx.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/fx.hc	1997-09-30 10:22:12.000000000 +0300
+@@ -8,6 +8,17 @@ float GREEN_PUFF	= 2;
+ float GREY_PUFF		= 3;
+ 
+ 
++void CreateTeleporterBodyEffect (vector org,vector vel,float framelength)
++{
++	starteffect(CE_TELEPORTERBODY, org,vel,framelength);
++}
++
++
++void CreateTeleporterSmokeEffect (vector org,vector vel,float framelength)
++{
++	starteffect(CE_TELEPORTERPUFFS, org,vel,framelength);
++}
++
+ // ============= SMOKE ================================
+ 
+ void CreateWhiteSmoke (vector org,vector vel,float framelength)
+@@ -181,53 +192,6 @@ void () flash_remove =
+ 	remove(self);
+ };
+ 
+-void (float dir, float top) CreateTeleportPuff =
+-{
+-	vector holdvelocity, holdangle, holdorigin;
+-
+-	if(top)
+-		holdorigin = ((self.origin + '0 0 64') + (v_forward * 24));
+-	else	holdorigin = ((self.origin + '0 0 12') + (v_forward * 24));
+-
+-	holdangle_x = 0;
+-	holdangle_y = dir;
+-	holdangle_z = 0;
+-	makevectors (holdangle);
+-
+-	holdvelocity = normalize (v_forward);
+-	holdvelocity = holdvelocity * 25;
+-
+-	if (random() < 0.5)
+-		starteffect (CE_TELESMK1, holdorigin, holdvelocity, HX_FRAME_TIME * 3);
+-	else	starteffect (CE_TELESMK2, holdorigin, holdvelocity, HX_FRAME_TIME * 3);
+-};
+-
+-void (float top) TeleportTop =
+-{
+-	float i, dir;
+-
+-	i = 8;
+-	dir = random(0,45);
+-	while (i > 0) {
+-		CreateTeleportPuff (dir, top);
+-		dir += 45;
+-		i -= 1;
+-	}
+-};
+-
+-void () TeleportShrink =
+-{
+-	self.nextthink = time + HX_FRAME_TIME;
+-	self.think = TeleportShrink;
+-	self.scale -= 0.1;
+-	self.avelocity_y -= 100;
+-	if (self.scale < 0.11) {
+-		particle4 (self.origin + '0 0 40', random(5,10),  20, PARTICLETYPE_FASTGRAV, random(20,30));
+-		particle4 (self.origin + '0 0 40', random(5,10), 250, PARTICLETYPE_FASTGRAV, random(20,30));
+-		remove (self);
+-	}
+-};
+-
+ void GenerateTeleportSound (entity center)
+ {
+ string telesnd;
+@@ -248,27 +212,21 @@ float r;
+ 
+ void GenerateTeleportEffect(vector spot1,float teleskin)
+ {
+-	entity newent, holdent;
++	entity sound_ent;
+ 
+ 	if (self.attack_finished > time)
+ 		return;
+ 
+-	newent = spawn_temp();
+-	CreateEntityNew (newent, ENT_TELEPORT, "models/teleport.mdl", chunk_death);
+-	setorigin (newent, spot1);
+-	newent.drawflags (+) SCALE_TYPE_XYONLY|DRF_TRANSLUCENT;
+-	newent.movetype = MOVETYPE_FLYMISSILE;
+-	newent.avelocity_y = 2000;
+-	newent.scale = 1;
+-	newent.skin = teleskin;
+-	GenerateTeleportSound (newent);
+-	holdent = self;
+-	self = newent;
+-	TeleportTop (0);
+-	TeleportTop (1);
+-	self = holdent;
+-	newent.nextthink = time + 0.25;
+-	newent.think = TeleportShrink;
++	sound_ent = spawn();
++	setorigin(sound_ent,spot1);
++	GenerateTeleportSound(sound_ent);
++	sound_ent.think = SUB_Remove;
++	thinktime sound_ent : 2;
++
++	CreateTeleporterBodyEffect (spot1,'0 0 0',teleskin);  // 3rd parameter is the skin
++
++	CreateTeleporterSmokeEffect (spot1,'0 0 0',HX_FRAME_TIME);
++	CreateTeleporterSmokeEffect (spot1 + '0 0 64','0 0 0',HX_FRAME_TIME);
+ 
+ //	GenerateTeleportSound(newent);
+ //	if (self.scale < 0.11)
+diff -urNp h2-1.03/global.hc h2-1.09/global.hc
+--- h2-1.03/global.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/global.hc	1997-09-11 19:06:18.000000000 +0300
+@@ -26,6 +26,7 @@ string mapname;
+ string startspot;
+ 
+ float deathmatch;
++float randomclass;
+ float coop;
+ float teamplay;
+ 
+diff -urNp h2-1.03/golem.hc h2-1.09/golem.hc
+--- h2-1.03/golem.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/golem.hc	1997-09-11 13:28:38.000000000 +0300
+@@ -134,21 +134,21 @@ void monster_golem_stone(void)
+ 		return;
+ 	}
+ 
+-	precache_model2("models/golem_s.mdl");
++	precache_model3("models/golem_s.mdl");
+ 	
+-	precache_model2("models/goarm.mdl");
+-	precache_model2("models/golegs.mdl");
+-	precache_model2("models/g-head.mdl");
+-
+-	precache_sound2("golem/stnfall.wav");
+-	precache_sound2("golem/stnpain.wav");
+-	precache_sound2("golem/slide.wav");
+-	precache_sound2("imp/swoophit.wav");
+-	precache_sound2("golem/dthgroan.wav");
++	precache_model3("models/goarm.mdl");
++	precache_model3("models/golegs.mdl");
++	precache_model3("models/g-head.mdl");
++
++	precache_sound3("golem/stnfall.wav");
++	precache_sound3("golem/stnpain.wav");
++	precache_sound3("golem/slide.wav");
++	precache_sound3("imp/swoophit.wav");
++	precache_sound3("golem/dthgroan.wav");
+ 
+ 	self.thingtype = THINGTYPE_GREYSTONE;
+ 	setmodel(self, "models/golem_s.mdl");
+-	setsize(self, '-20 -20 0', '20 20 80');
++	setsize(self, '-24 -24 0', '24 24 80');
+ 	GolemInit();
+ 	self.hull = HULL_PLAYER;
+ 	self.health = 200;
+@@ -156,7 +156,7 @@ void monster_golem_stone(void)
+ 	self.mintel = 4;
+ 	self.th_melee = GolemSMeleeDecide;
+ 	self.th_pain = GolemSPain;
+-	self.view_ofs = '0 0 64';
++	self.view_ofs = self.proj_ofs='0 0 64';
+ 	walkmonster_start();
+ }
+ 
+@@ -196,14 +196,14 @@ void monster_golem_iron(void)
+ 	precache_sound2("golem/dthgroan.wav");
+ 	self.thingtype = THINGTYPE_METAL;
+ 	setmodel(self, "models/golem_i.mdl");
+-	setsize(self, '-20 -20 0', '20 20 80');
++	setsize(self, '-32 -32 0', '32 32 80');
+ 	GolemInit();
+ 	self.health = 450;
+ 	self.mintel = 6;
+ 	self.experience_value = 200;
+ 	self.th_melee = GolemIMeleeDecide;
+ 	self.th_pain = GolemIPain;
+-	self.view_ofs = '0 0 64';
++	self.view_ofs = self.proj_ofs='0 0 64';
+ 	walkmonster_start();
+ }
+ 
+@@ -250,7 +250,7 @@ void monster_golem_bronze(void)
+ 	self.experience_value = 275;
+ 	self.th_melee = GolemBMeleeDecide;
+ 	self.th_pain = GolemBPain;
+-	self.view_ofs = '0 0 115';
++	self.view_ofs = self.proj_ofs='0 0 115';
+ 	walkmonster_start();
+ }
+ 
+@@ -276,13 +276,13 @@ void monster_golem_crystal(void)
+ 		return;
+ 	}
+ 
+-	precache_model2("models/golem_s.mdl");
+-	precache_sound2("golem/stnpain.wav");
+-	precache_sound2("golem/slide.wav");
+-	precache_sound2("golem/dthgroan.wav");
++	precache_model3("models/golem_s.mdl");
++	precache_sound3("golem/stnpain.wav");
++	precache_sound3("golem/slide.wav");
++	precache_sound3("golem/dthgroan.wav");
+ 	self.thingtype = THINGTYPE_ICE;
+ 	setmodel(self, "models/golem_s.mdl");
+-	setsize(self, '-20 -20 0', '20 20 80');
++	setsize(self, '-24 -24 0', '24 24 80');
+ 	GolemInit();
+ 	self.hull = HULL_PLAYER;
+ 	self.drawflags = DRF_TRANSLUCENT|MLS_ABSLIGHT;
+@@ -294,7 +294,7 @@ void monster_golem_crystal(void)
+ 	self.th_pain = GolemSPain;
+ 	self.use = GolemCUse;
+ 	
+-	self.view_ofs = '0 0 64';
++	self.view_ofs = self.proj_ofs='0 0 64';
+ 	
+ 	walkmonster_start();
+ 	
+@@ -322,9 +322,9 @@ void GolemInit(void)
+ 	self.th_walk = GolemWalk;
+ 	self.th_run = GolemRun;
+ 	self.th_die = GolemDie;
+-	precache_sound2("golem/awaken.wav");
+-	precache_sound2("golem/step.wav");
+-	precache_sound2("golem/swing.wav");
++	precache_sound3("golem/awaken.wav");
++	precache_sound3("golem/step.wav");
++	precache_sound3("golem/swing.wav");
+ }
+ 
+ //==========================================================================
+@@ -406,12 +406,12 @@ void GolemRun(void) [++ $run1..$run24]
+ 
+ 		if (dist < 100)
+ 			GolemBMeleeDecide();
+-		else if (dist > 200 && visible(self.enemy) && r < 0.6)
++		else if (dist > 256 && visible(self.enemy) && r < 0.6)
+ 		{
+ 			if (GolemBCheckBeamAttack() == 1)
+ 				GolemBBeamBegin();
+ 		}
+-		else if (dist > 100 && dist < 200 && r < 0.3)
++		else if (dist > 100 && dist < 256 && r < 0.3)
+ 			GolemBStomp();
+ 
+ 		ai_run(8);
+@@ -424,7 +424,7 @@ void GolemRun(void) [++ $run1..$run24]
+ 
+ 		if (dist < 100)
+ 			GolemBMeleeDecide();
+-		else if (dist > 150 && visible(self.enemy) && r < 0.4)
++		else if (dist > 100 && visible(self.enemy) && r < 0.4)
+ 			if (GolemICheckMissileAttack())
+ 				GolemIMissile();
+ 
+@@ -450,20 +450,20 @@ float 	ldmg;
+ 
+ 	if (self.classname == "monster_golem_bronze")
+ 	{
+-		if (vlen(delta) > 100)
++		if (vlen(delta) > 128)
+ 			return;
+ 		ldmg = random(15);
+ 	}
+ 	else if (self.classname == "monster_golem_iron")
+ 	{
+-		if (vlen(delta) > 80)
++		if (vlen(delta) > 128)
+ 			return;
+ 		ldmg = random(12);
+ 	}
+ 	else 
+ 	{
+ 		ldmg = random(8);
+-		if (vlen(delta) > 60) return;
++		if (vlen(delta) > 128) return;
+ 	}
+ 
+ 	if (critical) ldmg = ldmg * 1.5;
+diff -urNp h2-1.03/head.hc h2-1.09/head.hc
+--- h2-1.03/head.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/head.hc	1997-09-12 11:26:00.000000000 +0300
+@@ -36,6 +36,8 @@ void ThrowSolidHead (float dm)
+ 	self.takedamage = DAMAGE_YES;
+ 	self.solid = SOLID_PHASE;
+ 	setsize (self, '-3 -3 -3', '3 3 3');//Allows step-over, but can't walk on or jump off them
++	if(!self.mass)
++		self.mass=1;
+ 	self.hull=HULL_POINT;
+ 	if (dm != -666)
+ 	{
+diff -urNp h2-1.03/hydra.hc h2-1.09/hydra.hc
+--- h2-1.03/hydra.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/hydra.hc	1997-09-11 11:34:18.000000000 +0300
+@@ -232,7 +232,7 @@ void hydra_checkForBlind(void)
+ 
+ 	r = vhlen(self.enemy.origin - self.origin);
+ 
+-	if ((r < 150) && (fov(self, self.enemy, 80)) && (fov(self.enemy, self, 80)))
++	if ((r < 256) && (fov(self, self.enemy, 80)) && (fov(self.enemy, self, 80)))
+ 	{
+ 		thinktime self : 0.1;
+ 		self.think = hydra_blind;
+@@ -693,9 +693,6 @@ void hydra_TentFrames(void) 
+ // Regular swimming / movement
+ void hydra_SwimFrames(void) 
+ {
+-	if (self.health < 125)
+-	    dprintf ("Contents : %s\n", pointcontents(self.origin));
+-
+ 	self.think = hydra_SwimFrames;
+ 	thinktime self : HX_FRAME_TIME;
+ 
+@@ -786,7 +783,7 @@ void init_hydra(void)
+ 	setmodel (self, "models/hydra.mdl");
+ 	self.skin = 0;
+ 
+-	setsize (self, '-40 -40 -42', '40 40 42');
++	setsize (self, '-30 -30 -24', '30 30 24');
+ 	self.hull = HULL_SCORPION;
+ //self.hull = HULL_HYDRA;
+ 	self.health = 125;
+diff -urNp h2-1.03/icemace.hc h2-1.09/icemace.hc
+--- h2-1.03/icemace.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/icemace.hc	1997-09-29 14:24:08.000000000 +0300
+@@ -69,6 +69,7 @@ void() IceCubeThink =
+ void (entity loser,entity forwhom) SnowJob=
+ {
+ //FIXME: Make gradual- person slows down then stops
++entity oself;
+ 	if(loser.solid==SOLID_BSP)
+ 		return;
+ 
+@@ -113,9 +114,12 @@ void (entity loser,entity forwhom) SnowJ
+         loser.health=1;
+ 		loser.deathtype="ice melt";
+ 		loser.th_die=shatter;
+-		AwardExperience(self.enemy,self,self.experience_value);
+-		self.experience_value=0;
++		AwardExperience(forwhom,loser,loser.experience_value);
++		loser.experience_value=0;
++		oself=self;
++		self=loser;
+ 		SUB_UseTargets();
++		self=oself;
+ 	}
+ 	else
+ 	{
+@@ -242,6 +246,8 @@ entity corona;
+ 	corona.drawflags=DRF_TRANSLUCENT|MLS_ABSLIGHT;
+ 	corona.abslight=0.5;
+ 	corona.scale=2;
++	corona.think=SUB_Remove;
++	thinktime corona : 2;
+ 	setmodel(corona,"models/iceshot2.mdl");
+ 	setsize(corona,'0 0 0','0 0 0');
+ 	setorigin(corona,newmis.origin);
+@@ -468,13 +474,16 @@ void FireBlizzard (void)
+ 	newmis.velocity=normalize(v_forward)*1000;
+ 	newmis.effects=EF_MUZZLEFLASH;
+ 	
+-	newmis.think=sparkle;
+-	thinktime newmis : 0;
++//	newmis.think=sparkle;
++//	thinktime newmis : 0;
+ 
+-	setmodel(newmis,"models/null.spr");
+-	newmis.effects(+)EF_NODRAW;
++//	setmodel(newmis,"models/null.spr");
++	newmis.drawflags(+)SCALE_ORIGIN_CENTER;//DRF_TRANSLUCENT
++	setmodel(newmis,"models/ball.mdl");
++//	newmis.effects(+)EF_NODRAW;
+ 	setsize(newmis,'0 0 0','0 0 0');
+ 	setorigin(newmis,self.origin+self.proj_ofs+v_forward*16);
++	newmis.scale = .1;
+ }
+ 
+ /*======================
+diff -urNp h2-1.03/imp.hc h2-1.09/imp.hc
+--- h2-1.03/imp.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/imp.hc	1997-09-11 11:36:54.000000000 +0300
+@@ -741,7 +741,7 @@ float dist,damg;
+ 		if(self.skin==3)
+ 		{
+ 			if(trace_ent.thingtype==THINGTYPE_FLESH)
+-				MeatChunks (trace_endpos,v_right*random(-100,-300)+'0 0 200', 3);
++				MeatChunks (trace_endpos,v_right*random(-100,-300)+'0 0 200', 3,trace_ent);
+ 			hitsound="weapons/slash.wav";
+ 		}
+ 		else
+@@ -1460,31 +1460,31 @@ void init_imp (float which_skin)
+ 
+ 	if(!self.flags2&FL_SUMMONED)
+ 	{
+-		precache_model2 ("models/imp.mdl");
+-		precache_model2 ("models/h_imp.mdl");//empty for now
++		precache_model3 ("models/imp.mdl");
++		precache_model3 ("models/h_imp.mdl");//empty for now
+ 		if (self.classname == "monster_imp_lord")
+ 		{
+-			precache_model2 ("models/shardice.mdl");
++			precache_model3 ("models/shardice.mdl");
+ 			precache_model ("models/fireball.mdl");
+-			precache_sound2("imp/upbig.wav");
+-			precache_sound2("imp/diebig.wav");
+-			precache_sound2("imp/swoopbig.wav");
+-			precache_sound2("imp/flybig.wav");
++			precache_sound3("imp/upbig.wav");
++			precache_sound3("imp/diebig.wav");
++			precache_sound3("imp/swoopbig.wav");
++			precache_sound3("imp/flybig.wav");
+ 		}
+ 		else
+ 		{
+-			precache_sound2("imp/up.wav");
+-			precache_sound2("imp/die.wav");
+-			precache_sound2("imp/swoop.wav");
+-			precache_sound2("imp/fly.wav");
++			precache_sound3("imp/up.wav");
++			precache_sound3("imp/die.wav");
++			precache_sound3("imp/swoop.wav");
++			precache_sound3("imp/fly.wav");
+ 			if (self.classname == "monster_imp_ice")
+-				precache_model2 ("models/shardice.mdl");
++				precache_model3 ("models/shardice.mdl");
+ 			else
+ 				precache_model ("models/fireball.mdl");
+ 		}
+-		precache_sound2("imp/swoophit.wav");
+-		precache_sound2("imp/fireball.wav");
+-		precache_sound2("imp/shard.wav");
++		precache_sound3("imp/swoophit.wav");
++		precache_sound3("imp/fireball.wav");
++		precache_sound3("imp/shard.wav");
+ 		precache_sound("hydra/turn-s.wav");
+ 	}
+ 
+diff -urNp h2-1.03/impulse.hc h2-1.09/impulse.hc
+--- h2-1.03/impulse.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/impulse.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -115,6 +115,36 @@ void player_everything_cheat(void)
+ }
+ 
+ 
++void PrintFrags()
++{
++entity lastent;
++	lastent=nextent(world);
++	while(lastent)
++	{
++		if(lastent.classname=="player")
++		{
++			bprint(lastent.netname);
++			bprint(" (L-");
++			bprint(ftos(lastent.level));
++			if(lastent.playerclass==CLASS_ASSASSIN)
++				bprint(" Assassin) ");
++			else if(lastent.playerclass==CLASS_PALADIN)
++				bprint(" Paladin) ");
++			else if(lastent.playerclass==CLASS_CRUSADER)
++				bprint(" Crusader) ");
++			else
++				bprint(" Necromancer) ");
++			bprint(" FRAGS: ");
++			bprint(ftos(lastent.frags));
++			bprint(" (LF: ");
++			bprint(ftos(lastent.level_frags));
++			bprint(")\n");
++		}
++		lastent=find(lastent,classname,"player");
++	}
++}
++
++
+ /*void()gravityup =
+ {
+ 	self.gravity+=0.01;
+@@ -182,6 +212,15 @@ float inertia, lift;
+ 	}
+ }
+ 
++void AddServerFlag(float addflag)
++{
++	addflag=byte_me(addflag+8);
++	dprintf("Serverflags were: %s\n",serverflags);
++	dprintf("Added flag %s\n",addflag);
++	serverflags(+)addflag;
++	dprintf("Serverflags are now: %s\n",serverflags);
++}
++
+ /*
+ ============
+ ImpulseCommands
+@@ -197,16 +236,18 @@ void() ImpulseCommands =
+ 	if(self.flags2&FL_CHAINED&&self.impulse!=23)
+ 		return;
+ 
+-	if (self.impulse == 9)
++	if (self.impulse == 9&&skill<3)
+ 		CheatCommand ();
+ 	else if (self.impulse == 14)
+ 		Polymorph(self);
+ 	else if (self.impulse == 99)
+ 		ClientKill();
++	else if (self.impulse ==149)
++		dprintf("Serverflags are now: %s\n",serverflags);
+ //	else if (self.impulse >149 && self.impulse <157)
+ //		AddServerFlag(self.impulse - 149);
+-	else if (self.impulse == 21 )  // To activate torch
+-		UseTorch ();
++//   else if (self.impulse == 21 )  // To activate torch
++//		UseTorch ();
+    else if (self.impulse == 23 )  // To use inventory item
+ 		UseInventoryItem ();
+ 	else if(self.impulse==33)
+@@ -268,7 +309,7 @@ void() ImpulseCommands =
+ 		}
+ 		sprint(self," ] \n");
+ 	}*/
+-	else if (self.impulse==35)
++	else if (self.impulse==35&&skill<3)
+ 	{
+ 		search = nextent(world);
+ 		total = 0;
+@@ -284,7 +325,7 @@ void() ImpulseCommands =
+ 		}
+ 		dprintf("Removed %s monsters\n",total);
+ 	}
+-	else if (self.impulse==36)
++	else if (self.impulse==36&&skill<3)
+ 	{
+ 		search = nextent(world);
+ 		total = 0;
+@@ -300,7 +341,7 @@ void() ImpulseCommands =
+ 		}
+ 		dprintf("Froze %s monsters\n",total);
+ 	}
+-	else if (self.impulse==37)
++	else if (self.impulse==37&&skill<3)
+ 	{
+ 		search = nextent(world);
+ 		total = 0;
+@@ -351,6 +392,48 @@ void() ImpulseCommands =
+ 		sprint(self,s2);
+ 		sprint(self,"\n");
+ 	}*/
++	else if(self.impulse==25)
++	{
++		if(deathmatch||coop)
++		{
++			self.impulse=0;
++			return;
++		}
++		else
++		{
++			self.cnt_tome += 1;
++			Use_TomeofPower();
++		}
++	}
++	else if(self.impulse==39&&skill<3)
++	{
++		if(deathmatch||coop)
++		{
++			self.impulse=0;
++			return;
++		}
++		else	// Toggle flight
++		{
++			if (self.movetype != MOVETYPE_FLY)
++				player_fly();
++			else
++				player_stopfly();
++		}
++	}
++	else if(self.impulse==40&&skill<3)
++	{
++			player_level_cheat();
++	}
++	else if(self.impulse==41&&skill<3)
++	{
++		if(deathmatch||coop)
++		{
++			self.impulse=0;
++			return;
++		}
++		else
++			player_experience_cheat();
++	}
+ 	else if (self.impulse == 42)
+ 	{
+ 		dprintv("Coordinates: %s\n", self.origin);
+@@ -359,7 +442,7 @@ void() ImpulseCommands =
+ 		dprint(mapname);
+ 		dprint("\n");
+ 	}
+-	else if(self.impulse==43)
++	else if(self.impulse==43&&skill<3)
+ 		player_everything_cheat();
+ 	else if(self.impulse==44)
+ 		DropInventoryItem();
+@@ -392,6 +475,70 @@ void() ImpulseCommands =
+ 		sprint(self,ftos(search.experience));
+ 		sprint(self,") \n");
+ 	}
++	else if (self.impulse == 255)
++		PrintFrags();
++	else if (self.impulse>170&&self.impulse<175&&cvar("registered"))
++	{
++		if(self.level<3)
++		{
++			sprint(self,"You must have achieved level 3 or higher to change class!\n");
++			self.impulse=0;
++			return;
++		}
++
++		if(self.impulse==171)//Quick Class-change hot-keys
++			if(self.playerclass==CLASS_PALADIN)
++			{
++				self.impulse=0;
++				return;
++			}
++			else
++				self.newclass=CLASS_PALADIN;
++		else if(self.impulse==172)
++			if(self.playerclass==CLASS_CRUSADER)
++			{
++				self.impulse=0;
++				return;
++			}
++			else
++				self.newclass=CLASS_CRUSADER;
++		else if(self.impulse==173)
++			if(self.playerclass==CLASS_NECROMANCER)
++			{
++				self.impulse=0;
++				return;
++			}
++			else
++				self.newclass=CLASS_NECROMANCER;
++		else if(self.impulse==174)
++			if(self.playerclass==CLASS_ASSASSIN)
++			{
++				self.impulse=0;
++				return;
++			}
++			else
++				self.newclass=CLASS_ASSASSIN;
++		self.effects=self.drawflags=FALSE;
++		self.playerclass=self.newclass;//So it drops exp the right amount
++		drop_level(self,2);
++
++		newmis=spawn();
++		newmis.classname="classchangespot";
++		newmis.angles=self.angles;
++		setorigin(newmis,self.origin);
++
++		if(!deathmatch&&!coop)
++			parm7=self.newclass;//Just to tell respawn() not to use restart
++		else
++		{
++			self.model=self.init_model;
++			GibPlayer();
++			self.frags -= 2;	// extra penalty
++		}
++		respawn ();
++	}
++
++	
+ 
+ 	if(self.model=="models/sheep.mdl")
+ 	{
+diff -urNp h2-1.03/invntory.hc h2-1.09/invntory.hc
+--- h2-1.03/invntory.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/invntory.hc	1997-09-24 11:45:22.000000000 +0300
+@@ -31,20 +31,27 @@ void Use_RingFlight()
+ void()monster_imp_lord;
+ void BecomeImp ()
+ {
++float move_cnt;
+ 	if(other.solid!=SOLID_BSP)
+ 		return;
+ 
++	self.solid=SOLID_NOT;
+ 	setorigin(self,self.origin+'0 0 42');
+ 	setsize(self,'-40 -40 -42','40 40 42');
+ 	self.hull=HULL_HYDRA;
+ 	newmis=spawn();
+ 	setorigin(newmis,self.origin);
+-	tracearea(self.origin,self.origin+'0 0 1',self.mins,self.maxs,FALSE,self);
++	tracearea(self.origin,self.origin+'0 0 1',self.mins,self.maxs,FALSE,newmis);
++	while((trace_fraction<1||trace_allsolid)&&move_cnt<36)
++	{
++		setorigin(newmis,newmis.origin+'0 0 1');
++		tracearea(newmis.origin,newmis.origin+'0 0 1',self.mins,self.maxs,FALSE,newmis);
++		move_cnt+=1;
++	}
+ 	if(trace_fraction==1&&!trace_allsolid)
+ 	{
+ 		self.touch=SUB_Null;
+ 
+-		self.solid=SOLID_NOT;
+ 		newmis.flags2(+)FL_SUMMONED;
+ 		newmis.controller=self.owner;
+ 		newmis.team=self.owner.team;
+@@ -290,7 +297,9 @@ void Use_Proximity_Mine ()
+ 	newmis.classname="proximity";
+ 	newmis.movetype=MOVETYPE_FLYMISSILE;
+ 	newmis.solid=SOLID_BBOX;
+-	newmis.dmg=67.5+self.level*7.5;
++	newmis.dmg=50+self.level*10;
++	if(newmis.dmg>120)
++		newmis.dmg=120;
+ 	newmis.health=10;
+ 	newmis.takedamage=DAMAGE_YES;
+ 	newmis.touch=newmis.th_die=MultiExplode;
+@@ -406,10 +415,14 @@ void UseBlast (void)
+ 					}
+ 					else
+ 					{
++						victim.frags=2;
+ 						victim.enemy=victim.owner;
+ 						victim.owner = self;
++						if (victim.classname!="tornato")
++						{
+ 							victim.velocity = victim.velocity * -1;
+ 							victim.angles = vectoangles(victim.velocity);
++						}
+ 					}
+ 
+ 					holdpos = victim.origin;
+diff -urNp h2-1.03/items.hc h2-1.09/items.hc
+--- h2-1.03/items.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/items.hc	1997-09-25 11:20:40.000000000 +0300
+@@ -110,6 +110,11 @@ void() StartItem =
+ 			setsize (self, '-8 -8 -28', '8 8 8');
+ 		else 
+ 			setsize (self, '-16 -16 -38', '16 16 24');
++		if(self.think!=SUB_Remove&&self.owner.classname=="player"&&self.model!="models/bag.mdl")
++		{
++			self.think=SUB_Remove;
++			thinktime self : 30;//Go away after 30 sec if thrown by player & not a backpack
++		}
+ 	}
+ 	else
+ 	{
+diff -urNp h2-1.03/lightning.hc h2-1.09/lightning.hc
+--- h2-1.03/lightning.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/lightning.hc	1997-09-12 13:46:06.000000000 +0300
+@@ -400,9 +400,9 @@ void light_thunderstorm()
+ 			remove(self);
+ 			return;
+ 		}
+-		precache_sound2("ambience/thunder1.wav");
+-		precache_sound2("crusader/lghtn1.wav");
+-		precache_sound2("crusader/lghtn2.wav");
++		precache_sound3("ambience/thunder1.wav");
++		precache_sound3("crusader/lghtn1.wav");
++		precache_sound3("crusader/lghtn2.wav");
+ 		
+ 		if(!self.frags)
+ 			self.frags=1000;
+diff -urNp h2-1.03/magicmis.hc h2-1.09/magicmis.hc
+--- h2-1.03/magicmis.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/magicmis.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -87,12 +87,12 @@ void MagicMissileTouch (void)
+ 	starteffect(CE_MAGIC_MISSILE_EXPLOSION,self.origin-self.movedir*8,0.05);
+ 	remove(self);
+ }
+-
++/*
+ void TorpedoTrail (void)
+ {
+ 	particle4(self.origin,7,random(148,159),PARTICLETYPE_GRAV,random(10,20));
+ }
+-
++*/
+ void StarTwinkle (void)
+ {
+ 	if(!self.owner.level)
+@@ -111,8 +111,8 @@ void StarTwinkle (void)
+ 		if(self.scale<=0.01)
+ 			self.aflag=FALSE;
+ 	}
+-	if(random()<0.3)
+-		TorpedoTrail();
++//	if(random()<0.3)
++//		TorpedoTrail();
+ 	self.think=StarTwinkle;
+ 	thinktime self : 0.05;
+ }
+@@ -131,7 +131,7 @@ vector spread;
+ 	newmis=spawn();
+ 	newmis.classname="magic missile";
+ 	newmis.owner=self;
+-	newmis.drawflags(+)SCALE_ORIGIN_CENTER;//|DRF_TRANSLUCENT;
++	newmis.drawflags(+)SCALE_ORIGIN_CENTER|DRF_TRANSLUCENT;
+ 	newmis.movetype=MOVETYPE_FLYMISSILE;
+ 	newmis.solid=SOLID_BBOX;
+ 
+@@ -177,10 +177,10 @@ vector spread;
+ 		}
+ 		newmis.effects=EF_DIMLIGHT;
+ 		newmis.frags=TRUE;
+-		newmis.dmg=random(30,40);
++//		newmis.dmg=random(30,40);
+ 		newmis.veer=100;
+ 		newmis.homerate=0.1;
+-		newmis.turn_time=3;
++//		newmis.turn_time=3;
+ 		newmis.lifetime=time+5;
+ 		newmis.th_die=chain_remove;
+ 		newmis.think=HomeThink;
+diff -urNp h2-1.03/medusa.hc h2-1.09/medusa.hc
+--- h2-1.03/medusa.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/medusa.hc	1997-09-29 14:24:12.000000000 +0300
+@@ -528,6 +528,12 @@ void MedusaHeadDead () [++ 0 .. 45]
+ 
+ void MedusaHeadDying () [++ 46 .. 105]
+ {
++	if(pointcontents(self.origin)==CONTENT_SOLID)
++	{
++		chunk_death();
++		return;
++	}
++
+ 	if(self.velocity=='0 0 0')
+ 		if(!self.aflag)
+ 		{
+diff -urNp h2-1.03/meteor.hc h2-1.09/meteor.hc
+--- h2-1.03/meteor.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/meteor.hc	1997-09-11 12:04:22.000000000 +0300
+@@ -307,9 +307,26 @@ float distance,content;
+ 	}
+ 	if(random()<0.3)
+ 	{
++	entity sucker;
++	float seekspeed;
++		sucker=findradius(self.origin,500);
++		while(sucker)
++		{
++			if(sucker.takedamage&&sucker.health&&sucker!=self.enemy&&sucker.mass<500*self.scale&&visible(sucker)&&sucker!=self.owner)
++				if(sucker.movetype&&sucker.movetype!=MOVETYPE_PUSH)
++				{
++					seekspeed=(500 - vlen(sucker.origin-self.origin));
++					sucker.velocity=normalize(self.origin-sucker.origin)*seekspeed;
++					if(sucker.velocity_z<30)
++						sucker.velocity_z=30;
++					sucker.flags(-)FL_ONGROUND;
++					if(sucker.classname=="player")
++						sucker.adjust_velocity=sucker.velocity;
++				}
++			sucker=sucker.chain;
++		}
+ 		if(self.goalentity!=world&&visible(self.goalentity)&&self.goalentity.health>0)
+ 		{
+-			float seekspeed;
+ 				seekspeed = random(150,333);
+ 				if(self.goalentity.solid==SOLID_BSP&&self.goalentity.origin=='0 0 0')
+ 					distance=vlen((self.goalentity.absmax+self.goalentity.absmin)*0.5-self.origin);
+@@ -323,7 +340,6 @@ float distance,content;
+ 		}
+ 		else
+ 		{
+-		entity sucker;
+ 		float bestdist;
+ 			self.goalentity=world;//out of sight, out of mind
+ 			bestdist=1001;
+diff -urNp h2-1.03/mezzoman.hc h2-1.09/mezzoman.hc
+--- h2-1.03/mezzoman.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/mezzoman.hc	1997-09-25 14:17:18.000000000 +0300
+@@ -617,6 +617,9 @@ float magnitude;//remainder, reflect_cou
+ 		remove(self);
+ 	}
+ 
++	if(other.classname=="funnal"||other.classname=="tornato")
++		return;
++
+ 	dir = normalize(other.velocity);
+ 	magnitude=vlen(other.velocity);
+ 	org = other.origin;
+@@ -731,12 +734,19 @@ void spawn_reflect ()
+ 
+ void mezzo_clobber() [++ $clober1 .. $clober16]
+ {
++float zofs;
+ 	ai_charge(1);
+ 	if(self.frame==$clober7)
+ 	{
+ 		makevectors(self.angles);
++		
++		zofs = self.enemy.origin_z - self.origin_z;
++		if(zofs>20)
++			zofs=20;
++		else if(zofs<-20)
++			zofs=-20;
+ 
+-		traceline(self.origin+'0 0 30',self.origin+'0 0 30'+v_forward*36,FALSE,self);
++		traceline(self.origin+'0 0 30',self.origin+'0 0 30'+v_forward*36+v_up*zofs,FALSE,self);
+ 		if(trace_fraction==1)
+ 			return;
+ 
+@@ -783,7 +793,7 @@ void mezzo_sword() [++ $sword1 .. $sword
+ 	}
+ 	else if(self.frame>=$sword6 && self.frame<=$sword10)
+ 	{
+-	float ofs;
++	float ofs,zofs;
+ 	vector dir;
+ 		makevectors(self.angles);
+ 		ofs=($sword10 - self.frame)*4;
+@@ -791,7 +801,13 @@ void mezzo_sword() [++ $sword1 .. $sword
+ 		dir+=v_right*(ofs - 8)+v_forward*(48 - fabs(16 - ofs));
+ 		dir=normalize(dir);
+ 
+-		traceline(self.origin+'0 0 37',self.origin+'0 0 37'+dir*48,FALSE,self);
++		zofs = self.enemy.origin_z - self.origin_z;
++		if(zofs>20)
++			zofs=20;
++		else if(zofs<-20)
++			zofs=-20;
++
++		traceline(self.origin+'0 0 37',self.origin+'0 0 37'+dir*48+v_up*zofs,FALSE,self);
+ 		if(trace_fraction==1)
+ 			return;
+ 
+@@ -805,7 +821,7 @@ void mezzo_sword() [++ $sword1 .. $sword
+ 			T_Damage(trace_ent,self,self,2*(self.skin+1)*(self.aflag+1)*(coop + 1));
+ 		if(trace_ent.thingtype==THINGTYPE_FLESH&&self.frame==$sword9)
+ 		{
+-			MeatChunks (trace_endpos,v_right*random(-100,-300)+'0 0 200', 3);
++			MeatChunks (trace_endpos,v_right*random(-100,-300)+'0 0 200', 3,trace_ent);
+ 			sound(self,CHAN_AUTO,"weapons/slash.wav",1,ATTN_NORM);
+ 		}
+ 		SpawnPuff (trace_endpos, '0 0 0', 3,trace_ent);
+diff -urNp h2-1.03/MG_AI.hc h2-1.09/MG_AI.hc
+--- h2-1.03/MG_AI.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/MG_AI.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -33,10 +33,10 @@ NOTE: This only works on players since l
+ 	is taken from player's weaponmodel lighting (0-255)
+ =============
+ */
+-void get_visibility (entity targ)
++void get_visibility (entity targ , float range_mod)
+ {
+ //NOTE: incorporate distance?
+-float base, divider;
++float base, divider, attack_mod;
+ 
+ //FIXME: .light_level gives a value of 0 if MLS_POWERMODE is on...
+ //Temp fix for now...
+@@ -55,7 +55,7 @@ float base, divider;
+ 	if(targ.drawflags&DRF_TRANSLUCENT)
+ 	{
+ 		if(targ.model=="models/assassin.mdl")
+-			divider=10;//Bonus for hiding in shadows
++			divider=3+targ.level;//Bonus for hiding in shadows
+ 		else
+ 			divider=3;	//Makes it 3 times harder to see
+ 	}
+@@ -64,29 +64,38 @@ float base, divider;
+ 
+ 	if(targ.drawflags&MLS_ABSLIGHT)
+ 		base=targ.abslight/2.5;
++	else if (targ.drawflags & MLS_POWERMODE)
++		base = 1;
+ 	else
+-		base=1;
++		base=targ.light_level/75;//75 is semi-fullbright
+ 
+-	if (targ.drawflags & MLS_POWERMODE)
+-		base=1;
++	if(range_mod)
++		range_mod=vlen(targ.origin-self.origin)/333;
+ 	else
+-		base = (targ.light_level/100)*base;
++		range_mod = 1;
+ 
+-	targ.visibility=base/divider;
++	if(targ.last_attack>time - 3)//Remember where they were when fired
++		attack_mod=time - targ.last_attack;
++
++	targ.visibility=base/divider/range_mod + attack_mod;
+ }
+ 
+ /*
+ =============
+-float visibility_good (entity targ)
++float visibility_good (entity targ,float chance_mod)
+ MG
+ Does a random check to see if self can see the target based
+ it's visibility (calls get_visibility for that targ first)
++The higher the chance_mod, the lower the chance of
++good visibility.
+ =============
+ */
+-float visibility_good (entity targ)
++float visibility_good (entity targ,float chance_mod)
+ {
+-	get_visibility(targ);
+-	if(random()<targ.visibility)
++	if(!targ)
++		return FALSE;
++	get_visibility(targ,TRUE);
++	if(random(chance_mod)<targ.visibility)
+ 		return TRUE;
+ 
+ 	return FALSE;
+@@ -1173,3 +1182,29 @@ vector p2,p3,targ_dir,vec1,vec2;
+ */
+ 	return p3;
+ }
++
++/*
++=============================================================
++vector aim_adjust (entity targ)
++MG
++Will return a nprmalized offset vector based on the targ's 
++light level, used for monster aiming at shadow-hiding players.
++=============================================================
++*/
++vector aim_adjust (entity targ)
++{
++float ofs;
++vector vofs;
++	if(!targ)
++		return '0 0 0';
++
++	makevectors(self.angles);
++	get_visibility(targ,TRUE);
++	ofs=(1 - targ.visibility - skill/10)*0.1;
++	if(skill<3&&ofs>0)
++	{
++		vofs=v_up*0.5*random(0-ofs,ofs)+v_right*1.5*random(0-ofs,ofs);
++		return vofs;
++	}
++	return '0 0 0';
++}
+diff -urNp h2-1.03/object.hc h2-1.09/object.hc
+--- h2-1.03/object.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/object.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -58,10 +58,13 @@ dprint("Time since last impact: ");
+ dprint(ftos(time-self.last_impact));
+ dprint("\n");
+ */
+-  if(self.last_onground+0.3<time)
++  if(self.last_onground+0.3<time||(self.last_onground+0.1<time&&loser.thingtype>=THINGTYPE_GLASS))
+   {
+ 	vector dir1, dir2;
+ 	float force,dot;
++		if(loser.thingtype>=THINGTYPE_GLASS)
++			magnitude*=2;
++
+ 		if(magnitude>=100&&loser.takedamage&&loser.classname!="catapult"&&loser!=world)
+ 		{
+ 
+@@ -167,7 +170,7 @@ float ontop,pushed,inertia,force,walkfor
+ 		{
+ 			makevectors(other.angles);
+ 			v_forward_z=1;
+-			other.velocity=v_forward*3200;
++			other.velocity=v_forward*300;
+ 			other.flags(-)FL_ONGROUND;
+ 		}
+ 		if(other.flags&FL_CLIENT)
+@@ -385,7 +388,7 @@ none
+ */
+ void obj_barstool()
+ {
+-	precache_model2("models/stool.mdl");
++	precache_model3("models/stool.mdl");
+ 
+ 	CreateEntityNew(self,ENT_BARSTOOL,"models/stool.mdl",chunk_death);
+ 
+@@ -454,7 +457,7 @@ none
+ */
+ void obj_bench()
+ {
+-	precache_model2("models/bench.mdl");
++	precache_model3("models/bench.mdl");
+ 	CreateEntityNew(self,ENT_BENCH,"models/bench.mdl",chunk_death);
+ 
+ 	self.touch	= obj_push;
+@@ -505,7 +508,7 @@ skin - 0 - generic texture (default)
+ */
+ void obj_chest2()
+ {
+-	precache_model2("models/chest2.mdl");
++	precache_model3("models/chest2.mdl");
+ 	CreateEntityNew(self,ENT_CHEST2,"models/chest2.mdl",chunk_death);
+ 
+ 	self.touch	= obj_push;
+@@ -628,7 +631,7 @@ void BalBoltTouch (void)
+ 			dir=normalize(self.velocity);
+ 			traceline(self.origin-dir*25,self.origin+dir*25,FALSE,self);
+ 			if(other.thingtype==THINGTYPE_FLESH)
+-				MeatChunks (trace_endpos,self.velocity*0.5+'0 0 200', 3);
++				MeatChunks (trace_endpos,self.velocity*0.5+'0 0 200', 3,trace_ent);
+ 			SpawnPuff (trace_endpos, self.velocity*0.5+'0 0 200', self.dmg,trace_ent);
+ 			T_Damage(other,self,self.owner.enemy.enemy,self.dmg);
+ 		}
+@@ -1299,7 +1302,7 @@ health = 20
+ */
+ void obj_fence (void)
+ {
+-	precache_model2("models/fence.mdl");
++	precache_model3("models/fence.mdl");
+ 	CreateEntityNew(self,ENT_FENCE,"models/fence.mdl",chunk_death);
+ }
+ 
+@@ -1426,7 +1429,7 @@ void obj_webs (void)
+ 	}
+ 	else
+ 	{
+-		precache_model2("models/webs.mdl");
++		precache_model3("models/webs.mdl");
+ 		CreateEntityNew(self,ENT_WEB,"models/webs.mdl",chunk_death);
+ 	}
+ 
+@@ -1499,7 +1502,7 @@ skin = determines the skin of the model
+ */
+ void obj_corpse1 (void)
+ {
+-	precache_model2("models/corps1.mdl");
++	precache_model3("models/corps1.mdl");
+ 	CreateEntityNew(self,ENT_CORPSE1,"models/corps1.mdl",chunk_death);
+ 	self.use = chunk_death;
+ }
+@@ -1665,7 +1668,7 @@ health = 50
+ */
+ void obj_beefslab (void)
+ {
+-	precache_model2("models/beefslab.mdl");
++	precache_model3("models/beefslab.mdl");
+ 	CreateEntityNew(self,ENT_BEEFSLAB,"models/beefslab.mdl",chunk_death);
+ }
+ 
+@@ -1738,7 +1741,7 @@ health = 
+ */
+ void obj_bonepile (void)
+ {
+-	precache_model2("models/bonepile.mdl");
++	precache_model3("models/bonepile.mdl");
+ 	CreateEntityNew(self,ENT_BONEPILE,"models/bonepile.mdl",chunk_death);
+ 
+ 	self.use = chunk_death;
+@@ -1859,7 +1862,7 @@ health = 20
+ */
+ void obj_playerhead_necromancer (void)
+ {
+-	precache_model2("models/h_nec.mdl");
++	precache_model3("models/h_nec.mdl");
+ 	CreateEntityNew(self,ENT_PLAYERHEAD,"models/h_nec.mdl",chunk_death);
+ 	self.use=chunk_death;
+ }
+@@ -1872,7 +1875,7 @@ health = 20
+ */
+ void obj_playerhead_crusader (void)
+ {
+-	precache_model2("models/h_cru.mdl");
++	precache_model3("models/h_cru.mdl");
+ 	CreateEntityNew(self,ENT_PLAYERHEAD,"models/h_cru.mdl",chunk_death);
+ 	self.use=chunk_death;
+ }
+@@ -1885,7 +1888,7 @@ health = 200
+ */
+ void obj_statue_king (void)
+ {
+-	precache_model2("models/king.mdl");
++	precache_model3("models/king.mdl");
+ 	CreateEntityNew(self,ENT_STATUE_KING,"models/king.mdl",chunk_death);
+ 	self.mins -= '0 0 80';
+ 	self.maxs -= '0 0 80';
+@@ -1900,7 +1903,7 @@ health = 20
+ */
+ void obj_plant_generic (void)
+ {
+-	precache_model2("models/plantgen.mdl");
++	precache_model3("models/plantgen.mdl");
+ 	CreateEntityNew(self,ENT_PLANT_GENERIC,"models/plantgen.mdl",chunk_death);
+ }
+ 
+diff -urNp h2-1.03/plats.hc h2-1.09/plats.hc
+--- h2-1.03/plats.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/plats.hc	1997-09-12 13:50:00.000000000 +0300
+@@ -947,8 +947,8 @@ void() func_crusher =
+ 	}
+ 	else if (self.soundtype == 3)
+ 	{
+-		precache_sound2 ("plats/guiltin1.wav");
+-		precache_sound2 ("plats/guiltin2.wav");
++		precache_sound3 ("plats/guiltin1.wav");
++		precache_sound3 ("plats/guiltin2.wav");
+ 		self.noise = "plats/guiltin1.wav";
+ 		self.noise1 = "plats/guiltin2.wav";
+ 	}
+diff -urNp h2-1.03/precache.hc h2-1.09/precache.hc
+--- h2-1.03/precache.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/precache.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -106,13 +106,13 @@ void Precache_lmp (void)
+ 	precache_file ("gfx/box_br.lmp");
+ 
+ 	precache_file ("gfx/cport1.lmp");
+-	precache_file2 ("gfx/cport2.lmp");
+-	precache_file2 ("gfx/cport3.lmp");
++	precache_file3 ("gfx/cport2.lmp");
++	precache_file3 ("gfx/cport3.lmp");
+ 	precache_file ("gfx/cport4.lmp");
+ 
+ 	precache_file ("gfx/menu/netp1.lmp");
+-	precache_file2 ("gfx/menu/netp2.lmp");
+-	precache_file2 ("gfx/menu/netp3.lmp");
++	precache_file3 ("gfx/menu/netp2.lmp");
++	precache_file3 ("gfx/menu/netp3.lmp");
+ 	precache_file ("gfx/menu/netp4.lmp");
+ 	precache_file ("gfx/menu/frame.lmp");
+ 
+@@ -333,17 +333,17 @@ void Precache_lmp (void)
+ 	precache_file2("models/puzzle/r6.mdl");
+ 	precache_file2("models/puzzle/r7.mdl");
+ 	precache_file2("models/puzzle/r8.mdl");
+-	precache_file2("models/puzzle/trkey.mdl");
++	precache_file3("models/puzzle/trkey.mdl");
+ 	precache_file("models/puzzle/cskey.mdl");
+-	precache_file2("models/puzzle/amult.mdl");
+-	precache_file2("models/puzzle/glass.mdl");
+-	precache_file2("models/puzzle/lens.mdl");
+-	precache_file2("models/puzzle/shovl.mdl");
+-	precache_file2("models/puzzle/scrol.mdl");
++	precache_file3("models/puzzle/amult.mdl");
++	precache_file3("models/puzzle/glass.mdl");
++	precache_file3("models/puzzle/lens.mdl");
++	precache_file3("models/puzzle/shovl.mdl");
++	precache_file3("models/puzzle/scrol.mdl");
+ 	precache_file2("models/puzzle/e4.mdl");
+ 	precache_file2("models/puzzle/e5.mdl");
+ 	precache_file2("models/puzzle/e6.mdl");
+-	precache_file2("models/puzzle/sand.mdl");
++	precache_file3("models/puzzle/sand.mdl");
+ 	precache_file2("models/puzzle/air.mdl");
+ 	precache_file2("models/puzzle/earth.mdl");
+ 	precache_file2("models/puzzle/water.mdl");
+@@ -354,8 +354,8 @@ void Precache_lmp (void)
+ 	precache_file2("models/puzzle/lcrwn.mdl");
+ 	precache_file2("models/puzzle/ucrwn.mdl");
+ 	precache_file("models/puzzle/mithl.mdl");
+-	precache_file2("models/puzzle/stkey.mdl");
+-	precache_file2("models/puzzle/takey.mdl");
++	precache_file3("models/puzzle/stkey.mdl");
++	precache_file3("models/puzzle/takey.mdl");
+ 	precache_file2("models/puzzle/ankey.mdl");
+ 	precache_file2("models/puzzle/stime.mdl");
+ 	precache_file2("models/puzzle/speye.mdl");
+@@ -399,17 +399,17 @@ void Precache_lmp (void)
+ 	precache_file2("gfx/puzzle/r6.lmp");
+ 	precache_file2("gfx/puzzle/r7.lmp");
+ 	precache_file2("gfx/puzzle/r8.lmp");
+-	precache_file2("gfx/puzzle/trkey.lmp");
++	precache_file3("gfx/puzzle/trkey.lmp");
+ 	precache_file("gfx/puzzle/cskey.lmp");
+-	precache_file2("gfx/puzzle/amult.lmp");
+-	precache_file2("gfx/puzzle/glass.lmp");
+-	precache_file2("gfx/puzzle/lens.lmp");
+-	precache_file2("gfx/puzzle/shovl.lmp");
+-	precache_file2("gfx/puzzle/scrol.lmp");
++	precache_file3("gfx/puzzle/amult.lmp");
++	precache_file3("gfx/puzzle/glass.lmp");
++	precache_file3("gfx/puzzle/lens.lmp");
++	precache_file3("gfx/puzzle/shovl.lmp");
++	precache_file3("gfx/puzzle/scrol.lmp");
+ 	precache_file2("gfx/puzzle/e4.lmp");
+ 	precache_file2("gfx/puzzle/e5.lmp");
+ 	precache_file2("gfx/puzzle/e6.lmp");
+-	precache_file2("gfx/puzzle/sand.lmp");
++	precache_file3("gfx/puzzle/sand.lmp");
+ 	precache_file2("gfx/puzzle/air.lmp");
+ 	precache_file2("gfx/puzzle/earth.lmp");
+ 	precache_file2("gfx/puzzle/water.lmp");
+@@ -420,8 +420,8 @@ void Precache_lmp (void)
+ 	precache_file2("gfx/puzzle/lcrwn.lmp");
+ 	precache_file2("gfx/puzzle/ucrwn.lmp");
+ 	precache_file("gfx/puzzle/mithl.lmp");
+-	precache_file2("gfx/puzzle/stkey.lmp");
+-	precache_file2("gfx/puzzle/takey.lmp");
++	precache_file3("gfx/puzzle/stkey.lmp");
++	precache_file3("gfx/puzzle/takey.lmp");
+ 	precache_file2("gfx/puzzle/ankey.lmp");
+ 	precache_file2("gfx/puzzle/stime.lmp");
+ 	precache_file2("gfx/puzzle/speye.lmp");
+@@ -438,10 +438,10 @@ void Precache_lmp (void)
+ 	precache_file2("gfx/puzzle/h-book.lmp");
+ 
+ 	//RIDER_INIT
+-    precache_file2 ("models/boss/shaft.mdl");
+-    precache_file2 ("models/boss/circle.mdl");
+-    precache_file2 ("models/boss/star.mdl");
+-	precache_sound2 ("famine/flashdie.wav");
++    precache_file3 ("models/boss/shaft.mdl");
++    precache_file3 ("models/boss/circle.mdl");
++    precache_file3 ("models/boss/star.mdl");
++	precache_sound3 ("famine/flashdie.wav");
+ 
+ 	//EIDOLON
+ 	precache_file2 ("models/boss/smaleido.mdl");
+@@ -450,21 +450,21 @@ void Precache_lmp (void)
+ 	precache_file2 ("models/eidoflam.spr");
+ 	precache_file2 ("models/glowball.mdl");
+ 	precache_file2 ("models/boss/chaosorb.mdl");
+-	precache_sound2 ("eidolon/roar.wav");
+-	precache_sound2 ("eidolon/pain.wav");	//Hurt
+-	precache_sound2 ("eidolon/death.wav");	//Dies- long and agonizing
+-	precache_sound2 ("eidolon/fakedie.wav");//1st death- fake
+-	precache_sound2 ("eidolon/spell.wav");	//Spell attack (tracking globes)
+-	precache_sound2 ("eidolon/stomp.wav");	//Hot-steppin'
+-	precache_sound2 ("eidolon/fireball.wav");	//Launching Nasty fireballs
+-	precache_sound2 ("eidolon/flamstrt.wav");	//
+-	precache_sound2 ("eidolon/flambrth.wav");	//
+-	precache_sound2 ("eidolon/flamend.wav");	//
+-	precache_sound2 ("eidolon/growl.wav");		//
+-	precache_sound2 ("eidolon/chrgstrt.wav"); 	//Orb starts recharging Eido
+-	precache_sound2 ("eidolon/orbhurt.wav");	//Orb gets hit
+-	precache_sound2 ("eidolon/orbxpld.wav");	//Orb gets destroyed
+-	precache_sound2 ("eidolon/orbpulse.wav");	//Orb pulsating
++	precache_sound3 ("eidolon/roar.wav");
++	precache_sound3 ("eidolon/pain.wav");	//Hurt
++	precache_sound3 ("eidolon/death.wav");	//Dies- long and agonizing
++	precache_sound3 ("eidolon/fakedie.wav");//1st death- fake
++	precache_sound3 ("eidolon/spell.wav");	//Spell attack (tracking globes)
++	precache_sound3 ("eidolon/stomp.wav");	//Hot-steppin'
++	precache_sound3 ("eidolon/fireball.wav");	//Launching Nasty fireballs
++	precache_sound3 ("eidolon/flamstrt.wav");	//
++	precache_sound3 ("eidolon/flambrth.wav");	//
++	precache_sound3 ("eidolon/flamend.wav");	//
++	precache_sound3 ("eidolon/growl.wav");		//
++	precache_sound3 ("eidolon/chrgstrt.wav"); 	//Orb starts recharging Eido
++	precache_sound3 ("eidolon/orbhurt.wav");	//Orb gets hit
++	precache_sound3 ("eidolon/orbxpld.wav");	//Orb gets destroyed
++	precache_sound3 ("eidolon/orbpulse.wav");	//Orb pulsating
+ 
+ 	//PESTILENCE
+ 	precache_file2 ("models/boss/boar.mdl");
+@@ -492,22 +492,22 @@ void Precache_lmp (void)
+ 	precache_file2 ("sound/pest/snort2.wav");
+ 
+ 	// Famine Rider
+-	precache_file2 ("models/boss/famhorse.mdl");
+-	precache_file2 ("models/boss/famrider.mdl");
+-	precache_file2 ("models/famshot.mdl");
+-	precache_file2 ("sound/famine/die.wav");
+-	precache_file2 ("sound/famine/laugh.wav");
+-	precache_file2 ("sound/famine/whinny.wav");
+-	precache_file2 ("sound/famine/pull.wav");
+-	precache_file2 ("sound/famine/shot.wav");
+-	precache_file2 ("sound/famine/snort.wav");
+-	precache_file2 ("sound/famine/clop1.wav");
+-	precache_file2 ("sound/famine/clop2.wav");
+-	precache_file2 ("sound/famine/clop3.wav");
+-	precache_file2 ("sound/misc/null.wav");
+-	precache_file2 ("sound/raven/blast.wav");
+-	precache_file2 ("sound/skullwiz/blinkout.wav");
+-	precache_file2 ("sound/skullwiz/blinkin.wav");
++	precache_file3 ("models/boss/famhorse.mdl");
++	precache_file3 ("models/boss/famrider.mdl");
++	precache_file3 ("models/famshot.mdl");
++	precache_file3 ("sound/famine/die.wav");
++	precache_file3 ("sound/famine/laugh.wav");
++	precache_file3 ("sound/famine/whinny.wav");
++	precache_file3 ("sound/famine/pull.wav");
++	precache_file3 ("sound/famine/shot.wav");
++	precache_file3 ("sound/famine/snort.wav");
++	precache_file3 ("sound/famine/clop1.wav");
++	precache_file3 ("sound/famine/clop2.wav");
++	precache_file3 ("sound/famine/clop3.wav");
++	precache_file3 ("sound/misc/null.wav");
++	precache_file3 ("sound/raven/blast.wav");
++	precache_file3 ("sound/skullwiz/blinkout.wav");
++	precache_file3 ("sound/skullwiz/blinkin.wav");
+ 
+ 	// War Rider
+ 	precache_file2 ("models/boss/warhorse.mdl");
+@@ -615,13 +615,13 @@ void Precache_wav (void)
+ 	precache_sound ("items/armrpkup.wav");
+ 	precache_sound ("misc/warning.wav");   //glyph about to explode
+ 	//Summoning Stone
+-	precache_sound2 ("imp/upbig.wav");
+-	precache_sound2 ("imp/diebig.wav");
+-	precache_sound2 ("imp/swoophit.wav");
+-	precache_sound2 ("imp/swoopbig.wav");
+-	precache_sound2 ("imp/flybig.wav");
+-	precache_sound2 ("imp/fireball.wav");
+-	precache_sound2 ("imp/shard.wav");
++	precache_sound3 ("imp/upbig.wav");
++	precache_sound3 ("imp/diebig.wav");
++	precache_sound3 ("imp/swoophit.wav");
++	precache_sound3 ("imp/swoopbig.wav");
++	precache_sound3 ("imp/flybig.wav");
++	precache_sound3 ("imp/fireball.wav");
++	precache_sound3 ("imp/shard.wav");
+ 
+ //SHARED PLAYER SOUNDS
+ 	//General body/physics sounds
+@@ -730,53 +730,53 @@ void Precache_wav (void)
+ //REGISTERED======================================================
+ 
+ //Shared sounds
+-	precache_sound2 ("raven/soul.wav");			// noise the soul sphere makes
++	precache_sound3 ("raven/soul.wav");			// noise the soul sphere makes
+ 
+ //FX
+ 	precache_sound ("fx/quake.wav");	
+ 
+ //CRUSADER
+ 	//Warhammer
+-	precache_sound2 ("crusader/lghtn1.wav");	
+-	precache_sound2 ("crusader/lghtn2.wav");	
+-	precache_sound2 ("raven/lightng1.wav");
++	precache_sound3 ("crusader/lghtn1.wav");	
++	precache_sound3 ("crusader/lghtn2.wav");	
++	precache_sound3 ("raven/lightng1.wav");
+ 	//Ice Staff
+-	precache_sound2 ("crusader/icehit.wav");	
+-	precache_sound2 ("crusader/icewall.wav");	
+-	precache_sound2 ("crusader/icefire.wav");	
+-	precache_sound2 ("misc/tink.wav");				//Ice shots bounce
+-	precache_sound2 ("crusader/blizfire.wav");	
+-	precache_sound2 ("crusader/blizzard.wav");	
+-	precache_sound2 ("crusader/frozen.wav");	
+-	precache_sound2 ("misc/icestatx.wav");	//Ice statue breaking
++	precache_sound3 ("crusader/icehit.wav");	
++	precache_sound3 ("crusader/icewall.wav");	
++	precache_sound3 ("crusader/icefire.wav");	
++	precache_sound3 ("misc/tink.wav");				//Ice shots bounce
++	precache_sound3 ("crusader/blizfire.wav");	
++	precache_sound3 ("crusader/blizzard.wav");	
++	precache_sound3 ("crusader/frozen.wav");	
++	precache_sound3 ("misc/icestatx.wav");	//Ice statue breaking
+ 	//Meteor Staff
+-	precache_sound2 ("crusader/metfire.wav");	
+-	precache_sound2 ("misc/rubble.wav");			//Meteor bits fall, stoned player bits fall (from Medusa)
+-	precache_sound2 ("crusader/torngo.wav");	
+-	precache_sound2 ("crusader/tornado.wav");	
++	precache_sound3 ("crusader/metfire.wav");	
++	precache_sound3 ("misc/rubble.wav");			//Meteor bits fall, stoned player bits fall (from Medusa)
++	precache_sound3 ("crusader/torngo.wav");	
++	precache_sound3 ("crusader/tornado.wav");	
+ 	//Sunstaff
+-	precache_sound2 ("crusader/sunstart.wav");	
+-	precache_sound2 ("crusader/sunhum.wav");	
+-	precache_sound2 ("crusader/sunhit.wav");	
++	precache_sound3 ("crusader/sunstart.wav");	
++	precache_sound3 ("crusader/sunhum.wav");	
++	precache_sound3 ("crusader/sunhit.wav");	
+ 
+ //NECROMANCER
+ 	//Sickle
+-	precache_sound2 ("weapons/drain.wav");
++	precache_sound3 ("weapons/drain.wav");
+ 	//Magic Missiles
+-	precache_sound2 ("necro/mmfire.wav");	
++	precache_sound3 ("necro/mmfire.wav");	
+ 	//Bone Shards
+-	precache_sound2 ("necro/bonefpow.wav");	
+-	precache_sound2 ("necro/bonefnrm.wav");	
+-	precache_sound2 ("necro/bonephit.wav");	
+-	precache_sound2 ("necro/bonenhit.wav");	
+-	precache_sound2 ("necro/bonenwal.wav");	
++	precache_sound3 ("necro/bonefpow.wav");	
++	precache_sound3 ("necro/bonefnrm.wav");	
++	precache_sound3 ("necro/bonephit.wav");	
++	precache_sound3 ("necro/bonenhit.wav");	
++	precache_sound3 ("necro/bonenwal.wav");	
+ 	//Raven Staff
+-	precache_sound2 ("raven/ravengo.wav");		
+-	precache_sound2 ("raven/squawk2.wav");		
+-	precache_sound2 ("raven/death.wav");
+-	precache_sound2 ("raven/rfire1.wav");
+-	precache_sound2 ("raven/rfire2.wav");
+-	precache_sound2 ("raven/split.wav");
++	precache_sound3 ("raven/ravengo.wav");		
++	precache_sound3 ("raven/squawk2.wav");		
++	precache_sound3 ("raven/death.wav");
++	precache_sound3 ("raven/rfire1.wav");
++	precache_sound3 ("raven/rfire2.wav");
++	precache_sound3 ("raven/split.wav");
+ }
+ 
+ //**********************************************
+@@ -801,7 +801,7 @@ void Precache_mdl (void)
+ //MISC
+ 	precache_model ("models/teleport.mdl");	//Teleport model
+ 	precache_model("models/xhair.mdl");		//Ballista- REPLACE!!!
+-	precache_model2("models/spike.mdl");
++	precache_model ("models/spike.mdl");
+ //CHUNKS
+ 	precache_model("models/shard1.mdl");
+ 	precache_model("models/shard2.mdl");
+@@ -861,9 +861,9 @@ void Precache_mdl (void)
+ 	precache_model("models/sheep.mdl");
+ 	precache_model("models/snout.mdl");
+ 	//Summoning Stone
+-	precache_model2 ("models/imp.mdl");
+-	precache_model2 ("models/h_imp.mdl");//empty for now
+-	precache_model2 ("models/shardice.mdl");
++	precache_model3 ("models/imp.mdl");
++	precache_model3 ("models/h_imp.mdl");//empty for now
++	precache_model3 ("models/shardice.mdl");
+ 	precache_model ("models/fireball.mdl");
+ 
+ //ITEMS
+@@ -879,23 +879,23 @@ void Precache_mdl (void)
+ 
+ //TE_STREAM models
+ 	// TE_STREAM_SUNSTAFF1 / TE_STREAM_SUNSTAFF2
+-	precache_model2("models/stsunsf1.mdl");	//Sunbeam and ball models
+-	precache_model2("models/stsunsf2.mdl");
+-	precache_model2("models/stsunsf3.mdl");
+-	precache_model2("models/stsunsf4.mdl");
+-	precache_model2("models/stsunsf5.mdl");
++	precache_model3("models/stsunsf1.mdl");	//Sunbeam and ball models
++	precache_model3("models/stsunsf2.mdl");
++	precache_model3("models/stsunsf3.mdl");
++	precache_model3("models/stsunsf4.mdl");
++	precache_model3("models/stsunsf5.mdl");
+ 	// TE_STREAM_LIGHNING
+-	precache_model2	("models/stlghtng.mdl");	//Lightning- also warhammer
++	precache_model3	("models/stlghtng.mdl");	//Lightning- also warhammer
+ 	// TE_STREAM_CHAIN
+ 	precache_model("models/stchain.mdl");	//Chain- also for Scarab staff
+ 	// TE_STREAM_COLORBEAM
+-	precache_model2("models/stclrbm.mdl");	//Colored beams of light
++	precache_model3("models/stclrbm.mdl");	//Colored beams of light
+ 	// TE_STREAM_ICECHUNKS
+ 	precache_model("models/stice.mdl");		//For blizzard
+ 	// TE_STREAM_GAZE
+ 	precache_model("models/stmedgaz.mdl");	//Medusa's gaze
+ 	// TE_STREAM_FAMINE
+-	precache_model2("models/fambeam.mdl");	//Famine's beam attack
++	precache_model3("models/fambeam.mdl");	//Famine's beam attack
+ 
+ //GLYPHS
+ 	precache_model("models/glyph.mdl");		//Non-artifact flagged glyph
+@@ -951,54 +951,54 @@ void Precache_mdl (void)
+ //REGISTERED=======================================================
+ 
+ //NECROMANCER
+-	precache_model2("models/necro.mdl");
+-	precache_model2 ("models/h_nec.mdl");
++	precache_model3("models/necro.mdl");
++	precache_model3 ("models/h_nec.mdl");
+ 	//Sickle
+-	precache_model2("models/sickle.mdl");		// Necromancer Weapons
++	precache_model3("models/sickle.mdl");		// Necromancer Weapons
+ 	//Magic Missiles
+-	precache_model2("models/spllbook.mdl");
+-	precache_model2("models/handfx.mdl");
++	precache_model3("models/spllbook.mdl");
++	precache_model3("models/handfx.mdl");
+ 	//Bone Shards
+-	precache_model2("models/bonefx.mdl");
+-	precache_model2("models/boneshot.mdl");
+-	precache_model2("models/boneshrd.mdl");
+-	precache_model2("models/bonelump.mdl");
++	precache_model3("models/bonefx.mdl");
++	precache_model3("models/boneshot.mdl");
++	precache_model3("models/boneshrd.mdl");
++	precache_model3("models/bonelump.mdl");
+ 	//Raven Staff
+-	precache_model2("models/ravenstf.mdl");
+-	precache_model2("models/vindsht1.mdl");
+-	precache_model2("models/ravproj.mdl");
+-	precache_model2("models/birdmsl2.mdl");
++	precache_model3("models/ravenstf.mdl");
++	precache_model3("models/vindsht1.mdl");
++	precache_model3("models/ravproj.mdl");
++	precache_model3("models/birdmsl2.mdl");
+ 
+ //CRUSADER
+-	precache_model2("models/crusader.mdl");
+-	precache_model2 ("models/h_cru.mdl");
++	precache_model3("models/crusader.mdl");
++	precache_model3 ("models/h_cru.mdl");
+ 	//Warhammer
+-	precache_model2("models/warhamer.mdl");
+-	precache_model2("models/hamthrow.mdl");
++	precache_model3("models/warhamer.mdl");
++	precache_model3("models/hamthrow.mdl");
+ 	//Ice Staff
+-	precache_model2("models/icestaff.mdl");
+-	precache_model2("models/iceshot1.mdl");
+-	precache_model2("models/iceshot2.mdl");
++	precache_model3("models/icestaff.mdl");
++	precache_model3("models/iceshot1.mdl");
++	precache_model3("models/iceshot2.mdl");
+ 	//Meteor Staff
+-	precache_model2("models/meteor.mdl");
+-	precache_model2("models/tempmetr.mdl");//temp- meteor projectile
+-	precache_model2("models/tornato.mdl");
+-	precache_model2("models/funnal.mdl");
++	precache_model3("models/meteor.mdl");
++	precache_model3("models/tempmetr.mdl");//temp- meteor projectile
++	precache_model3("models/tornato.mdl");
++	precache_model3("models/funnal.mdl");
+ 	//Sunstaff
+-	precache_model2("models/sunstaff.mdl");
++	precache_model3("models/sunstaff.mdl");
+ 
+ //SPECIAL ABILITIES
+ 	//Necromancer
+-	precache_model2 ("models/soulball.mdl");//Soul sphere
+-	precache_model2 ("models/soulskul.mdl");
++	precache_model3 ("models/soulball.mdl");//Soul sphere
++	precache_model3 ("models/soulskul.mdl");
+ 	//Crusader
+-	precache_model2 ("models/goodsphr.mdl");//Smiting Sphere
+-	precache_model2 ("models/cross.mdl");
++	precache_model3 ("models/goodsphr.mdl");//Smiting Sphere
++	precache_model3 ("models/cross.mdl");
+ 
+-	precache_model2 ("models/birdmisl.mdl");
++	precache_model3 ("models/birdmisl.mdl");
+ //Miscellaneous Shared
+ 	precache_model ("models/fireball.mdl");//Fireball traps, imps
+-	precache_model2 ("models/test.mdl");	//For testing
++	precache_model3 ("models/test.mdl");	//For testing
+ }
+ 
+ 
+@@ -1069,7 +1069,7 @@ void Precache_spr (void)
+ 	precache_model("models/xpspblue.spr");
+ 
+ 	precache_model("models/yr_flsh.spr");
+-	precache_model2("models/rcloud.spr");
++	precache_model3("models/rcloud.spr");
+ }
+ 
+ void precache_archer()
+diff -urNp h2-1.03/projbhvr.hc h2-1.09/projbhvr.hc
+--- h2-1.03/projbhvr.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/projbhvr.hc	1997-09-29 14:24:16.000000000 +0300
+@@ -178,10 +178,12 @@ float dist, bestdist;	
+ 		if(loser.health&&loser.takedamage&&(loser.flags2&FL_ALIVE)&&visible(loser)&&loser!=self&&loser!=world&&loser!=self.owner&&!other.effects&EF_NODRAW)//&&!(loser.artifact_active&ARTFLAG_STONED) Why Not?
+ 			if((!self.aflag||self.ideal_yaw)&&!ahead(loser,self))			//looks for someone in front first time
+ 				dprint("");//not infront\n");
+-			else if(teamplay && (loser.team==self.owner.team || loser.team==self.controller.team))
++			else if(teamplay&&loser.classname=="player"&&((loser.team==self.owner.team&&self.owner.classname=="player")||(loser.team==self.controller.team&&self.owner.classname=="player")))
+ 				dprint("");//targeting teammate\n");
+-			else if(coop && other.classname=="player")
++			else if(coop&&loser.classname=="player"&&(self.owner.classname=="player"||self.controller.classname=="player"))
+ 				dprint("");//target coop player\n");
++			else if((self.classname=="flame arrow"||self.classname=="bolt")&&deathmatch&&vlen(loser.velocity)>300)
++				dprint("");//DM: player moving too fast\n");
+ 			else
+ 			{
+ 			//make it wait for closest (by vlen) or just go for first found?
+diff -urNp h2-1.03/proto.hc h2-1.09/proto.hc
+--- h2-1.03/proto.hc	1997-09-04 21:57:36.000000000 +0300
++++ h2-1.09/proto.hc	1997-09-11 11:34:34.000000000 +0300
+@@ -53,7 +53,7 @@ void()DarkExplosion;
+ 
+ float()FindMonsterTarget;
+ void()MonsterCheckContents;
+-float visibility_good (entity targ);
++float visibility_good (entity targ,float chance_mod);
+ float()CheckJump;
+ void()W_SetCurrentWeapon;
+ void(float explodetype)BecomeExplosion; 
+@@ -65,5 +65,8 @@ void(vector org, vector vel, float damag
+ void spawn_ghost (entity attacker);
+ void precache_archer();
+ void precache_spider();
+-void(entity targ) get_visibility;
++vector aim_adjust (entity targ);
++void()respawn;
++void()GibPlayer;
++void stats_NewClass(entity e);
+ 
+diff -urNp h2-1.03/pstboar.hc h2-1.09/pstboar.hc
+--- h2-1.03/pstboar.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/pstboar.hc	1997-09-12 11:28:14.000000000 +0300
+@@ -199,6 +199,8 @@ void poison_think ()
+ {
+ 	self.enemy.deathtype="poison";
+ 	T_Damage (self.enemy, self, self.owner, 1 );
++	if(self.enemy.flags&FL_CLIENT)
++		stuffcmd(self.enemy,"bf\n");
+ 	if(self.lifetime<time||self.enemy.health<=0)
+ 		self.think=SUB_Remove;
+ 	thinktime self : 1;
+diff -urNp h2-1.03/punchdgr.hc h2-1.09/punchdgr.hc
+--- h2-1.03/punchdgr.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/punchdgr.hc	1997-09-18 17:13:50.000000000 +0300
+@@ -59,6 +59,7 @@ void fire_punchdagger ()
+ 	float damg, inertia;
+ 	float damage_mod;
+ 	float damage_base;
++	float c_level;
+ 	damage_mod = 10;
+ 
+ 	makevectors (self.v_angle);
+@@ -81,15 +82,24 @@ void fire_punchdagger ()
+ 	{
+ 
+ 		//FIXME:Add multiplier for level and strength
+-		if (trace_ent.flags2&FL_ALIVE && !infront_of_ent(self,trace_ent) && random(1,10) < self.level)
++		if (trace_ent.flags2&FL_ALIVE && !infront_of_ent(self,trace_ent) && self.playerclass==CLASS_ASSASSIN &&
++              self.weapon==IT_WEAPON1 && self.level >5)
+ 		{
++			c_level = self.level;
++			if (c_level > 10)
++				c_level = 10;
++
++			if (random(1,10)<=(c_level - 4))
++			{
+ 				damage_base = WEAPON1_PWR_BASE_DAMAGE;
+ 				damage_mod = WEAPON1_PWR_ADD_DAMAGE;
+ 				CreateRedFlash(trace_endpos);
+ 				centerprint(self,"Critical Hit Backstab!\n");
+ 				AwardExperience(self,trace_ent,10);
+ 				damage_base*=random(2.5,4);
++			}
+ 		}
++
+ 		else if (self.artifact_active & ART_TOMEOFPOWER)
+ 		{
+ 			damage_base = WEAPON1_PWR_BASE_DAMAGE;
+diff -urNp h2-1.03/ravenstf.hc h2-1.09/ravenstf.hc
+--- h2-1.03/ravenstf.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/ravenstf.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -105,7 +105,7 @@ void raven_touch (void)
+ 
+ 		self.damage_max += 20;
+ 		SpawnPuff (self.origin, '0 0 -5', random(5,10),other);
+-		MeatChunks (self.origin,self.velocity*0.5+'0 0 20', 2);
++		MeatChunks (self.origin,self.velocity*0.5+'0 0 20', 2,other);
+ 		sound(self,CHAN_WEAPON,"weapons/gauntht1.wav",1,ATTN_NORM);
+ 	}
+ 
+diff -urNp h2-1.03/rider.hc h2-1.09/rider.hc
+--- h2-1.03/rider.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/rider.hc	1997-09-24 11:45:32.000000000 +0300
+@@ -490,6 +490,17 @@ void rider_eol(void)
+ 	else
+ 		intermission_exittime = time + 2;
+ 
++
++	//Remove cross-level trigger server flags for next hub
++	serverflags(-)(SFL_CROSS_TRIGGER_1|
++				SFL_CROSS_TRIGGER_2|
++				SFL_CROSS_TRIGGER_3|
++				SFL_CROSS_TRIGGER_4|
++				SFL_CROSS_TRIGGER_5|
++				SFL_CROSS_TRIGGER_6|
++				SFL_CROSS_TRIGGER_7|
++				SFL_CROSS_TRIGGER_8);
++
+ 	search=find(world,classname,"player");
+ 	while(search)
+ 	{//Take away all their goodies
+@@ -501,11 +512,16 @@ void rider_eol(void)
+ 		search.puzzle_inv6 = string_null;
+ 		search.puzzle_inv7 = string_null;
+ 		search.puzzle_inv8 = string_null;
+-		search=search.chain;
++		search=find(search,classname,"player");
+ 	}
+ 
+ 	WriteByte (MSG_ALL, SVC_INTERMISSION);
+-	     if (self.classname == "rider_famine")
++	if (!cvar("registered") && cvar("oem"))
++	{
++		WriteByte (MSG_ALL, 9);
++		intermission_exittime = time + 99999;
++	}
++	else if (self.classname == "rider_famine")
+ 		WriteByte (MSG_ALL, 1);
+ 	else if (self.classname == "rider_death")
+ 		WriteByte (MSG_ALL, 2);
+@@ -525,6 +541,7 @@ void rider_die(void)
+ {
+ entity beam;
+ entity save;
++entity found;
+ vector new_origin;
+ 
+ 	if (self.think != rider_die)
+@@ -543,6 +560,13 @@ vector new_origin;
+ 	if (self.count == 0)
+ 	{
+ 		sound (self, CHAN_AUTO, "famine/flashdie.wav", 1, ATTN_NONE);  // Start of the death flash
++		found=find(world,classname,"player");
++		while(found)
++		{//Give them all the exp
++			AwardExperience(found,self,self.experience_value);
++			found=find(found,classname,"player");
++		}
++		self.experience_value=FALSE;
+ 		self.drawflags = self.drawflags | MLS_ABSLIGHT;
+ 		self.abslight = 3;
+ 		if(self.noise)
+@@ -660,10 +684,10 @@ void rider_use(void)
+ 
+ void rider_init(void)
+ {
+-    precache_model2 ("models/boss/shaft.mdl");
+-    precache_model2 ("models/boss/circle.mdl");
+-    precache_model2 ("models/boss/star.mdl");
+-	precache_sound2 ("famine/flashdie.wav");
++    precache_model3 ("models/boss/shaft.mdl");
++    precache_model3 ("models/boss/circle.mdl");
++    precache_model3 ("models/boss/star.mdl");
++	precache_sound3 ("famine/flashdie.wav");
+ 
+ 	total_monsters += 1;
+ 
+diff -urNp h2-1.03/rings.hc h2-1.09/rings.hc
+--- h2-1.03/rings.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/rings.hc	1997-09-11 12:04:24.000000000 +0300
+@@ -32,7 +32,7 @@ void ring_touch (void)
+ 
+ 	sprint (other,"\n");
+ 
+-	if (deathmatch || self.classname == "Ring_Flight")
++	if (deathmatch||(self.classname == "Ring_Flight"&&!self.owner))
+ 	{
+ 		self.mdl = self.model;
+ 		self.nextthink = time + 60;
+diff -urNp h2-1.03/setstaff.hc h2-1.09/setstaff.hc
+--- h2-1.03/setstaff.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/setstaff.hc	1997-09-22 13:54:46.000000000 +0300
+@@ -388,7 +388,7 @@ void scarab_think ()
+ 		self.pain_finished=time+0.1;
+ 		sound(self,CHAN_BODY,"assassin/scrbfly.wav",1,ATTN_NORM);
+ 	}
+-	particle4(self.origin,7,random(250,254),PARTICLETYPE_EXPLODE2,random(3,7));
++//	particle4(self.origin,7,random(250,254),PARTICLETYPE_EXPLODE2,random(3,7));
+ 	if(self.lifetime<time)
+ 		self.think=scarab_die;
+ 	thinktime self : 0.05;
+@@ -396,6 +396,7 @@ void scarab_think ()
+ 
+ void TheOldBallAndChain (void)
+ {
++	entity wings;
+ //FIXME: Sound
+ 	sound(self,CHAN_WEAPON,"assassin/scarab.wav",1,ATTN_NORM);
+ 	self.attack_finished=time + 0.5;
+@@ -435,7 +436,6 @@ void TheOldBallAndChain (void)
+ 	setsize(newmis,'0 0 0','0 0 0');
+ 	setorigin(newmis,self.origin+self.proj_ofs+v_forward*12);
+ 
+-entity wings;
+ 	wings=spawn();
+ 	setmodel(wings,"models/scrbpwng.mdl");
+ 	setsize(wings,'0 0 0','0 0 0');
+@@ -470,7 +470,7 @@ void pincer_touch ()
+ 				if(other.thingtype==THINGTYPE_FLESH)
+ 				{
+ 					sound(self,CHAN_VOICE,"assassin/core.wav",1,ATTN_NORM);
+-					MeatChunks(self.origin+v_forward*36, self.velocity*0.2+v_right*random(-30,150)+v_up*random(-30,150),5);
++					MeatChunks(self.origin+v_forward*36, self.velocity*0.2+v_right*random(-30,150)+v_up*random(-30,150),5,other);
+ 				}
+ 				if(other.classname=="player")
+ 					T_Damage(other,self,self.owner,(self.dmg+self.frags*10)/3);
+diff -urNp h2-1.03/shardice.hc h2-1.09/shardice.hc
+--- h2-1.03/shardice.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/shardice.hc	1997-09-11 11:34:36.000000000 +0300
+@@ -96,7 +96,7 @@ vector vec;
+ 	vec = self.enemy.origin - missile.origin + self.enemy.proj_ofs + dest_offset;
+ 	vec = normalize(vec);
+ 
+-	missile.velocity = vec * set_speed;
++	missile.velocity = (vec+aim_adjust(self.enemy))*set_speed;
+ 	missile.angles = vectoangles(missile.velocity);
+ 	
+ 	missile.touch = shardTouch;
+diff -urNp h2-1.03/sheep.hc h2-1.09/sheep.hc
+--- h2-1.03/sheep.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/sheep.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -585,6 +585,9 @@ void Polymorph (entity loser)
+ 
+ 	if(loser.classname=="player")
+ 	{
++		if(loser.effects&EF_BRIGHTLIGHT&&loser.playerclass==CLASS_CRUSADER)
++			loser.effects(-)EF_BRIGHTLIGHT;//Sunstaff
++
+ 		if (loser.artifact_active & ART_TOMEOFPOWER)
+ 			loser.tome_time=0;
+ 
+@@ -614,6 +617,8 @@ void Polymorph (entity loser)
+ //		if(!loser.flags2&FL_CAMERA_VIEW)
+ 			loser.view_ofs = '0 0 24';
+ 		loser.proj_ofs='0 0 18';
++		loser.attack_finished=0;
++		loser.weapon=FALSE;
+ 		loser.weaponmodel="models/snout.mdl";
+ 		loser.weaponframe=0;
+ 		loser.sheep_sound_time=FALSE;
+diff -urNp h2-1.03/skullwiz.hc h2-1.09/skullwiz.hc
+--- h2-1.03/skullwiz.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/skullwiz.hc	1997-09-11 11:35:16.000000000 +0300
+@@ -234,6 +234,13 @@ void skullwiz_die (void) [++ $skdeth1.. 
+ 		spider_spawn(0);
+ 		if (random() < .5)
+ 			spider_spawn(1);
++
++		if (self.classname == "monster_skull_wizard_lord")  // Another two for the wizard lord
++		{
++			spider_spawn(0);
++//			if (random() < .5)
++//				spider_spawn(1);
++		}
+ 	}
+ 
+ 	if (self.frame == $skdeth6)
+@@ -568,7 +575,7 @@ void launch_skullshot ()
+ 
+ // set missile speed	
+ 	diff = (self.enemy.origin + self.enemy.view_ofs) - newmis.origin ;
+-	newmis.velocity = normalize(diff);
++	newmis.velocity = normalize(diff+aim_adjust(self.enemy));
+ 	newmis.velocity = newmis.velocity * 600;
+ 	newmis.classname = "skullmissile";
+ 	newmis.angles = vectoangles(newmis.velocity);
+@@ -1008,6 +1015,7 @@ void skullwizard_init(void)
+ 		precache_model("models/skulbook.mdl");
+ 		precache_model("models/skulhead.mdl");
+ 		precache_model("models/skulshot.mdl");
++		precache_model("models/spider.mdl");
+ 
+ 		if (self.classname == "monster_skull_wizard")
+ 		{
+diff -urNp h2-1.03/spawn.hc h2-1.09/spawn.hc
+--- h2-1.03/spawn.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/spawn.hc	1997-09-11 11:34:38.000000000 +0300
+@@ -144,7 +144,7 @@ float entity_spawnvalues[456] =
+ 	    20,	    0,	    0,				3,			    3,				1,	// ENT_FENCE
+ 	   150,	  500,	    0,				3,			    1,				1,	// ENT_STATUE_ANGEL
+ 	    25,	    3,	    4,				3,			    4,				1,	// ENT_SHEEP
+-	    25,	   20,	   13,				3,			   12,				1,	// ENT_BARREL
++	    24,	   20,	   13,				3,			   12,				1,	// ENT_BARREL
+ 	     0,	    0,	    0,				0,			   16,				0,	// ENT_WEB
+ 	   200,	  150,	    0,				3,			    9,				1,	// ENT_STATUE_MUMMY_HEAD
+ 	   200,	  150,	    0,				3,			    9,				1,	// ENT_STATUE_MUMMY_BODY
+@@ -364,6 +364,7 @@ vector diff;
+ 	makevectors (spawner.angles);
+ 
+ 	diff = normalize(spot2 - spot1);
++	diff+=aim_adjust(self.enemy);
+ 
+ 	newmis.velocity = diff * missilespeed;
+ 	newmis.classname = missilename;
+diff -urNp h2-1.03/specials.hc h2-1.09/specials.hc
+--- h2-1.03/specials.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/specials.hc	1997-09-11 12:04:24.000000000 +0300
+@@ -28,7 +28,7 @@ void CheckAbilities ()
+ 		{
+ 			self.still_time=-1;
+ 			if(self.abslight<1)
+-				self.abslight+=0.01*trans_limit;
++				self.abslight+=0.02*trans_limit;
+ 			else
+ 			{
+ 				self.drawflags(-)MLS_ABSLIGHT|DRF_TRANSLUCENT;
+diff -urNp h2-1.03/stats.hc h2-1.09/stats.hc
+--- h2-1.03/stats.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/stats.hc	1997-09-11 11:34:40.000000000 +0300
+@@ -87,7 +87,7 @@ float mana_table[20] =
+ //  min    max    min  max      10th Level
+ 	84,		94,		6,   9, 	 1,		// Paladin
+ 	88,		98,		7,  10, 	 2, 	// Crusader
+-    94,	   104,	   10,  12, 	 4,     // Necromancer
++    96,	   106,	   10,  12, 	 4,     // Necromancer
+ 	92,	   102,		9,  11, 	 3		// Assassin
+ };
+ 
+@@ -233,8 +233,9 @@ void PlayerAdvanceLevel(float NewLevel)
+ 	sprint(self,"You are now level ");
+ 	s2 = ftos(self.level);
+ 	sprint(self,s2);
+-	sprint(self,"!!!!!!!!!!!!!!\n");
++	sprint(self,"!\n");
+ 
++	if(!self.newclass)
+ 		if (self.playerclass == CLASS_PALADIN)
+ 		{
+ 		   sprint(self,"Paladin gained a level\n");
+@@ -340,7 +341,7 @@ void AwardExperience(entity ToEnt, entit
+ 	float AfterLevel;
+ 	float IsPlayer;
+ 	entity SaveSelf;
+-	float index,test40,test80,diff,index2,totalnext;
++	float index,test40,test80,diff,index2,totalnext,wis_mod;
+ 	
+ 	if (!Amount) return;
+ 
+@@ -363,6 +364,9 @@ void AwardExperience(entity ToEnt, entit
+ 		Amount *= 1.35;
+ 	else if (ToEnt.playerclass == CLASS_NECROMANCER)
+ 		Amount *= 1.22;
++	
++	wis_mod = ToEnt.wisdom - 11;
++	Amount+=Amount*wis_mod/20;//from .75 to 1.35
+ 
+ 	ToEnt.experience += Amount;
+ 
+@@ -428,6 +432,59 @@ void AwardExperience(entity ToEnt, entit
+ 
+ /*
+ ======================================
++void stats_NewClass(entity e)
++MG
++Used when doing a quick changeclass
++======================================
++*/
++void stats_NewClass(entity e)
++{
++entity oself;
++float index,newlevel;
++
++	if (e.playerclass < CLASS_PALADIN || e.playerclass > CLASS_ASSASSIN)
++	{
++		sprint(e,"Invalid player class ");
++		sprint(e,ftos(e.playerclass));
++		sprint(e,"\n");
++		return;
++	}
++
++	// Calc initial health
++	index = (e.playerclass - 1) * 5;
++	e.health = stats_compute(hitpoint_table[index],
++							 hitpoint_table[index+1]);
++	e.max_health = e.health;
++
++	// Calc initial mana
++	index = (e.playerclass - 1) * 5;
++	e.max_mana = stats_compute(mana_table[index],
++							 mana_table[index+1]);
++
++	index = (e.playerclass - 1) * 2;
++	e.strength = stats_compute(strength_table[index],
++							   strength_table[index+1]);
++	e.intelligence = stats_compute(intelligence_table[index],
++								   intelligence_table[index+1]);
++	e.wisdom = stats_compute(wisdom_table[index],
++							 wisdom_table[index+1]);
++	e.dexterity = stats_compute(dexterity_table[index],
++								dexterity_table[index+1]);
++
++	//Add level diff stuff
++	newlevel = FindLevel(e);
++	e.level=1;
++	if(newlevel>1)
++	{
++		oself=self;
++		self=e;
++		PlayerAdvanceLevel(newlevel);
++		self=oself;
++	}
++}
++
++/*
++======================================
+ drop_level
+ MG
+ Used in deathmatch where you don't
+@@ -442,17 +499,22 @@ float pos;
+ 	if(loser.classname!="player")
+ 		return;
+ 
+-	if(loser.level > number)
++	if(loser.level-number>1)
+ 	{
+ 		loser.level-=number;
+ 		pos = (loser.playerclass - 1) * (MAX_LEVELS+1);
+-		loser.experience = ExperienceValues[pos+loser.level - 1];
++		loser.experience = ExperienceValues[pos+loser.level - 2];
+ 	}
+ 	else
+-	 if(loser.level == number)
+ 	{
+ 		loser.level=1;
+ 		loser.experience=0;
+ 	}
++
++	if (loser.level <= 2)
++		loser.flags(-)FL_SPECIAL_ABILITY1;
++
++	if (loser.level <=5)
++		loser.flags(-)FL_SPECIAL_ABILITY2;
+ }
+ 
+diff -urNp h2-1.03/sunstaff.hc h2-1.09/sunstaff.hc
+--- h2-1.03/sunstaff.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/sunstaff.hc	1997-09-11 11:34:40.000000000 +0300
+@@ -87,7 +87,7 @@ float remainder, reflect_count,damg;
+ 	WriteByte (MSG_BROADCAST, TE_STREAM_SUNSTAFF1);
+ 	WriteEntity (MSG_BROADCAST, self);
+ 	WriteByte (MSG_BROADCAST, ofs+STREAM_ATTACHED);
+-	WriteByte (MSG_BROADCAST, 2);
++	WriteByte (MSG_BROADCAST, 1);
+ 	WriteCoord (MSG_BROADCAST, org2_x);
+ 	WriteCoord (MSG_BROADCAST, org2_y);
+ 	WriteCoord (MSG_BROADCAST, org2_z);
+diff -urNp h2-1.03/torch.hc h2-1.09/torch.hc
+--- h2-1.03/torch.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/torch.hc	1997-09-22 13:56:24.000000000 +0300
+@@ -110,7 +110,7 @@ NOTE: IF YOU DON'T PLAN ON USING THE DEF
+ */
+ void light_torch_castle()
+ {
+-	precache_model2("models/castrch.mdl");
++	precache_model3("models/castrch.mdl");
+ 	precache_model("models/cflmtrch.mdl");
+ 	precache_sound("raven/flame1.wav");
+ 
+diff -urNp h2-1.03/triggers.hc h2-1.09/triggers.hc
+--- h2-1.03/triggers.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/triggers.hc	1997-09-29 14:24:22.000000000 +0300
+@@ -1531,7 +1531,14 @@ Triggered by a trigger_crosslevel elsewh
+ */
+ void() trigger_crosslevel_target_think =
+ {
+-	     if (((self.spawnflags & 1) && (serverflags & SFL_CROSS_TRIGGER_1)) ||
++entity found;
++	found=find(world,classname,"player");
++	if(!found)
++	{
++//		bprint("Postponing check\n");
++		thinktime self : 3;
++	}
++	else if (((self.spawnflags & 1) && (serverflags & SFL_CROSS_TRIGGER_1)) ||
+ 		((self.spawnflags & 2) && (serverflags & SFL_CROSS_TRIGGER_2)) ||
+ 		((self.spawnflags & 4) && (serverflags & SFL_CROSS_TRIGGER_3)) ||
+ 		((self.spawnflags & 8) && (serverflags & SFL_CROSS_TRIGGER_4)) ||
+@@ -1551,7 +1558,9 @@ void() trigger_crosslevel_target_think =
+ void() trigger_crosslevel_target =
+ {
+ 	self.think = trigger_crosslevel_target_think;
+-	thinktime self : 0.5;
++//FIXME: temporarily lenghtened this so I could use the addserverflags impulse
++//	thinktime self : 0.5;
++	thinktime self : 3;
+ 	self.solid = SOLID_NOT;
+ 	self.flags(+)FL_ARCHIVE_OVERRIDE;
+ };
+@@ -1681,6 +1690,9 @@ void puzzle_touch(void)
+ 
+ void puzzle_use(void)
+ {
++	entity found;
++	float num_found;
++
+ 	self.effects(-)EF_NODRAW;
+ 	self.solid = SOLID_TRIGGER;
+ 	self.use = SUB_Null;
+@@ -1688,7 +1700,31 @@ void puzzle_use(void)
+ 
+ 	setorigin(self,self.origin);
+ 
++	num_found = 0;
++
++	if (self.spawnflags & 4)
++	{
++		found = find(world, classname, "player");
++		while (found)
++		{
++			if (vlen(found.origin-self.origin) < 200)
++			{
++				num_found += 1;
++				other = found;
++				self.touch();
++			}
++			found = find(found, classname, "player");
++		}
++	}
++
++	if (num_found == 1 && !coop)
++	{
++		remove(self);
++	}
++	else
++	{
+ 		StartItem();
++	}
+ }
+ 
+ /*QUAKED puzzle_piece (1 .6 0) (-8 -8 -28) (8 8 8) SPAWN FLOATING AUTO_GET
+@@ -1809,7 +1845,7 @@ float fire_range;
+ 
+ 	if (self.enemy != world && other != self.enemy) return;
+ 
+-	if(self.goalentity.health<=0&&self.goalentity.takedamage)
++	if(self.goalentity.health<=0&&self.health)
+ 	{
+ 		self.think=SUB_Remove;
+ 		thinktime self : 0;
+@@ -1892,6 +1928,9 @@ void trigger_control_find_target (void)
+ 
+ 	self.goalentity = find(world, targetname, self.target);
+ 
++	if(self.goalentity.takedamage)
++		self.health=TRUE;
++
+ 	if (!self.goalentity)
+ 		objerror("Could not find target\n");
+ 	else if(self.goalentity.classname=="catapult"||self.goalentity.classname=="obj_catapult2")
+diff -urNp h2-1.03/vorpal.hc h2-1.09/vorpal.hc
+--- h2-1.03/vorpal.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/vorpal.hc	1997-09-12 11:28:20.000000000 +0300
+@@ -42,7 +42,7 @@ $frame 6thSwd16     6thSwd17
+ 
+ 
+ float VORP_BASE_DAMAGE			= 15;
+-float VORP_ADD_DAMAGE			= 15;
++float VORP_ADD_DAMAGE			= 10;
+ float VORP_PWR_BASE_DAMAGE		= 50;
+ float VORP_PWR_ADD_DAMAGE		= 30;
+ float VORP_RADIUS				= 150;
+diff -urNp h2-1.03/warhamer.hc h2-1.09/warhamer.hc
+--- h2-1.03/warhamer.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/warhamer.hc	1997-10-01 12:11:10.000000000 +0300
+@@ -150,7 +150,7 @@ float distance;
+ 		self.pain_finished=time+0.3;
+ 	}
+ 	
+-	if(self.controller.health<=0||!self.controller.flags2&FL_ALIVE)
++	if(self.controller.health<=0||!self.controller.flags2&FL_ALIVE||self.controller.model=="models/sheep.mdl")
+     {
+         sound(self, CHAN_VOICE, "misc/null.wav", 0.3, ATTN_NORM);
+ 		if(pointcontents(self.origin)==CONTENT_SOLID)
+@@ -248,7 +248,7 @@ local entity missile;
+   missile.drawflags=MLS_ABSLIGHT;//Powermode?  Translucent when returning?
+   missile.abslight = 1;
+   missile.dmg=200;
+-  self.attack_finished=time + 0.5;
++  self.attack_finished=time + 1;
+ 
+ }
+ 
+diff -urNp h2-1.03/warhorse.hc h2-1.09/warhorse.hc
+--- h2-1.03/warhorse.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/warhorse.hc	1997-09-23 23:22:18.000000000 +0300
+@@ -200,7 +200,7 @@ void waraxe_touch(void)
+ 		if(other.thingtype==THINGTYPE_FLESH)
+ 		{
+ 			sound(other,CHAN_AUTO,"weapons/slash.wav",1,ATTN_NORM);
+-			MeatChunks (self.origin,randomv('-100 -100 100','100 100 300'), 2);
++			MeatChunks (self.origin,randomv('-100 -100 100','100 100 300'), 2,other);
+ 		}
+ 		if(other.health<self.dmg&&other.classname=="player")
+ 			other.decap=TRUE;
+diff -urNp h2-1.03/weapons.hc h2-1.09/weapons.hc
+--- h2-1.03/weapons.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/weapons.hc	1997-09-29 15:45:38.000000000 +0300
+@@ -139,8 +139,11 @@ void() T_PhaseMissileTouch =
+ 
+ 		sound (self, CHAN_WEAPON, "paladin/axric1.wav", 1, ATTN_NORM);
+ 			
++		if (self.goalentity)
++		{
+ 			self.goalentity.think = axetail_run;
+ 			self.goalentity.nextthink = time + HX_FRAME_TIME;
++		}
+ 	}
+ 
+ 	if (pointcontents(self.origin) == CONTENT_SKY)
+@@ -513,7 +516,7 @@ float W_CheckNoAmmo (float check_weapon)
+ 		{
+ 			if(self.artifact_active&ART_TOMEOFPOWER)
+ 			{
+-				if(self.greenmana >= 10)
++				if(self.greenmana >= 20)
+ 					return TRUE;
+ 			}
+ 			else if(self.greenmana >= 1)
+@@ -751,6 +754,8 @@ void W_DeselectWeapon (void)
+ 		else
+ 			W_SetCurrentAmmo();
+ 	}
++	else
++		W_SetCurrentAmmo();
+ }
+ 
+ /*
+@@ -799,15 +804,15 @@ float	it, am, fl;
+ 
+ 	self.impulse = 0;
+ 
+-	if(!W_CheckNoAmmo(fl))
++	if (!(self.items & fl))
+ 	{
+-		sprint (self, STR_NOTENOUGHMANA);
++		sprint (self, STR_NOCARRYWEAPON);
+ 		return;
+ 	}
+ 
+-	if (!(self.items & fl))
++	if(!W_CheckNoAmmo(fl))
+ 	{
+-		sprint (self, STR_NOCARRYWEAPON);
++		sprint (self, STR_NOTENOUGHMANA);
+ 		return;
+ 	}
+ 
+@@ -826,7 +831,7 @@ CheatCommand
+ */
+ void() CheatCommand =
+ {
+-	if((deathmatch||coop) && (self.netname!="Cosmos"))
++	if(deathmatch||coop)
+ 		return;
+ 
+ 	self.items(+)IT_WEAPON1|IT_WEAPON2|IT_WEAPON3|IT_WEAPON4|IT_WEAPON4_1|IT_WEAPON4_2;
+diff -urNp h2-1.03/weather.hc h2-1.09/weather.hc
+--- h2-1.03/weather.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/weather.hc	1997-09-12 15:52:06.000000000 +0300
+@@ -311,11 +311,11 @@ void () weather_lightning_start =
+ 
+ 	if(self.classname=="weather_lightning_start")
+ 	{
+-		precache_model2("models/stlghtng.mdl");
++		precache_model3("models/stlghtng.mdl");
+ 		if (!self.noise)
+ 		{
+ 			self.noise = "raven/lightng1.wav"; 
+-			precache_sound2("raven/lightng1.wav");
++			precache_sound3("raven/lightng1.wav");
+ 		}
+ 		if(self.spawnflags&2)
+ 		{
+@@ -327,7 +327,7 @@ void () weather_lightning_start =
+ 	{
+ 		dprint("Shazzaam!\n");
+ 		self.noise = "crusader/lghtn1.wav";
+-		precache_sound2("crusader/lghtn1.wav");
++		precache_sound3("crusader/lghtn1.wav");
+ 	}
+ 	
+ 	self.use = lightning_init;		// For triggered lightning
+@@ -380,10 +380,10 @@ lifespan - amount of time sunbeam will e
+ */
+ void () weather_sunbeam_start =
+ {
+-	precache_model2("models/stsunsf1.mdl");
+-	precache_model2("models/stsunsf2.mdl");
+-	precache_model2("models/stsunsf3.mdl");
+-	precache_model2("models/stsunsf4.mdl");
++	precache_model3("models/stsunsf1.mdl");
++	precache_model3("models/stsunsf2.mdl");
++	precache_model3("models/stsunsf3.mdl");
++	precache_model3("models/stsunsf4.mdl");
+ 
+ 	self.noise = "crusader/lghtn1.wav";
+ 
+diff -urNp h2-1.03/world.hc h2-1.09/world.hc
+--- h2-1.03/world.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/world.hc	1997-09-18 11:33:22.000000000 +0300
+@@ -18,9 +18,9 @@ void() main =
+ //	precache_file ("end1.bin");
+ //	precache_file2 ("end2.bin");
+ 
+-	precache_file ("demo1.dem");
+-	precache_file ("demo2.dem");
+-	precache_file ("demo3.dem");
++//	precache_file ("demo1.dem");
++//	precache_file ("demo2.dem");
++//	precache_file ("demo3.dem");
+ 
+ 	Precache_lmp();
+ 
+@@ -40,6 +40,7 @@ void() main =
+ // demo
+ 	precache_file("maps/demo1.bsp");
+ 	precache_file("maps/demo2.bsp");
++	precache_file("maps/demo3.bsp");
+ 	precache_file("maps/ravdm1.bsp");
+ 
+ //demo midi
+@@ -49,7 +50,6 @@ void() main =
+ 
+ // registered
+ 	precache_file2 ("gfx/pop.lmp");
+-	precache_file2 ("maps/demo3.bsp");
+     precache_file2("maps/castle4.bsp");
+     precache_file2("maps/castle5.bsp");
+     precache_file2("maps/cath.bsp");
+@@ -68,7 +68,7 @@ void() main =
+     precache_file2("maps/meso6.bsp");
+     precache_file2("maps/meso8.bsp");
+     precache_file2("maps/meso9.bsp"); // death rider
+-    precache_file2("maps/rider1a.bsp"); // famine rider
++    precache_file3("maps/rider1a.bsp"); // famine rider
+     precache_file2("maps/rider2c.bsp"); // pestilence rider
+     precache_file2("maps/eidolon.bsp");
+     precache_file2("maps/romeric1.bsp");
+@@ -79,20 +79,20 @@ void() main =
+     precache_file2("maps/romeric6.bsp"); // war rider
+     precache_file2("maps/romeric7.bsp"); 
+     precache_file2("maps/tower.bsp");
+-    precache_file2("maps/village1.bsp");
+-    precache_file2("maps/village2.bsp");
+-    precache_file2("maps/village3.bsp");
+-    precache_file2("maps/village4.bsp");
+-    precache_file2("maps/village5.bsp");
++    precache_file3("maps/village1.bsp");
++    precache_file3("maps/village2.bsp");
++    precache_file3("maps/village3.bsp");
++    precache_file3("maps/village4.bsp");
++    precache_file3("maps/village5.bsp");
+     precache_file2("maps/ravdm2.bsp");
+     precache_file2("maps/ravdm3.bsp");
+     precache_file2("maps/ravdm4.bsp");
+     precache_file2("maps/ravdm5.bsp");
+ 
+-    precache_file2("midi/casa1.mid");
+-    precache_file2("midi/casa2.mid");
+-    precache_file2("midi/casa3.mid");
+-    precache_file2("midi/casa4.mid");
++    precache_file3("midi/casa1.mid");
++    precache_file3("midi/casa2.mid");
++    precache_file3("midi/casa3.mid");
++    precache_file3("midi/casa4.mid");
+     precache_file2("midi/casb1.mid");
+     precache_file2("midi/casb2.mid");
+     precache_file2("midi/casb3.mid");
+diff -urNp h2-1.03/wp_art.hc h2-1.09/wp_art.hc
+--- h2-1.03/wp_art.hc	1997-09-04 21:57:40.000000000 +0300
++++ h2-1.09/wp_art.hc	1997-09-12 14:32:48.000000000 +0300
+@@ -46,8 +46,8 @@ none
+ void wp_weapon2 (void)
+ {
+ 	precache_model("models/w_l2_c1.mdl");
+-	precache_model2("models/w_l2_c2.mdl");
+-	precache_model2("models/w_l2_c3.mdl");
++	precache_model3("models/w_l2_c2.mdl");
++	precache_model3("models/w_l2_c3.mdl");
+ 	precache_model("models/w_l2_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON2_ART,"models/w_l2_c1.mdl",SUB_Null);
+@@ -71,8 +71,8 @@ none
+ void wp_weapon3 (void)
+ {
+ 	precache_model("models/w_l3_c1.mdl");
+-	precache_model2("models/w_l3_c2.mdl");
+-	precache_model2("models/w_l3_c3.mdl");
++	precache_model3("models/w_l3_c2.mdl");
++	precache_model3("models/w_l3_c3.mdl");
+ 	precache_model("models/w_l3_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON41_ART,"models/w_l3_c1.mdl",SUB_Null);
+@@ -95,8 +95,8 @@ none
+ void wp_weapon4_head (void)
+ {
+ 	precache_model("models/w_l41_c1.mdl");
+-	precache_model2("models/w_l41_c2.mdl");
+-	precache_model2("models/w_l41_c3.mdl");
++	precache_model3("models/w_l41_c2.mdl");
++	precache_model3("models/w_l41_c3.mdl");
+ 	precache_model("models/w_l41_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON41_ART,"models/w_l41_c1.mdl",SUB_Null);
+@@ -119,8 +119,8 @@ none
+ void wp_weapon4_staff (void)
+ {
+ 	precache_model("models/w_l42_c1.mdl");
+-	precache_model2("models/w_l42_c2.mdl");
+-	precache_model2("models/w_l42_c3.mdl");
++	precache_model3("models/w_l42_c2.mdl");
++	precache_model3("models/w_l42_c3.mdl");
+ 	precache_model("models/w_l42_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON42_ART,"models/w_l42_c1.mdl",SUB_Null);

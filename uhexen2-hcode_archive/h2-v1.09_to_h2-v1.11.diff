@@ -1,0 +1,316 @@
+diff -urNp h2-1.09/boner.hc h2-1.11/boner.hc
+--- h2-1.09/boner.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/boner.hc	1997-10-28 11:02:38.000000000 +0200
+@@ -197,6 +197,14 @@ string hitsound;
+ 	sound(self,CHAN_WEAPON,hitsound,1,ATTN_NORM);
+ 	particle4(self.origin,3,random(368,384),PARTICLETYPE_GRAV,self.dmg/2);
+ 
++	endeffect(MSG_ALL,self.wrq_effect_id);
++
++	remove(self);	
++}
++
++void bone_removeshrapnel (void)
++{
++	endeffect(MSG_ALL,self.wrq_effect_id);
+ 	remove(self);	
+ }
+ 
+@@ -207,9 +215,10 @@ vector shard_vel;
+ 	newmis.owner=self.owner;
+ 	newmis.movetype=MOVETYPE_BOUNCE;
+ 	newmis.solid=SOLID_PHASE;
++	newmis.effects (+) EF_NODRAW;
+ 	newmis.touch=bone_shard_touch;
+ 	newmis.dmg=15;
+-	newmis.think=SUB_Remove;
++	newmis.think=bone_removeshrapnel;
+ 	thinktime newmis : 3;
+ 
+ 	newmis.speed=777;
+@@ -226,6 +235,10 @@ vector shard_vel;
+ 	setmodel(newmis,"models/boneshrd.mdl");
+ 	setsize(newmis,'0 0 0','0 0 0');
+ 	setorigin(newmis,self.origin+shard_vel*8);
++
++	newmis.wrq_effect_id = starteffect(CE_BONESHRAPNEL, newmis.origin, newmis.velocity,
++		newmis.angles,newmis.avelocity);
++
+ }
+ 
+ void bone_shatter ()
+@@ -247,7 +260,9 @@ vector randomvec;
+ 
+ 	if(other.takedamage)
+ 	{
++		dprint("Doing damage\n");
+ 		T_Damage(other, self,self.owner,self.dmg*2);
++		dprint("Doing effects\n");
+ 		randomvec=randomv('-20 -20 -20','20 20 20');
+ 		starteffect(CE_GHOST, self.origin-self.movedir*8+randomvec,'0 0 30'+randomvec, 0.1);
+ 		randomvec=randomv('-20 -20 -20','20 20 20');
+@@ -258,12 +273,16 @@ vector randomvec;
+ 		starteffect(CE_GHOST, self.origin-self.movedir*8+randomvec,'0 0 30'+randomvec, 0.1);
+ 	}
+ 	self.flags2(+)FL2_ADJUST_MON_DAM;
++	dprint("Doing radius damage\n");
+ 	T_RadiusDamage(self,self.owner,self.dmg,other);
+ 
+ 	self.solid=SOLID_NOT;
++	dprint("shattering\n");
+ 	bone_shatter();
++	dprint("Doing final effect\n");
+ 	starteffect(CE_BONE_EXPLOSION, self.origin-self.movedir*6,'0 0 0', HX_FRAME_TIME);
+ 	particle4(self.origin,50,random(368,384),PARTICLETYPE_GRAV,10);
++	dprint("removing\n");
+ 	remove(self);	
+ }
+ /*
+@@ -342,9 +361,9 @@ vector org;
+ 		self.attack_finished=time + 1.3;
+ 		newmis.dmg=100;//was 200
+ 		newmis.frags=TRUE;
+-		newmis.takedamage=DAMAGE_YES;
+-		newmis.health=3;
+-		newmis.th_die=bone_shatter;
++//		newmis.takedamage=DAMAGE_YES;
++//		newmis.health=3;
++//		newmis.th_die=bone_shatter;
+ 		newmis.touch=bone_power_touch;
+ 		newmis.avelocity=randomv('777 777 777','-777 -777 -777');
+ 		setmodel(newmis,"models/bonelump.mdl");
+@@ -358,15 +377,19 @@ vector org;
+ 		newmis.speed+=random(500);
+ 		newmis.dmg=7;
+ 		newmis.touch=bone_shard_touch;
++		newmis.effects (+) EF_NODRAW;
+ 		setmodel(newmis,"models/boneshot.mdl");
+ 		setsize(newmis,'0 0 0','0 0 0');
+ 		newmis.velocity+=v_right*ofs_y*10+v_up*ofs_z*10;
+ 
+ 		newmis.angles=vectoangles(newmis.velocity);
+-		newmis.avelocity_z=random(777,-777);
++//		newmis.avelocity_z=random(777,-777);
++
++		newmis.wrq_effect_id = starteffect(CE_BONESHARD, newmis.origin, newmis.velocity,
++			newmis.angles,newmis.avelocity);
+ 
+-newmis.think=bone_smoke;
+-thinktime newmis : 0.06;
++//newmis.think=bone_smoke;
++//thinktime newmis : 0.06;
+ 	}
+ }
+ 
+diff -urNp h2-1.09/client.hc h2-1.11/client.hc
+--- h2-1.09/client.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/client.hc	1997-10-28 11:02:40.000000000 +0200
+@@ -1870,10 +1870,10 @@ void() CheckPowerups =
+ //			self.view_ofs = '0 0 50';
+ //			self.proj_ofs='0 0 44';
+ 
+-			SetModelAndThinks();
+-			self.oldweapon = IT_WEAPON1;
++			self.oldweapon = FALSE;
+ 			self.weapon = IT_WEAPON1;
+-			W_SetCurrentWeapon();
++			restore_weapon();
++			SetModelAndThinks();
+ 
+ //			W_SetCurrentAmmo ();
+ 
+diff -urNp h2-1.09/constant.hc h2-1.11/constant.hc
+--- h2-1.09/constant.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/constant.hc	1997-10-13 15:58:18.000000000 +0300
+@@ -420,6 +420,8 @@ float   CE_BONE_EXPLOSION			= 36;//	bone
+ float   CE_REDCLOUD					= 37;//	rcloud.spr
+ float   CE_TELEPORTERPUFFS			= 38;
+ float   CE_TELEPORTERBODY			= 39;
++float	CE_BONESHARD				= 40;
++float	CE_BONESHRAPNEL				= 41;
+ 
+ // Temporary entities
+ float	TE_SPIKE					= 0;
+diff -urNp h2-1.09/damage.hc h2-1.11/damage.hc
+--- h2-1.09/damage.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/damage.hc	1997-10-08 11:54:32.000000000 +0300
+@@ -276,6 +276,7 @@ float exp_bonus;
+ 					if(attacker.level<targ.level)
+ 						drop_level(targ,1); //If killed by a lower level player, lose 1 level
+ 
++					if(attacker!=self.controller)//No credit for killing your imp!
+ 						AwardExperience(attacker,self,self.experience_value+exp_bonus);
+ 				}
+ 				if(FindExpLeader()!=lastleader)
+diff -urNp h2-1.09/impulse.hc h2-1.11/impulse.hc
+--- h2-1.09/impulse.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/impulse.hc	1997-10-28 11:02:46.000000000 +0200
+@@ -422,6 +422,12 @@ void() ImpulseCommands =
+ 	}
+ 	else if(self.impulse==40&&skill<3)
+ 	{
++		if(deathmatch||coop)
++		{
++			self.impulse=0;
++			return;
++		}
++		else
+ 			player_level_cheat();
+ 	}
+ 	else if(self.impulse==41&&skill<3)
+diff -urNp h2-1.09/magicmis.hc h2-1.11/magicmis.hc
+--- h2-1.09/magicmis.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/magicmis.hc	1997-10-08 11:54:32.000000000 +0300
+@@ -131,7 +131,7 @@ vector spread;
+ 	newmis=spawn();
+ 	newmis.classname="magic missile";
+ 	newmis.owner=self;
+-	newmis.drawflags(+)SCALE_ORIGIN_CENTER|DRF_TRANSLUCENT;
++	newmis.drawflags(+)SCALE_ORIGIN_CENTER;//|DRF_TRANSLUCENT;
+ 	newmis.movetype=MOVETYPE_FLYMISSILE;
+ 	newmis.solid=SOLID_BBOX;
+ 
+diff -urNp h2-1.09/MG_AI.hc h2-1.11/MG_AI.hc
+--- h2-1.09/MG_AI.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/MG_AI.hc	1997-10-13 16:16:50.000000000 +0300
+@@ -40,7 +40,7 @@ float base, divider, attack_mod;
+ 
+ //FIXME: .light_level gives a value of 0 if MLS_POWERMODE is on...
+ //Temp fix for now...
+-	if(targ.classname!="player")
++	if(targ.classname!="player"||targ.drawflags&MLS_POWERMODE)
+ 	{
+ 		targ.visibility=1;
+ 		return;
+@@ -64,8 +64,6 @@ float base, divider, attack_mod;
+ 
+ 	if(targ.drawflags&MLS_ABSLIGHT)
+ 		base=targ.abslight/2.5;
+-	else if (targ.drawflags & MLS_POWERMODE)
+-		base = 1;
+ 	else
+ 		base=targ.light_level/75;//75 is semi-fullbright
+ 
+diff -urNp h2-1.09/object.hc h2-1.11/object.hc
+--- h2-1.09/object.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/object.hc	1997-10-08 11:54:34.000000000 +0300
+@@ -162,18 +162,19 @@ float ontop,pushed,inertia,force,walkfor
+ 
+ 	if(other!=world&&other.absmin_z >= self.origin_z+self.maxs_z - 5&&other.velocity_z<1)
+ 	{		
+-		if
++		if(!other.frozen&&
+ 			(
+ 			 (!other.flags2&FL_ALIVE&&other.flags&FL_MONSTER)||
+ 			 (self.flags&FL_MONSTER&&self.model!="models/spider.mdl"&&self.model!="models/scorpion.mdl")
+ 			)
++		  )
+ 		{
+ 			makevectors(other.angles);
+ 			v_forward_z=1;
+ 			other.velocity=v_forward*300;
+ 			other.flags(-)FL_ONGROUND;
+ 		}
+-		if(other.flags&FL_CLIENT)
++		if(other.flags&FL_CLIENT&&!other.frozen)
+ 			ontop = FALSE;
+ 		else
+ 		{
+diff -urNp h2-1.09/precache.hc h2-1.11/precache.hc
+--- h2-1.09/precache.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/precache.hc	1997-10-01 20:14:16.000000000 +0300
+@@ -38,6 +38,7 @@ void Precache_lmp (void)
+ 	precache_file ("gfx/skin100.lmp");
+ 	precache_file ("gfx/skin101.lmp");
+ 
++	precache_file ("strings.txt");
+ 	precache_file ("puzzles.txt");
+ 	precache_file ("maplist.txt");
+ 
+diff -urNp h2-1.09/ravenstf.hc h2-1.11/ravenstf.hc
+--- h2-1.09/ravenstf.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/ravenstf.hc	1997-10-28 11:02:54.000000000 +0200
+@@ -53,6 +53,7 @@ void raven_spark (void)
+ void raven_death_init (void)
+ {
+ 	self.owner.raven_cnt -= 1;
++	self.takedamage = DAMAGE_NO;
+ 
+ 	traceline(self.origin,self.origin + '0 0 600',FALSE,self);
+ 	if (trace_fraction < 1)
+@@ -297,7 +298,7 @@ void create_raven(void)
+ 
+ 	missile.movetype = MOVETYPE_BOUNCEMISSILE;
+ 	missile.solid = SOLID_BBOX;
+-	missile.takedamage = DAMAGE_YES;
++	missile.takedamage = DAMAGE_NO;
+ 
+ 	// set missile speed	
+ 	makevectors (self.v_angle);
+@@ -322,6 +323,7 @@ void create_raven(void)
+ 	spot1 = self.origin + self.proj_ofs;
+ 	spot2 = spot1 + (v_forward*600); // Look ahead
+ 	traceline(spot1,spot2,FALSE,self);
++	missile.th_die=raven_death_init;
+ 
+ 	// We have a victim in sights
+ 	if ((trace_ent!=world) && 
+@@ -383,7 +385,7 @@ void ravenmissile_puff (void)
+ 		ravenmissile_explode();	
+ 	else
+ 	{
+-		thinktime newmis : HX_FRAME_TIME * 3;
++		thinktime self : HX_FRAME_TIME * 3;
+ 		self.think = ravenmissile_puff;
+ 	}
+ }
+diff -urNp h2-1.09/sheep.hc h2-1.11/sheep.hc
+--- h2-1.09/sheep.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/sheep.hc	1997-10-13 15:58:34.000000000 +0300
+@@ -646,6 +646,8 @@ void Polymorph (entity loser)
+ 			newmis.enemy=loser.enemy;
+ 		newmis.goalentity=newmis.enemy;
+ 		newmis.angles=loser.angles;
++		newmis.target=loser.target;//So it will still activate targets
++		newmis.killtarget=loser.killtarget;
+ 		remove(loser);
+ 		newmis.flags2(+)FL_SUMMONED;
+ 		newmis.spawnflags(+)NO_DROP;
+diff -urNp h2-1.09/sickle.hc h2-1.11/sickle.hc
+--- h2-1.09/sickle.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/sickle.hc	1997-10-08 11:54:34.000000000 +0300
+@@ -52,7 +52,7 @@ void sickle_fire ()
+ 	float damg, inertia;
+ 	float damage_mod;
+ 	float damage_base;
+-	float chance,point_chance;
++	float chance,point_chance,drain_ok;
+ 
+ 	damage_mod = 10;
+ 
+@@ -75,7 +75,12 @@ void sickle_fire ()
+ 	if (trace_ent.takedamage)
+ 	{
+ 		// Necromancer stands a chance of vampirically stealing health points
+-		if  ((trace_ent.flags & FL_MONSTER || trace_ent.flags & FL_CLIENT) && (self.level >= 6))
++		if(teamplay && trace_ent.team == self.team)
++			drain_ok=FALSE;
++		else
++			drain_ok=TRUE;
++
++		if  (drain_ok && (trace_ent.flags & FL_MONSTER || trace_ent.flags & FL_CLIENT) && (self.level >= 6))	
+ 		{
+ //			msg_entity=self;
+ //			WriteByte (MSG_ONE, SVC_SET_VIEW_TINT);
+diff -urNp h2-1.09/warhamer.hc h2-1.11/warhamer.hc
+--- h2-1.09/warhamer.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.11/warhamer.hc	1997-10-08 11:54:34.000000000 +0300
+@@ -307,7 +307,7 @@ void warhammer_fire (string hitdir,vecto
+ 	{
+ 		org = trace_endpos + (v_forward * 4);
+ 	
+-		if (trace_ent.takedamage)
++		if (trace_ent.takedamage&&trace_ent!=self)
+ 		{
+ 			if(trace_ent.solid==SOLID_BSP||trace_ent.movetype==MOVETYPE_PUSH)
+ 				inertia = 1000;

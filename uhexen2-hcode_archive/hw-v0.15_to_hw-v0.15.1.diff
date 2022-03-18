@@ -1,0 +1,21 @@
+diff -urNp hw-0.15/constant.hc hw-src-release/constant.hc
+--- hw-0.15/constant.hc	1999-01-26 17:56:12.000000000 +0200
++++ hw-src-release/constant.hc	1999-01-26 17:56:12.000000000 +0200
+@@ -585,7 +585,7 @@ float	UPDATE_BINARY				= 2;
+ float	UPDATE_TEMP					= 3;
+ 
+ // entity effects
+-float	EF_BRIGHTFIELD				= 1;
++float	EF_ONFIRE					= 1;//MP
+ float	EF_MUZZLEFLASH 				= 2;
+ float	EF_BRIGHTLIGHT 				= 4;
+ float	EF_TORCHLIGHT				= 6;
+@@ -595,7 +595,7 @@ float	EF_DARKFIELD				= 32;
+ float	EF_LIGHT					= 64;
+ float	EF_NODRAW					= 128;
+ 
+-float	EF_ONFIRE				= 1024;
++float	EF_BRIGHTFIELD				= 1024;
+ float	EF_INVINC_CIRC				= 16;//Succubus' invincibility effect
+ float	EF_POWERFLAMEBURN			= 2048;
+ float	EF_POWERFLAME				= 4096;

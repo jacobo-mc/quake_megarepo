@@ -1,0 +1,159 @@
+diff -urNp h2-1.09/boner.hc h2-1.10/boner.hc
+--- h2-1.09/boner.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/boner.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -197,6 +197,8 @@ string hitsound;
+ 	sound(self,CHAN_WEAPON,hitsound,1,ATTN_NORM);
+ 	particle4(self.origin,3,random(368,384),PARTICLETYPE_GRAV,self.dmg/2);
+ 
++	endeffect(MSG_ALL,self.wrq_effect_id);
++
+ 	remove(self);	
+ }
+ 
+@@ -358,15 +360,19 @@ vector org;
+ 		newmis.speed+=random(500);
+ 		newmis.dmg=7;
+ 		newmis.touch=bone_shard_touch;
++		newmis.effects (+) EF_NODRAW;
+ 		setmodel(newmis,"models/boneshot.mdl");
+ 		setsize(newmis,'0 0 0','0 0 0');
+ 		newmis.velocity+=v_right*ofs_y*10+v_up*ofs_z*10;
+ 
+ 		newmis.angles=vectoangles(newmis.velocity);
+-		newmis.avelocity_z=random(777,-777);
++//		newmis.avelocity_z=random(777,-777);
++
++		newmis.wrq_effect_id = starteffect(CE_BONESHARD, newmis.origin, newmis.velocity,
++			newmis.angles);
+ 
+-newmis.think=bone_smoke;
+-thinktime newmis : 0.06;
++//newmis.think=bone_smoke;
++//thinktime newmis : 0.06;
+ 	}
+ }
+ 
+diff -urNp h2-1.09/constant.hc h2-1.10/constant.hc
+--- h2-1.09/constant.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/constant.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -420,6 +420,7 @@ float   CE_BONE_EXPLOSION			= 36;//	bone
+ float   CE_REDCLOUD					= 37;//	rcloud.spr
+ float   CE_TELEPORTERPUFFS			= 38;
+ float   CE_TELEPORTERBODY			= 39;
++float	CE_BONESHARD				= 40;
+ 
+ // Temporary entities
+ float	TE_SPIKE					= 0;
+diff -urNp h2-1.09/damage.hc h2-1.10/damage.hc
+--- h2-1.09/damage.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/damage.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -276,6 +276,7 @@ float exp_bonus;
+ 					if(attacker.level<targ.level)
+ 						drop_level(targ,1); //If killed by a lower level player, lose 1 level
+ 
++					if(attacker!=self.controller)//No credit for killing your imp!
+ 						AwardExperience(attacker,self,self.experience_value+exp_bonus);
+ 				}
+ 				if(FindExpLeader()!=lastleader)
+diff -urNp h2-1.09/impulse.hc h2-1.10/impulse.hc
+--- h2-1.09/impulse.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/impulse.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -422,6 +422,12 @@ void() ImpulseCommands =
+ 	}
+ 	else if(self.impulse==40&&skill<3)
+ 	{
++		if(deathmatch||coop)
++		{
++			self.impulse=0;
++			return;
++		}
++		else
+ 			player_level_cheat();
+ 	}
+ 	else if(self.impulse==41&&skill<3)
+diff -urNp h2-1.09/magicmis.hc h2-1.10/magicmis.hc
+--- h2-1.09/magicmis.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/magicmis.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -131,7 +131,7 @@ vector spread;
+ 	newmis=spawn();
+ 	newmis.classname="magic missile";
+ 	newmis.owner=self;
+-	newmis.drawflags(+)SCALE_ORIGIN_CENTER|DRF_TRANSLUCENT;
++	newmis.drawflags(+)SCALE_ORIGIN_CENTER;//|DRF_TRANSLUCENT;
+ 	newmis.movetype=MOVETYPE_FLYMISSILE;
+ 	newmis.solid=SOLID_BBOX;
+ 
+diff -urNp h2-1.09/object.hc h2-1.10/object.hc
+--- h2-1.09/object.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/object.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -162,18 +162,19 @@ float ontop,pushed,inertia,force,walkfor
+ 
+ 	if(other!=world&&other.absmin_z >= self.origin_z+self.maxs_z - 5&&other.velocity_z<1)
+ 	{		
+-		if
++		if(!other.frozen&&
+ 			(
+ 			 (!other.flags2&FL_ALIVE&&other.flags&FL_MONSTER)||
+ 			 (self.flags&FL_MONSTER&&self.model!="models/spider.mdl"&&self.model!="models/scorpion.mdl")
+ 			)
++		  )
+ 		{
+ 			makevectors(other.angles);
+ 			v_forward_z=1;
+ 			other.velocity=v_forward*300;
+ 			other.flags(-)FL_ONGROUND;
+ 		}
+-		if(other.flags&FL_CLIENT)
++		if(other.flags&FL_CLIENT&&!other.frozen)
+ 			ontop = FALSE;
+ 		else
+ 		{
+diff -urNp h2-1.09/precache.hc h2-1.10/precache.hc
+--- h2-1.09/precache.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/precache.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -38,6 +38,7 @@ void Precache_lmp (void)
+ 	precache_file ("gfx/skin100.lmp");
+ 	precache_file ("gfx/skin101.lmp");
+ 
++	precache_file ("strings.txt");
+ 	precache_file ("puzzles.txt");
+ 	precache_file ("maplist.txt");
+ 
+diff -urNp h2-1.09/sickle.hc h2-1.10/sickle.hc
+--- h2-1.09/sickle.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/sickle.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -52,7 +52,7 @@ void sickle_fire ()
+ 	float damg, inertia;
+ 	float damage_mod;
+ 	float damage_base;
+-	float chance,point_chance;
++	float chance,point_chance,drain_ok;
+ 
+ 	damage_mod = 10;
+ 
+@@ -75,7 +75,12 @@ void sickle_fire ()
+ 	if (trace_ent.takedamage)
+ 	{
+ 		// Necromancer stands a chance of vampirically stealing health points
+-		if  ((trace_ent.flags & FL_MONSTER || trace_ent.flags & FL_CLIENT) && (self.level >= 6))
++		if(teamplay && trace_ent.team == self.team)
++			drain_ok=FALSE;
++		else
++			drain_ok=TRUE;
++
++		if  (drain_ok && (trace_ent.flags & FL_MONSTER || trace_ent.flags & FL_CLIENT) && (self.level >= 6))	
+ 		{
+ //			msg_entity=self;
+ //			WriteByte (MSG_ONE, SVC_SET_VIEW_TINT);
+diff -urNp h2-1.09/warhamer.hc h2-1.10/warhamer.hc
+--- h2-1.09/warhamer.hc	1997-10-01 12:11:10.000000000 +0300
++++ h2-1.10/warhamer.hc	1997-10-08 18:14:54.000000000 +0300
+@@ -307,7 +307,7 @@ void warhammer_fire (string hitdir,vecto
+ 	{
+ 		org = trace_endpos + (v_forward * 4);
+ 	
+-		if (trace_ent.takedamage)
++		if (trace_ent.takedamage&&trace_ent!=self)
+ 		{
+ 			if(trace_ent.solid==SOLID_BSP||trace_ent.movetype==MOVETYPE_PUSH)
+ 				inertia = 1000;

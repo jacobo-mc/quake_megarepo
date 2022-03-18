@@ -1,0 +1,5985 @@
+diff -urNp siege-0.14/ai.hc siege-0.15/ai.hc
+--- siege-0.14/ai.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/ai.hc	1998-05-16 15:16:28.000000000 +0300
+@@ -28,14 +28,14 @@ time > .pausetime.
+ walkmove(angle, speed) primitive is all or nothing
+ */
+ 
+-float ArcherCheckAttack (void);
+-float MedusaCheckAttack (void);
++//float ArcherCheckAttack (void);
++//float MedusaCheckAttack (void);
+ void()SetNextWaypoint;
+-void()SpiderMeleeBegin;
+-void()spider_onwall_wait;
++//void()SpiderMeleeBegin;
++//void()spider_onwall_wait;
+ float(entity targ , entity from)infront_of_ent;
+ void(entity proj)mezzo_choose_roll;
+-void()hive_die;
++//void()hive_die;
+ 
+ //void()check_climb;
+ 
+@@ -378,7 +378,7 @@ float		r;
+ 		return FALSE;
+ 	}
+ 
+-	if(self.think!=spider_onwall_wait)
++//	if(self.think!=spider_onwall_wait)
+ 		if (r == RANGE_NEAR)
+ 		{
+ 			if (client.show_hostile < time && !infront (client))
+@@ -434,7 +434,7 @@ float		r;
+ 	return TRUE;
+ };
+ 
+-void()SpiderJumpBegin;
++//void()SpiderJumpBegin;
+ //=============================================================================
+ 
+ void(float dist) ai_forward =
+@@ -596,14 +596,14 @@ float() FacingIdeal =
+ 
+ float() CheckAnyAttack =
+ {
+-	if (self.model=="models/medusa.mdl"||self.model=="models/medusa2.mdl")
+-			return(MedusaCheckAttack ());
++//	if (self.model=="models/medusa.mdl"||self.model=="models/medusa2.mdl")
++//			return(MedusaCheckAttack ());
+ 
+ 	if (!enemy_vis)
+ 		return FALSE;
+ 
+-	if (self.model=="models/archer.mdl")
+-		return(ArcherCheckAttack ());
++//	if (self.model=="models/archer.mdl")
++//		return(ArcherCheckAttack ());
+ 
+ 	if(self.goalentity==self.controller)
+ 		return FALSE;
+diff -urNp siege-0.14/allplay.hc siege-0.15/allplay.hc
+--- siege-0.14/allplay.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/allplay.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -284,7 +284,7 @@ vector org;
+ 		if (trace_fraction < 1&&!trace_ent.flags2&FL_ALIVE&&trace_ent.solid==SOLID_BSP)
+ 		{
+ 			self.wallspot=trace_endpos;
+-			ZeBrains(trace_endpos, trace_plane_normal, random(1.3,2), rint(random(1)),random(360));
++			ZeBrains(trace_endpos, trace_plane_normal, random(1.3,2), rint(random(1)),0);
+ 		}
+ 		else
+ 			self.wallspot='0 0 0';
+@@ -317,7 +317,7 @@ vector org;
+ 	{
+ 		if(self.wallspot=='0 0 0')
+ 			self.wallspot=org;
+-		self.pausetime=time+5;//watch splat or body
++//		self.pausetime=time+5;//watch splat or body
+ 	}
+ 
+ 	self.think=PlayerDead;
+diff -urNp siege-0.14/artifact.hc siege-0.15/artifact.hc
+--- siege-0.14/artifact.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/artifact.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -3,22 +3,6 @@
+  */
+ 
+ 
+-/*
+-class 1 - 5
+-weapons 1 - 3
+-rate of fire - seconds between shots
+-accuracy - 0 to 1 * random vector
+-*/
+-
+-float rate_and_acc_for_weap [36] =
+-{
+-	0.3,0,	0.2,0,	2,.33,	//paladin
+-	0.2,0,	0,0,	0,0,	//crusader
+-	0.3,0,	2.5,.2, 0,0,	//necro
+-	0.1,0,	1,0,	3,0,	//assassin
+-	0.1,0,	0.3,0,	1,0.1,	//succubus
+-	0.2,0,	0.1,0,	0,0		//dwarf
+-};
+ 
+ 
+ /*
+@@ -377,7 +361,7 @@ void artifact_touch()
+ 	float scaleVal;
+ 	entity	oldself;
+ 	float oldInv;
+-	string printnum;
++//	string printnum;
+ 
+ 	if(self.artifact_name == STR_TELEPORT&&self.owner!=world)
+ 	{//Thrown teleport coin opens a portal
+@@ -458,17 +442,34 @@ void artifact_touch()
+ 	}
+ 	else if(self.artifact_name  == STR_GRENADES)
+ 	{
+-		if ((other.cnt_grenades + 9) > 45||other.playerclass!=CLASS_SUCCUBUS)
++		if ((other.cnt_grenades + 15) > 45||other.playerclass!=CLASS_SUCCUBUS)
+ 			return;	
+ 		else	
+-			other.cnt_grenades += 9;
++			other.cnt_grenades += 15;
+ 	}
+ 	else if(self.artifact_name  == STR_ARROWS)
+ 	{
+-		if ((other.cnt_arrows + 10) > 100||other.playerclass==CLASS_CRUSADER||other.playerclass==CLASS_DWARF)
++		if ((other.cnt_arrows + 25) > 100||other.playerclass==CLASS_CRUSADER||other.playerclass==CLASS_DWARF)
+ 			return;	
+ 		else	
+-			other.cnt_arrows += 10;
++			other.cnt_arrows += 25;
++	}
++	else if(self.artifact_name  == STR_CLIMB)
++	{
++		if (other.playerclass!=CLASS_ASSASSIN||other.flags2&FL2_WALLCLIMB)
++			return;	
++		other.flags2(+)FL2_WALLCLIMB;
++		other.artifact_active(+)ART_CLIMB;
++		centerprint(other,"You have the climbing boots!\n");
++		sound(other, CHAN_VOICE, "items/artpkup.wav", 1, ATTN_NORM);
++		stuffcmd(other, "bf\n");
++		self.solid = SOLID_NOT;
++		self.model = string_null;
++		thinktime self : 10;
++		self.think = SUB_regen;
++		activator = other;
++		SUB_UseTargets(); // Fire all targets / killtargets
++		return;
+ 	}
+ 	else if(self.classname == "art_sword_and_crown")
+ 	{
+@@ -477,18 +478,13 @@ void artifact_touch()
+ 
+ 		if(other.siege_team==ST_ATTACKER)
+ 		{
+-			sound(other,CHAN_AUTO,"misc/Victory.wav",1,ATTN_NONE);
+-			centerprint(other,"You are victorious!\n");
+ 			bprint(PRINT_HIGH,other.netname);
+ 			bprint(PRINT_HIGH," has captured the ");
+ 			bprint(PRINT_HIGH,self.netname);
+ 			bprint(PRINT_HIGH,"!\n");
+-			KillTeam(ST_DEFENDER);
+-			VictoryPic(WP_ATTCROWN);
+-			printnum=ftos(g_init_timelimit);
+-			cvar_set("timelimit",printnum);
+-			gameover = TRUE;
+-			NextLevel ();
++			centerprint_all_clients("The Crown has been Siezed!!!\n",other);
++			centerprint(other,"You have captured the Crown!\n");
++			end_siege_game (ST_DEFENDER,WP_ATTCROWN);
+ 		}
+ 	}
+ 	else
+@@ -591,14 +587,14 @@ void artifact_touch()
+ 		else
+ 		{
+ 			scaleVal = 2.0 - (numPlayers * .125);
+-			if(scaleVal < 0.2)
++			if(scaleVal < 1)
+ 			{
+-				scaleVal = 0.2;
++				scaleVal = 1;
+ 			}
+ 		}
+ 
+ 		if(self.artifact_name==STR_INVINCIBILITY)
+-			thinktime self : 240;
++			thinktime self : 300;
+ 		else if(self.artifact_name==STR_INVISIBILITY)
+ 			thinktime self : 90*scaleVal;
+ 		else if(self.artifact_name==STR_TORCH)
+@@ -617,7 +613,7 @@ void artifact_touch()
+ 	activator = other;
+ 	SUB_UseTargets(); // Fire all targets / killtargets
+ 
+-	if(!self.artifact_respawn  || self.artifact_name==STR_INVINCIBILITY)/////??????
++	if(!self.artifact_respawn)
+ 	{
+ 		remove(self);
+ 	}
+@@ -692,8 +688,8 @@ void spawn_artifact (float artifact,floa
+ 		GenerateArtifactModel("models/a_invinc.mdl",STR_INVINCIBILITY,respawnflag);
+ 	else if (artifact == ARTIFACT_CUBEOFFORCE)
+ 		GenerateArtifactModel("models/a_cube.mdl",STR_CUBEOFFORCE,respawnflag);
+-	else if (artifact == ARTIFACT_SUMMON)
+-		GenerateArtifactModel("models/a_summon.mdl",STR_SUMMON,respawnflag);
++//	else if (artifact == ARTIFACT_SUMMON)
++//		GenerateArtifactModel("models/a_summon.mdl",STR_SUMMON,respawnflag);
+ 	else if (artifact == ARTIFACT_TOME)
+ 		GenerateArtifactModel("models/a_tome.mdl",STR_TOME,respawnflag);
+ 	else if (artifact == ARTIFACT_TELEPORT)
+@@ -708,6 +704,8 @@ void spawn_artifact (float artifact,floa
+ 		GenerateArtifactModel("models/a_hboost.mdl",STR_HEALTHBOOST,respawnflag);
+ 	else if (artifact == ARTIFACT_SUPER_HP_BOOST)
+ 		GenerateArtifactModel("models/a_shbost.mdl",STR_SUPERHEALTHBOOST,respawnflag);
++	else if (artifact == ARTIFACT_CLIMB)
++		GenerateArtifactModel("models/a_climb.mdl",STR_CLIMB,respawnflag);
+ //	else if (artifact == ARTIFACT_FLIGHT)//what is this artifact supposed to be?!?!?!
+ //		GenerateArtifactModel("models/ringft.mdl",STR_FLIGHT,respawnflag);
+ }
+@@ -867,7 +865,11 @@ void KillTorch()
+ 	if(self.model=="models/a_torch.mdl")
+ 		remove(self);
+ 	else
++	{
+ 		self.cnt_torch	-= 1;
++		if (self.cnt_torch < 0)
++			self.cnt_torch = 0;
++	}
+ }
+ 
+ void DouseTorch()//Never called?!
+@@ -882,7 +884,10 @@ void DimTorch()
+ 	sound (self, CHAN_BODY, "raven/kiltorch.wav", 1, ATTN_IDLE);
+ 
+ 	self.effects(-)EF_TORCHLIGHT;
+-	self.torchtime = time + 7;
++	if(self.classname=="player")
++		self.torchtime = time + 15;
++	else
++		self.torchtime = time + 3;
+ 	self.torchthink = KillTorch;
+ }
+ 
+@@ -891,7 +896,10 @@ void FullTorch()
+ {
+ 	sound (self, CHAN_BODY, "raven/fire1.wav", 1, ATTN_NORM);
+ 	self.effects(+)EF_TORCHLIGHT;
+-	self.torchtime = time + 23;
++	if(self.classname=="player")
++		self.torchtime = time + 45;
++	else
++		self.torchtime = time + 7;
+ 	self.torchthink = DimTorch;
+ }
+ 
+@@ -959,6 +967,8 @@ None
+ */
+ void art_teleport()
+ {
++	remove(self);
++	return;
+ 	spawn_artifact(ARTIFACT_TELEPORT,RESPAWN);
+ }
+ 
+@@ -1079,7 +1089,21 @@ None
+ */
+ void art_invisibility()
+ {
+-	spawn_artifact(ARTIFACT_INVISIBILITY,RESPAWN);
++	self.classname = "Ring_WaterBreathing";
++	Ring_WaterBreathing();
++//	spawn_artifact(ARTIFACT_INVISIBILITY,RESPAWN);
++}
++
++/*QUAKED art_climb (.0 .0 .5) (-8 -8 -44) (8 8 20) FLOATING
++Artifact for wallclimbing
++-------------------------FIELDS-------------------------
++None
++--------------------------------------------------------
++*/
++void art_climb()
++{
++	precache_model("models/a_climb.mdl");
++	spawn_artifact(ARTIFACT_CLIMB,RESPAWN);
+ }
+ 
+ void spawn_art_sword_and_crown(void)
+@@ -1089,7 +1113,7 @@ void spawn_art_sword_and_crown(void)
+ 	if(!self.netname)
+ 		self.netname = "Crown";
+ 	self.touch	 = artifact_touch;
+-	setsize (self, '-8 -8 0', '8 8 16');
++	setsize (self, '-8 -8 0', '8 8 8');
+ 
+ 	StartItem();
+ }
+diff -urNp siege-0.14/assgren.hc siege-0.15/assgren.hc
+--- siege-0.14/assgren.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/assgren.hc	1998-05-16 23:18:30.000000000 +0300
+@@ -43,6 +43,7 @@ void grenade_trail ()
+ 
+ void() ThrowMiniGrenade =
+ {
++		self.cnt_grenades-=1;
+ 		makevectors(self.v_angle);
+ 		sound(self,CHAN_WEAPON,"misc/whoosh.wav",1,ATTN_NORM);
+ entity missile;
+diff -urNp siege-0.14/camera.hc siege-0.15/camera.hc
+--- siege-0.14/camera.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/camera.hc	1998-05-26 00:10:14.000000000 +0300
+@@ -28,7 +28,7 @@ none
+ */
+ void target_null (void)
+ {
+-	self.solid = SOLID_SLIDEBOX;
++	self.solid = SOLID_NOT;
+ 	self.movetype = MOVETYPE_NONE;
+ 
+ 	precache_model ("models/sprites/null.spr");
+@@ -41,7 +41,7 @@ void target_null (void)
+   -----------------------------------------*/
+ void() play_camera =
+ {
+-	sound (self, CHAN_VOICE, "misc/camera.wav", 1, ATTN_NORM);
++//	sound (self, CHAN_VOICE, "misc/camera.wav", 1, ATTN_NORM);
+ 	remove (self);
+ };
+ 
+diff -urNp siege-0.14/cat2.hc siege-0.15/cat2.hc
+--- siege-0.14/cat2.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/cat2.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -188,7 +188,15 @@ void catapult_fire (void)
+ 
+ 				if(found.model=="models/sheep.mdl")
+ 				{
++					if(found.classname!="player")
++					{
+ 						found.velocity=found.velocity*1.3;
++						found.teleport_time+=666;//impact damage forever
++						found.touch=found.th_die;
++						found.enemy = self.enemy;
++						if(found.trigger_field)
++							remove(found.trigger_field);
++					}
+ 					found.avelocity=found.velocity*random(-1,1);
+ 					found.movetype=MOVETYPE_BOUNCE;
+ 					sound(found,CHAN_VOICE,"misc/sheepfly.wav",1,ATTN_NORM);
+diff -urNp siege-0.14/client.hc siege-0.15/client.hc
+--- siege-0.14/client.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/client.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -122,6 +122,8 @@ void ExitIntermission(void)
+ 		other.movetype = MOVETYPE_WALK;
+ 		other.flags(-)FL_NOTARGET;
+ 		other.effects=FALSE;
++		other.skin = other.siege_team = 0;
++		setsiegeteam(other, 0);
+ 		other.weaponmodel=other.lastweapon;
+ 		other = find (other, classname, "player");
+ 	}	
+@@ -154,7 +156,12 @@ When the player presses attack or jump, 
+ void IntermissionThink(void)
+ {
+ 	if (time < intermission_exittime)
++//	{
++//	string printnum;
++//		printnum = ftos(floor(intermission_exittime - time));
++//		centerprint_all_clients(printnum);
+ 		return;
++//	}
+ 
+ 	if (!self.button0 && !self.button1 && !self.button2)
+ 		return;
+@@ -168,7 +175,9 @@ void() execute_changelevel =
+ 	
+ // enforce a wait time before allowing changelevel
+ 
+-	if (deathmatch)
++	if(dmMode==DM_SIEGE)
++		intermission_exittime = time + 30;
++	else if (deathmatch)
+ 		intermission_exittime = time + 5;
+ 	else
+ 		intermission_exittime = time + 2;
+@@ -183,7 +192,7 @@ void() execute_changelevel =
+ 		other.solid = SOLID_NOT;
+ 		other.movetype = MOVETYPE_NONE;
+ 		other.flags(+)FL_NOTARGET;
+-		other.effects=EF_NODRAW|EF_LIGHT;
++//		other.effects=EF_NODRAW|EF_LIGHT;
+ 		other.lastweapon=other.weaponmodel;
+ 		stuffcmd(other,"+showdm\n");
+ 		other = find (other, classname, "player");
+@@ -465,11 +474,18 @@ Player entered the suicide command
+ void() ClientKill =
+ {
+ //entity lastleader,newking;
+-	if(dmMode==DM_SIEGE)
++	if(dmMode==DM_SIEGE&&gamestarted&&self.siege_team)
+ 	{
+-		centerprint(self,"Cannot suicide- playing Siege!\n");
++		centerprint(self,"Can't suicide in Siege once game is begun!\n");// Minimum jail sentence is 3 minutes!\n");
+ 		return;
++//		if(self.jail_time>time)
++//		{
++//			centerprint(self,"Can't suicide- Minimum jail sentence is 3 minutes!\n");
++//			return;
++//		}
+ 	}
++	if(self.flags2&FL2_EXCALIBUR)
++		WriteTeam (SVC_NODOC,self);
+ 
+ 	if (self.last_use_time < time - 10)
+ 	{
+@@ -490,6 +506,87 @@ void() ClientKill =
+ 	}
+ };
+ 
++void go_up ()
++{
++	if(self.level>=1000)
++		remove(self);
++	else
++	{
++		setorigin(self,self.origin+'0 0 25');
++		self.level+=25;
++		self.think = go_up;
++		thinktime self : 0.05;
++	}
++}
++
++void go_smear ()
++{
++	self.cnt+=1;
++	self.think=go_smear;
++	thinktime self : 0.05;
++	if(self.cnt<10)
++		self.angles_y+=random(2,10);
++	else if(self.cnt<30)
++		self.angles_y-=random(2,10);
++	else if(self.cnt<50)
++		self.angles_y+=random(2,10);
++	else if(self.cnt<70)
++		self.angles_y-=random(2,10);
++	else if(self.cnt<80)
++		self.angles_y+=random(2,10);
++	else
++		go_up();
++}
++
++void go_smite ()
++{
++	if(!self.level)
++		go_smear();
++	else if(self.level==50)
++	{
++		self.enemy.deathtype="smitten";
++		T_Damage(self.enemy,self,self,10000);
++		traceline(self.enemy.origin, self.enemy.origin - '0 0 128', TRUE, self);
++		if (trace_fraction < 1&&!trace_ent.flags2&FL_ALIVE&&trace_ent.solid==SOLID_BSP)
++			ZeBrains(trace_endpos, trace_plane_normal, random(1.3,2), rint(random(1)),random(360));
++		setorigin(self,self.enemy.origin+'0 0 1'*self.level);
++		self.level-=25;
++		self.think = go_smite;
++		thinktime self : 0.05;
++	}
++	else
++	{
++		setorigin(self,self.enemy.origin+'0 0 1'*self.level);
++		self.level-=25;
++		self.think = go_smite;
++		thinktime self : 0.05;
++	}
++}
++
++void FingerOfGod ()
++{
++entity finger;
++	finger=spawn();
++	finger.classname="Finger Of God";
++	setmodel(finger,"models/god.mdl");
++	finger.enemy=self;
++	setorigin(finger,self.origin+'0 0 1000');
++	finger.level=1000;
++	finger.think=go_smite;
++	finger.effects = EF_BRIGHTLIGHT;
++	sound(self,CHAN_UPDATE+PHS_OVERRIDE_R,"misc/smite.wav",1,ATTN_NONE);
++	thinktime finger : 0;
++}
++
++void() SmitePlayer =//server doesn't like you!
++{
++	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
++	WriteByte(MSG_MULTICAST, TE_LIGHTNING_HAMMER);
++	WriteEntity(MSG_MULTICAST, self);
++	multicast(self.origin,MULTICAST_PVS);
++	FingerOfGod();
++};
++
+ float(vector v) CheckSpawnPoint =
+ {
+ 	return FALSE;
+@@ -626,6 +723,7 @@ float alive_only_tf;
+ 	self.drawflags=self.abslight=self.effects=0;
+ 	self.flags(+)FL_CLIENT;
+ 	self.flags2(+)FL_ALIVE;
++	self.flags2(-)FL2_WALLCLIMB;
+ 	self.air_finished = time + 12;
+ 	self.dmg = 2;   		// initial water damage
+ 	self.thingtype=THINGTYPE_FLESH;
+@@ -675,7 +773,7 @@ float alive_only_tf;
+ 	self.raven_cnt = 0;
+ 	self.friction=self.gravity=self.standard_grav = 1;
+ 
+-	self.last_use_time = time;
++	self.last_use_time = self.last_time = time;
+ 	
+ 	if(tomeMode == 2)
+ 	{
+@@ -764,6 +862,9 @@ float alive_only_tf;
+ //		if(!fixedLevel)
+ //		{
+ 			self.strength = 0;
++			self.siege_team=0;
++			//this may crash, don't do this for now?
++			setsiegeteam(self, 0);
+ 			stats_NewPlayer(self);
+ //		}
+ 	}
+@@ -915,6 +1016,7 @@ float alive_only_tf;
+ 		self.effects(+)EF_DIMLIGHT;
+ 
+ 	updateSiegeInfo();
++	self.bluemana=self.greenmana=0;
+ };
+ 
+ 
+@@ -999,6 +1101,8 @@ entity spot;
+ 	self.camptime+= TimeDiff;
+ 	self.last_attack= self.attack_finished=0;
+ 
++	self.last_time = time;
++
+ 	self.light_level = 128;		// So the assassin doesn't go invisible coming out of the teleporter
+ 
+ 	self.dmg = 2;   		// initial water damage
+@@ -1043,6 +1147,8 @@ entity spot;
+ 
+ 	self.think=player_frames;
+ 	thinktime self : 0;
++
++	self.bluemana=self.greenmana=0;
+ }
+ 
+ void SetNewParms(void)
+@@ -1173,10 +1279,18 @@ void() NextLevel =
+ 
+ 	gameover = TRUE;
+ 	
+-	if (o.nextthink < time)
++	if(dmMode==DM_SIEGE)
+ 	{
+ 		o.think = execute_changelevel;
+-		thinktime o : 0.1;
++		thinktime o : 7;
++	}
++	else
++	{
++		if (o.nextthink < time)
++		{
++			o.think = execute_changelevel;
++			thinktime o : 0.1;
++		}
+ 	}
+ };
+ 
+@@ -1187,10 +1301,20 @@ CheckRules
+ Exit deathmatch games upon conditions
+ ============
+ */
+-void VictoryPic(float winpic)
++void SendPic ()
+ {
+ 	WriteByte (MSG_ALL, SVC_INTERMISSION);
+-	WriteByte (MSG_ALL, winpic);
++	WriteByte (MSG_ALL, self.level);
++	remove(self);
++}
++
++void VictoryPic(float winpic)
++{
++entity pic_maker;
++	pic_maker=spawn();
++	pic_maker.level=winpic;
++	pic_maker.think = SendPic;
++	thinktime pic_maker :  5;//wait 15 seconds to show win screen
+ }
+ 
+ void KillTeam(float losers)
+@@ -1205,11 +1329,41 @@ entity find_def;
+ 	}
+ }
+ 
++void end_siege_game (float loserteam,float winpic)
++{
++string printnum;
++	gameover=TRUE;
++	if(loserteam==ST_ATTACKER)
++		sound(self,CHAN_UPDATE+PHS_OVERRIDE_R,"misc/victory.wav",1,ATTN_NONE);
++	else
++		sound(self,CHAN_UPDATE+PHS_OVERRIDE_R,"misc/winner.wav",1,ATTN_NONE);
++	if(!g_init_timelimit)
++		g_init_timelimit = 30;
++	printnum=ftos(g_init_timelimit);
++	cvar_set("timelimit",printnum);
++	KillTeam(loserteam);
++	VictoryPic(winpic);
++	NextLevel ();
++}
++
++void centerprint_all_clients (string victory_msg, entity ignore)
++{
++entity found;
++	found=find(world,classname,"player");
++	while(found)
++	{
++		if(found.flags&FL_CLIENT&&found!=ignore)
++			centerprint(found,victory_msg);
++		found=find(found,classname,"player");
++	}
++	dprint(victory_msg);//for server
++}
++
+ void() CheckRules =
+ {
+ float		timelimit;
+ float		fraglimit;
+-string printnum;
++//string printnum;
+ 	
+ 	if (gameover)	// someone else quit the game already
+ 		return;
+@@ -1224,18 +1378,12 @@ string printnum;
+ 	}
+ 
+ 	timelimit*=60;
+-	if (timelimit && time >= timelimit)
++	if (timelimit>0 && time >= timelimit)
+ 	{
+ 		if(dmMode==DM_SIEGE)//Siege
+ 		{
+-			sound(self,CHAN_AUTO,"misc/Victory.wav",1,ATTN_NONE);
+-			bprint(PRINT_HIGH,"The Defenders of The Crown are Victorious!\n");
+-			KillTeam (ST_ATTACKER);
+-			VictoryPic (WP_DEFENDERS);
+-			printnum = ftos(g_init_timelimit);
+-			cvar_set ("timelimit",printnum);
+-			gameover = TRUE;
+-			NextLevel ();
++			centerprint_all_clients("The Defenders of The Crown are Victorious!\n",world);
++			end_siege_game (ST_ATTACKER,WP_DEFENDERS);
+ 			return;
+ 		}
+ 		NextLevel ();
+@@ -1247,26 +1395,14 @@ string printnum;
+ 		{
+ 			if(defLosses>=fraglimit)
+ 			{
+-				sound (self,CHAN_AUTO,"misc/Victory.wav",1,ATTN_NONE);
+-				bprint(PRINT_HIGH, "The Defenders of The Crown have been wiped out!!!\n");
+-				KillTeam (ST_DEFENDER);
+-				VictoryPic (WP_ATTKILL);
+-				printnum = ftos(g_init_timelimit);
+-				cvar_set ("timelimit",printnum);
+-				gameover = TRUE;
+-				NextLevel ();
++				centerprint_all_clients("The Defenders of The Crown have been wiped out!!!\n",world);
++				end_siege_game (ST_DEFENDER,WP_ATTKILL);
+ 				return;
+ 			}
+-			else if(attLosses>=fraglimit*3)
++			else if(attLosses>=fraglimit*2)
+ 			{
+-				sound (self,CHAN_AUTO,"misc/Victory.wav",1,ATTN_NONE);
+-				bprint(PRINT_HIGH, "The Invaders have been wiped out!!!\n");
+-				KillTeam (ST_ATTACKER);
+-				VictoryPic (WP_DEFENDERS);
+-				printnum = ftos(g_init_timelimit);
+-				cvar_set ("timelimit",printnum);
+-				gameover = TRUE;
+-				NextLevel ();
++				centerprint_all_clients("The Invaders have been wiped out!!!\n",world);
++				end_siege_game (ST_ATTACKER,WP_DEFENDERS);
+ 				return;
+ 			}
+ 		}
+@@ -1383,7 +1519,7 @@ vector start, end;
+ void() PlayerJump =
+ {
+ float wall_jump;
+-	if(self.flags&FL_ONGROUND)
++	if(self.flags&FL_ONGROUND&&self.beast_time<time)
+ 	{
+ 		tracearea(self.origin,self.origin-'0 0 3',self.mins,self.maxs,FALSE,self);
+ 		if(trace_ent.classname=="catapult"&&(trace_ent.frame==20||trace_ent.frame>22))
+@@ -1498,15 +1634,17 @@ void() WaterMove =
+ 			if (self.gravity==1)
+ 			{
+ 			float hardfall_dmg;
+-				hardfall_dmg=self.health - (random(5) + 10);
++				hardfall_dmg=self.health - (random(2) + 5);
+ 				if(hardfall_dmg>0)
+ 					T_Damage(self,world,world,hardfall_dmg);
+ 			}
+ 			self.flags2(-)FL2_HARDFALL;
+ 		}
++		self.show_hostile = time + 1;
++		PlayerSpeed_Calc(self);
+ 	}
+ 
+-	if (self.waterlevel != 3) // Not up to the eyes
++	if ((self.waterlevel < 3&&self.hull!=HULL_CROUCH)||self.waterlevel<2) // Not up to the eyes
+ 	{
+ 		if (self.air_finished < time)
+ 		{
+@@ -1533,22 +1671,23 @@ void() WaterMove =
+ 		self.dmg = 2;
+ 	}
+ 	// Completely submerged and no air
+-	else if ((self.air_finished < time) && (!self.rings & RING_WATER))
+-	{
+-		if(self.playerclass==CLASS_PALADIN&&self.flags&FL_SPECIAL_ABILITY1)
++	else if(self.waterlevel >=3 || (self.waterlevel>=2 &&self.hull==HULL_CROUCH)) 
++		if ((self.air_finished < time) && (!self.rings & RING_WATER))
+ 		{
+-			self.air_finished = time + 12;
+-			self.dmg = 2;
+-		}
+-		else if (self.pain_finished < time)
+-		{// Drown
+-			self.dmg = self.dmg + 2;
+-			if (self.dmg > 15)
+-				self.dmg = 10;
+-			T_Damage (self, world, world, self.dmg);
+-			self.pain_finished = time + 1;
++			if(self.playerclass==CLASS_PALADIN&&self.flags&FL_SPECIAL_ABILITY1)
++			{
++				self.air_finished = time + 12;
++				self.dmg = 2;
++			}
++			else if (self.pain_finished < time)
++			{// Drown
++				self.dmg = self.dmg + 2;
++				if (self.dmg > 15)
++					self.dmg = 10;
++				T_Damage (self, world, world, self.dmg);
++				self.pain_finished = time + 1;
++			}
+ 		}
+-	}
+ 	
+ 	if (!self.waterlevel)
+ 	{  // Getting out of the water
+@@ -1592,8 +1731,8 @@ void() WaterMove =
+ 		{
+ 			sound (self, CHAN_BODY, "raven/inh2o.wav", 1, ATTN_NORM);
+ 		}
+-		else if (self.watertype == CONTENT_SLIME)
+-			sound (self, CHAN_BODY, "player/slimbrn1.wav", 1, ATTN_NORM);
++//		else if (self.watertype == CONTENT_SLIME)
++//			sound (self, CHAN_BODY, "player/slimbrn1.wav", 1, ATTN_NORM);
+ 
+ 		self.flags(+)FL_INWATER;
+ 		self.dmgtime = 0;
+@@ -1760,16 +1899,16 @@ void Climb ()
+ {
+ vector spot;
+ 	makevectors (self.v_angle);
+-	if(self.flags&FL_ONGROUND)
++	if(self.flags&FL_ONGROUND || (self.climbing && (vlen(self.climbspot - (self.origin + self.view_ofs)) > 64)))
+ 	{
+ 		ClimbDrop();
+ 		return;
+ 	}
+ 
+     spot=self.origin+self.view_ofs;
+-	traceline(spot,spot+v_forward*48,FALSE,self);
++	traceline(spot,spot+v_forward*64,FALSE,self);
+ 	if(trace_ent.solid==SOLID_BSP)
+-		if(trace_fraction<1)
++		if(trace_fraction<1&&!trace_inwater)
+ 		{
+ 			if(trace_plane_normal_z<0.5)
+ 				if(trace_plane_normal_z>-0.1)
+@@ -1794,8 +1933,13 @@ vector spot;
+ 					self.climbspot=trace_endpos;
+ 					self.last_climb=time;
+ 				}
+-				else
++				else if(random()<0.2)
+ 					ClimbDrop();
++				else//give them a few chances to try to grab another surface
++				{
++					sound (self, CHAN_VOICE,"player/assjmp.wav", 1, ATTN_NORM);
++					self.last_climb=time - 1;
++				}
+ 		}
+ 	self.button2=0;
+ }
+@@ -1838,24 +1982,39 @@ void CheckSniperBow ()
+ 			}
+ 	}
+ 
+-	if(self.playerclass!=CLASS_ASSASSIN&&self.playerclass!=CLASS_PALADIN&&self.playerclass!=CLASS_DWARF)
++	if(self.puzzle_inv1!=g_keyname)//key carrier can't regen mana
+ 	{
+-	float t_interval;
+-		t_interval=(time-self.last_time)/2;
+-		if (self.playerclass == CLASS_CRUSADER)
+-		{
+-			if (self.bluemana < self.max_mana + t_interval)
+-				self.bluemana += t_interval;
+-		}
+-		else
+-		{
+-			if (self.greenmana < self.max_mana + t_interval)
+-				self.greenmana += t_interval;
+-		}
+-		self.last_time = time;
++		if(self.siege_team&&gamestarted)
++			if(self.playerclass!=CLASS_ASSASSIN&&self.playerclass!=CLASS_PALADIN&&self.playerclass!=CLASS_DWARF&&self.beast_time<time)
++			{
++			float t_interval;
++				t_interval=(time-self.last_time);
++				if(t_interval>=1)
++				{
++					switch(self.playerclass)
++					{
++					case CLASS_CRUSADER:
++						self.bluemana+=t_interval/2;
++						if(self.bluemana>self.max_mana)
++							self.bluemana=self.max_mana;
++						break;
++					case CLASS_NECROMANCER:
++						self.greenmana+=t_interval/2;
++						if(self.greenmana>self.max_mana)
++							self.greenmana=self.max_mana;
++						break;
++					case CLASS_SUCCUBUS:
++						self.greenmana+=t_interval/4;
++						if(self.greenmana>self.max_mana)
++							self.greenmana=self.max_mana;
++						break;
++					}
++
++					self.last_time=time;
++				}
++			}
+ 	}
+ }
+-
+ /*
+ ================
+ PlayerPreThink
+@@ -2089,12 +2248,12 @@ void CheckRings (void)
+ 	{	
+ 		if (self.ring_flight_time < time)
+ 		{
+-			self.ring_flight -= 100/RING_FLIGHT_MAX;
++			self.ring_flight -= 1;
+ 
+-			if ((self.ring_flight < 25)  && (!self.rings_low & RING_FLIGHT))
++			if ((self.ring_flight < 5)  && (!self.rings_low & RING_FLIGHT))
+ 			{
+ 				self.rings_low (+) RING_FLIGHT;
+-				centerprint (self, "Ring of Flight is running low");
++				centerprint (self, "Flight spell is running low");
+ 				sound (self, CHAN_BODY, "misc/comm.wav", 1, ATTN_NORM);
+ 			}
+ 
+@@ -2104,8 +2263,8 @@ void CheckRings (void)
+ 				self.rings (-) RING_FLIGHT;
+ 				self.rings_active (-) RING_FLIGHT;
+ 				player_stopfly();
+-				if (deathmatch)
+-					self.cnt_flight -= 1;
++//				if (deathmatch)
++//					self.cnt_flight -= 1;
+ 			}
+ 			self.ring_flight_time = time + 1;
+ 		}
+@@ -2269,6 +2428,11 @@ void() CheckPowerups =
+ 
+ 	if (self.artifact_active & ART_INVINCIBILITY)
+ 	{
++		if(self.bluemana>3||self.greenmana>3)
++		{
++			dprint("Error!  Player started with mana!!!\n");
++			self.bluemana=self.greenmana=0;
++		}
+ 		if (self.invincible_time < time)
+ 			remove_invincibility(self);
+ 		else if ((self.invincible_time - 10) < time)
+@@ -2323,6 +2487,8 @@ void() CheckPowerups =
+ 			WriteByte(MSG_ONE, SVC_CLEAR_VIEW_FLAGS);
+ 			WriteByte(MSG_ONE,DRF_TRANSLUCENT);
+ 			self.effects(-)EF_NODRAW|EF_LIGHT;
++			self.skin=self.oldskin;
++			self.drawflags(-)DRF_TRANSLUCENT;
+ 		}
+ 		else
+ 		{
+@@ -2413,7 +2579,7 @@ void PlayerTouch (void)
+ {
+ 
+ 	if(self.effects & EF_ONFIRE)
+-		if(random()<self.fire_damage/20)
++		if(random()<self.fire_damage/100)
+ 			if(flammable(other))
+ 			{
+ 				if(other.effects&EF_ONFIRE)
+@@ -2423,77 +2589,14 @@ void PlayerTouch (void)
+ 					else if(other.fire_damage>self.fire_damage)
+ 						self.fire_damage+=1;
+ 				}
+-				else
++				else if(random()<self.fire_damage/100)
+ 					spawn_burner(other,FALSE);
++				else
++					T_Damage(other,self,self,random(self.fire_damage)+0.1);
+ 			}
+ 
+ 	if(self.model=="models/yakman.mdl")
+-	{
+-	    if(self.attack_finished>time)
+ 		return;
+-
+-	    if(self.act_state!=ACT_ATTACK&&self.act_state!=ACT_RUN)
+-		return;
+-	    else
+-	    {
+-		if (!other.takedamage)
+-		    return;
+-		else
+-		{
+-		   if ((!infront(other) && other.solid != SOLID_BSP) || other.safe_time > time)
+-			return;
+-		   else
+-		   {
+-		      if (other.absmin_z > self.absmax_z - 6 || other.absmax_z < self.origin_z - 24)
+-			return;
+-		      else {
+-		      float inertia,do_damage;
+-		      vector punchdir,meat_spot,throwdir;
+-			sound(self,CHAN_BODY,"yakman/slam.wav",1,ATTN_NORM);
+-			sound(self,CHAN_VOICE,"yakman/grunt.wav",1,ATTN_NORM);
+-
+-			if(self.act_state==ACT_RUN)
+-				do_damage=150+random(150);
+-			else if(self.act_state==ACT_ATTACK)
+-			{
+-				do_damage=400+random(300);
+-				self.attack_finished=time+1;
+-				self.act_state=ACT_YAK_HIT;
+-			}
+-
+-			if(other.mass<10)
+-				inertia=1;
+-			else
+-				inertia=other.mass/10;
+-
+-			makevectors(self.angles);
+-			punchdir=v_forward*300+'0 0 300';
+-			if(other.thingtype==THINGTYPE_FLESH)
+-			{
+-				meat_spot=other.origin;
+-				meat_spot_z=other.origin_z+50;
+-				MeatChunks (meat_spot,v_right*random(-200,200)+'0 0 200',3,other);
+-				MeatChunks (meat_spot,v_right*random(-200,200)+'0 0 200',3,other);
+-				MeatChunks (meat_spot,v_right*random(-200,200)+'0 0 200',3,other);
+-				SpawnPuff (meat_spot, '0 0 0', 20,other);
+-			}
+-			if(other.solid!=SOLID_BSP&&other.movetype)
+-			{
+-				throwdir=punchdir*(1/inertia);
+-				if(other.velocity_z<throwdir_z)
+-					other.velocity_z=throwdir_z;//so you don't throw them too high
+-				other.velocity_x+=throwdir_x;
+-				other.velocity_y+=throwdir_y;
+-				other.flags(-)FL_ONGROUND;
+-			}
+-			other.safe_time=time+.1;//So can't kill them instantly if they're moving against him or pinned on a wall
+-			T_Damage(other,self,self,do_damage);
+-		     }
+-		   }
+-		}
+-	    }
+-	    return;
+-	}
+ 	if(other.classname=="monster_eidolon")
+ 		return;
+ 	if(self.playerclass==CLASS_NECROMANCER)
+@@ -2621,6 +2724,8 @@ void() PlayerPostThink =
+ // check to see if player landed and play landing sound	
+ 	if ((self.jump_flag*(self.mass/10) < -300) && self.flags & FL_ONGROUND && self.health > 0)
+ 	{
++				if(self.beast_time<time)
++				{
+ 					if(self.absorb_time>=time||self.playerclass==CLASS_DWARF)
+ 						self.jump_flag/=2;
+ 					if (self.watertype == CONTENT_WATER)
+@@ -2640,18 +2745,18 @@ void() PlayerPostThink =
+ 					}
+ 					else
+ 						sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
+-
++				}
+ 				if(self.scale>1&&self.jump_flag*(self.mass/10) < -500)
+-					MonsterQuake((self.mass/1000)*self.jump_flag);
++					MonsterQuake((self.mass/500)*self.jump_flag);
+ 
+ 		self.jump_flag=0;
+ 
+ 		if(self.flags2&FL2_HARDFALL)
+ 		{
+-			if(self.gravity==1)
++			if(self.gravity==1 && self.beast_time<time)
+ 			{
+ 			float hardfall_dmg;
+-				hardfall_dmg=self.health - (random(5) + 5);
++				hardfall_dmg=self.health - (random(2) + 5);
+ 				if(hardfall_dmg>0)
+ 					T_Damage(self,world,world,hardfall_dmg);
+ 			}
+@@ -2808,22 +2913,9 @@ void(entity targ, entity attacker, entit
+ 	if (targ.classname != "player")
+ 		return;
+ 
+-	if(dmMode==DM_SIEGE)
++	if(self.deathtype=="smitten")
+ 	{
+-		if(targ.siege_team==ST_DEFENDER)//Siege- defender died
+-			defLosses+=1;
+-		else if(targ.siege_team==ST_ATTACKER)//Siege- attacker died
+-			attLosses+=1;
+-	}
+-
+-	if(targ.frozen>0&&targ.credit_enemy!=world)
+-	{//Give credit to freezer
+-		selectprint (PRINT_MEDIUM, targ.netname);
+-		selectprinti (PRINT_MEDIUM, STR_GOTDEEPFREEZE);
+-		selectprint (PRINT_MEDIUM, targ.credit_enemy.netname);
+-		selectprint (PRINT_MEDIUM, "\n");
+-		exp_mult = 1;
+-		targ.credit_enemy.frags+=1;
++		centerprint(self,"GOD Has Stricken You Down!\n");
+ 		return;
+ 	}
+ 
+@@ -2840,8 +2932,6 @@ void(entity targ, entity attacker, entit
+ 		selectprinti (PRINT_MEDIUM, STR_WASTELEFRAGGEDBY);
+ 		selectprint (PRINT_MEDIUM, attacker.netname);//this guy might be freshly spawned.
+ 		selectprint (PRINT_MEDIUM, "\n");
+-
+-		attacker.frags += 1;
+ 		return;
+ 	}
+ 
+@@ -2850,8 +2940,6 @@ void(entity targ, entity attacker, entit
+ 		selectprint (PRINT_MEDIUM, "The power of invincibility reflects ");
+ 		selectprint (PRINT_MEDIUM, targ.netname);
+ 		selectprint (PRINT_MEDIUM, "'s telefrag\n");
+-
+-		targ.frags -= 1;
+ 		return;
+ 	}
+ 
+@@ -2861,8 +2949,6 @@ void(entity targ, entity attacker, entit
+ 		selectprint (PRINT_MEDIUM, " telefragged ");
+ 		selectprintname (PRINT_MEDIUM, targ);
+ 		selectprint (PRINT_MEDIUM, ", thier own teammate!\n");
+-
+-		attacker.frags -= 1;
+ 		return;
+ 	}
+ 
+@@ -2875,10 +2961,17 @@ void(entity targ, entity attacker, entit
+ 			selectprint (PRINT_MEDIUM, targ.netname);
+ 			selectprint (PRINT_MEDIUM, "'s invincibility and mutual annihilation resulted!\n");
+ 		}
+-		targ.frags -= 1;
+ 		return;
+ 	}
+ 
++	if(dmMode==DM_SIEGE)
++	{
++		if(targ.siege_team==ST_DEFENDER)//Siege- defender died
++			defLosses+=1;
++		else if(targ.siege_team==ST_ATTACKER)//Siege- attacker died
++			attLosses+=1;
++	}
++
+ 	if (attacker.classname == "player")
+ 	{
+ 		if (targ == attacker)
+@@ -2991,8 +3084,16 @@ void(entity targ, entity attacker, entit
+ 			}
+ 			else if (iclass == "barrel")
+ 			{
++				if(self.frags)
++				{//blown up by ballista
++					deathstring =STR_BLOWNUP;
++					deathstring2 =STR_BALLISTA;
++				}
++				else
++				{
+ 					deathstring =STR_BLOWNUP;
+ 					deathstring2 =STR_CRACKSHOT;
++				}
+ 			}
+ 			else if (iclass == "balbolt")
+ 			{
+@@ -3151,6 +3252,7 @@ void(entity targ, entity attacker, entit
+ 				}
+ 				else if(aclass==CLASS_SUCCUBUS)
+ 				{
++					reversed=TRUE;
+ 					deathstring = STR_OPENEDWHOOPASS;
+ 					deathstring2 = STR_EXCLAMRETURN;//HEY STEVE!! DON'T RE-ENTER ME IN STRING LIST!!!!
+ 				}
+@@ -3244,10 +3346,7 @@ void(entity targ, entity attacker, entit
+ 				else
+ 					selectprint (PRINT_MEDIUM, " is helpless in the face of the Medusa's beauty!\n");
+ 			if (attacker.classname == "monster_mezzoman")
+-				if (attacker.skin==1)
+-					selectprint (PRINT_MEDIUM, " is not yet worthy of facing the WerePanther!\n");
+-				else
+-					selectprint (PRINT_MEDIUM, " is no match for the WereJaguar!\n");
++				selectprint (PRINT_MEDIUM, " is not yet worthy of facing the WereTiger!\n");
+ 			if (attacker.classname == "monster_mummy")
+ 				selectprint (PRINT_MEDIUM, " got mummified!\n");
+ 			if (attacker.classname == "monster_mummy_lord")
+@@ -3301,6 +3400,11 @@ void(entity targ, entity attacker, entit
+ 		}
+ 
+ 		// tricks and traps
++		if(iclass=="solid wall")
++		{
++			selectprint(PRINT_MEDIUM, " was skewered on a spike!\n");
++			return;
++		}
+ 		if(targ.decap==1)
+ 		{
+ 			if(targ.playerclass==CLASS_ASSASSIN||targ.playerclass==CLASS_SUCCUBUS)
+diff -urNp siege-0.14/combat.hc siege-0.15/combat.hc
+--- siege-0.14/combat.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/combat.hc	1998-05-25 22:00:38.000000000 +0300
+@@ -46,7 +46,7 @@ void FireMelee (float damage_base,float 
+ {
+ 	vector	source;
+ 	vector	org;
+-	float damg, backstab;
++	float damg;//, backstab;
+ 	float chance,point_chance;
+ 
+ 	makevectors (self.v_angle);
+@@ -87,18 +87,35 @@ void FireMelee (float damage_base,float 
+ 			else
+ 				damage_base*=1.2;
+ 
+-		if(trace_ent.flags2&FL_ALIVE&&!infront_of_ent(self,trace_ent)&&self.playerclass==CLASS_ASSASSIN&&self.weapon==IT_WEAPON1&&random(1,10)<self.level)
++
++/*		if(trace_ent.flags2&FL_ALIVE&&self.playerclass==CLASS_ASSASSIN)//!fov(self,trace_ent,90)
+ 		{
+-			CreateRedFlash(trace_endpos);
+-			damage_base*=random(2.5,4);
+-			backstab=TRUE;
+-		}
++		vector t_vf,m_vf;
++			makevectors(trace_ent.angles);
++			t_vf = v_forward;
++			makevectors(self.angles);
++			m_vf = v_forward;
++			makevectors(self.v_angle);
++			if(t_vf*m_vf>0.5)//facing generally the same direction
++			{
++				CreateRedFlash(trace_endpos);
++				damage_base=trace_ent.health*random(0.75,1.2);
++				if(damage_base>100)
++					damage_base = 100;
++				backstab=TRUE;
++			}
++		}*/
+ 
+ 		damg = random(damage_mod+damage_base,damage_base);
+ 		SpawnPuff (org, '0 0 0', damg,trace_ent);
+ 		T_Damage (trace_ent, self, self, damg);
+-		if(!trace_ent.flags2&FL_ALIVE&&backstab)
+-			centerprint(self,"Critical Hit Backstab!\n");
++/*		if(backstab)
++		{
++			if(!trace_ent.flags2&FL_ALIVE)
++				centerprint(self,"Critical Hit Backstab!\n");
++			else
++				centerprint(self,"Backstab!\n");
++		}*/
+ 
+ 		if(trace_ent.thingtype==THINGTYPE_FLESH)
+ 			sound (self, CHAN_WEAPON, "weapons/slash.wav", 1, ATTN_NORM);
+diff -urNp siege-0.14/constant.hc siege-0.15/constant.hc
+--- siege-0.14/constant.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/constant.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -55,8 +55,12 @@ float FL_CHAINED				= 2048;		//Held by c
+ float FL2_CROUCHED				= 4096;
+ float FL2_CROUCH_TOGGLE			= 8192;
+ float FL2_FIRERESIST			= 16384;	// resistant to fire and heat and lava
++float FL2_WALLCLIMB				= 32768;	// can climb walls
+ float FL2_EXCALIBUR				= 65536;	// Using excalibur
++float FL2_REPLACEMENT			= 131072;	// replacement throne rrom key
+ float FL2_POISONED				= 262144;	// healed by freezing
++float FL2_HASKEY				= 524288;
++float FL2_PARRIED				= 1048576;
+ float FL2_ONFIRE				= 4194304;  // on fire
+ 
+ // edict.drawflags
+@@ -67,7 +71,8 @@ float MLS_FULLBRIGHT		= 1;
+ float MLS_POWERMODE			= 2;
+ float MLS_TORCH				= 3;
+ float MLS_FIREFLICKER		= 4;
+-float MLS_CRYSTALGOLEM		= 5;
++float MLS_INVIS				= 5;
++//float MLS_INVIS				= 6;
+ float MLS_ABSLIGHT			= 7;
+ float SCALE_TYPE_MASKIN		= 24;
+ float SCALE_TYPE_MASKOUT	= 231;
+@@ -205,6 +210,7 @@ float ARTIFACT_CUBEOFFORCE				= 14;
+ float ARTIFACT_INVINCIBILITY			= 15;
+ float ARTIFACT_ARROWS					= 16;
+ float ARTIFACT_GRENADES					= 17;
++float ARTIFACT_CLIMB					= 18;
+ 
+ 
+ // Use ring flags to show which rings hero carries
+@@ -224,6 +230,7 @@ float ART_INVISIBILITY				= 8;
+ float ARTFLAG_FROZEN				= 16;	// 32
+ float ARTFLAG_STONED				= 32;	// 64
+ float ARTFLAG_DIVINE_INTERVENTION	= 64;	// 128
++float ART_CLIMB						= 128;	// 256
+ 
+ 
+ // Gobal skin textures
+@@ -790,3 +797,9 @@ float WP_ATTCROWN				= 11;//Attackers ca
+ float WP_ATTKILL				= 12;//Attackers wipe out defenders
+ 
+ float MAX_CLASS					= 6;//Dwarf
++
++//Siege
++float SVC_HASKEY				= 79;  // [byte] [byte]
++float SVC_NONEHASKEY			= 80;  // [byte] [byte]
++float SVC_ISDOC					= 81;  // [byte] [byte]
++float SVC_NODOC					= 82;  // [byte] [byte]
+diff -urNp siege-0.14/crossbow.hc siege-0.15/crossbow.hc
+--- siege-0.14/crossbow.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/crossbow.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -159,8 +159,8 @@ void() CB_BoltHit=
+ 	if(other==self.owner||(other.owner==self.owner&&other.classname==self.classname))
+ 	    return;
+ 
+-vector stickdir, stickspot,center;
+-float rad,stick,hitdmg;
++vector stickdir, stickspot,center,hitspot;
++float rad,stick,hitdmg,skiprest,headdist;
+ 		v_forward=normalize(self.velocity);
+ 		hitdmg=(vlen(self.velocity) - 600)/10;
+ 		if(hitdmg<5)
+@@ -188,10 +188,32 @@ float rad,stick,hitdmg;
+ 
+ 		if(other.takedamage)
+ 		{
+-			if(self.classname=="bolt")
+-				T_Damage(other,self,self.owner,hitdmg);
+-			else
+-				T_Damage(other,self,self.owner,3);
++			if(other.solid!=SOLID_BSP)
++				if(self.frags)
++					if(flammable(other))
++						spawn_burner(other,FALSE);
++
++			if(other.flags2&FL_ALIVE&&other.classname!="player_sheep")
++			{
++				headdist=vlen(other.origin+other.view_ofs - self.origin);
++				hitspot=self.origin+v_forward*headdist;
++				if(vlen(hitspot-self.origin)<10)//head shot, instant kill
++				{
++					T_Damage(other,self,self.owner,other.health+30);
++					skiprest=TRUE;
++				}
++			}
++
++			if(!skiprest)
++				if(self.classname=="bolt")
++				{
++					if(other.thingtype==THINGTYPE_FLESH||other.classname=="barrel")
++						T_Damage(other,self,self.owner,hitdmg);
++					else
++						T_Damage(other,self,self.owner,random(2,5));
++				}
++				else
++					T_Damage(other,self,self.owner,3);
+ 			SpawnPuff(self.origin+v_forward*8,'0 0 0'-v_forward*24,10,other);
+ 			if(other.solid!=SOLID_BSP)
+ 			{
+@@ -217,9 +239,6 @@ float rad,stick,hitdmg;
+ 						stick=FALSE;
+ 				}
+ 				self.wait=time + random(0.1,2);
+-				if(self.frags)
+-					if(flammable(other))
+-						spawn_burner(other,FALSE);
+ 			}
+ 		}
+ 		else
+@@ -355,10 +374,24 @@ vector v_offset;
+ //			offset*=.333;
+ 		if(powered_up)
+ 		{
++			if(self.torchtime>time)
++			{
+ 				missile.frags=TRUE;
+ 				missile.thingtype=THINGTYPE_METAL;
+ 				setmodel(missile,"models/flaming.mdl");
+ 				missile.speed=random(1100,1400);
++				missile.classname="flarrow";
++				missile.drawflags(+)MLS_ABSLIGHT|MLS_FIREFLICKER;
++				missile.abslight = .75;
++			}
++	        else
++			{
++				missile.classname="bolt";
++				missile.thingtype=THINGTYPE_WOOD_METAL;
++				setmodel(missile,"models/arrow.mdl");
++				speed_mod=melee_dmg_mod_for_strength (self.strength);
++				missile.speed=random(1100,1400);
++			}
+ 		}
+ 		else
+ 		{
+diff -urNp siege-0.14/damage.hc siege-0.15/damage.hc
+--- siege-0.14/damage.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/damage.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -106,8 +106,16 @@ void burner_think ()
+ 		//sound(self.enemy,CHAN_BODY,"raven/fire1.wav",1,ATTN_NORM);
+ 
+ 		thinktime self : random(0.5);
+-
++		if(self.enemy.playerclass==CLASS_SUCCUBUS)
++		{//healed by fire!
++			self.enemy.health+=(self.enemy.fire_damage+ random(1))/4;
++			if(self.enemy.health>self.enemy.max_health)
++				self.enemy.health=self.enemy.max_health;
++		}
++		else
++		{
+ 			T_Damage(self.enemy,self,self.owner,self.enemy.fire_damage + random(1));
++		}
+ 	}
+ }
+ 
+@@ -152,8 +160,10 @@ void spawn_burner (entity loser,float gf
+ 		burner.frags=TRUE;//Water has no effect!  Yer screwed, pal!
+ 		burner.lifetime=time+random(10)+20;
+ 	}
+-	else
++	else if(self.classname=="flarrow")
+ 		burner.lifetime=time+random(5)+5;
++	else
++		burner.lifetime=time+random(3)+3;
+ //	if(burner.enemy.thingtype!=THINGTYPE_FLESH)
+ //		burner.enemy.fire_damage/=2;
+ 	sound (burner.enemy, CHAN_AUTO, "misc/combust.wav", 1, ATTN_NORM);
+@@ -338,6 +348,16 @@ float was_alive;
+ 		}
+ 
+ 	was_alive = self.flags2&FL_ALIVE;
++	if(self.flags2&FL2_EXCALIBUR)
++	{
++		WriteTeam (SVC_NODOC,self);
++		WriteByte (MSG_ALL, SVC_MIDI_NAME);
++		WriteString (MSG_ALL, "");//stops midi
++		if(!gameover)
++			centerprint_all_clients("The Defender of the Crown has been killed!\n",world);
++		dprint(attacker.netname);
++		dprint(" killed the defender of the crown\n");
++	}
+ 
+ 	self.flags2(-)FL_ALIVE|FL2_EXCALIBUR|FL2_HARDFALL;
+ 	self.touch = self.th_pain = SUB_Null;
+@@ -356,29 +376,34 @@ float was_alive;
+ 		}
+ 	}
+ 
++	if(self.classname=="barrel")
++		if(inflictor.classname=="balbolt")
++			self.frags = TRUE;
++
+ 	//Check for decapitation death
+ 	self.movedir='0 0 0';
+-	if(attacker.flags2&FL2_EXCALIBUR&&self.classname=="player")
++	if(attacker.beast_time>time)
++		self.decap=FALSE;
++	else if((attacker.flags2&FL2_EXCALIBUR&&self.classname=="player")||(attacker.classname=="monster_mezzoman"&&random()<0.3))
+ 	{
+ 		self.decap=TRUE;
+ 		if(self.health<-20)
+ 			self.health=-20;
+ 	}
+-
+-	if(self.model!="models/sheep.mdl"&&self.deathtype!="teledeath"&&self.deathtype!="teledeath2"&&self.deathtype!="teledeath3"&&self.deathtype != "teledeath4")
++	else if(self.model!="models/sheep.mdl"&&self.deathtype!="teledeath"&&self.deathtype!="teledeath2"&&self.deathtype!="teledeath3"&&self.deathtype != "teledeath4")
+ 		if
+ 		(inflictor.classname=="ax_blade"||
+ 			(inflictor.classname=="player"&&
+ 				(
+-					(attacker.playerclass==CLASS_ASSASSIN&&attacker.weapon==IT_WEAPON1)||
++//					(attacker.playerclass==CLASS_ASSASSIN&&attacker.weapon==IT_WEAPON1)||
+ 					(attacker.playerclass==CLASS_PALADIN&&attacker.weapon!=IT_WEAPON3)||
+ 					(attacker.playerclass==CLASS_NECROMANCER&&attacker.weapon==IT_WEAPON1)||
+ 					(attacker.playerclass==CLASS_SUCCUBUS&&attacker.weapon==IT_WEAPON2)||
+-					(attacker.playerclass==CLASS_DWARF&&attacker.weapon==IT_WEAPON2&&targ.hull==HULL_CROUCH)
++					(attacker.playerclass==CLASS_DWARF&&attacker.view_ofs_z>=targ.proj_ofs_z)
+ 				)
+ 			)
+ 		)
+-			if(random()<0.3)
++			if(attacker.playerclass==CLASS_DWARF&&attacker.weapon==IT_WEAPON3)
+ 				self.decap=2;
+ 			else
+ 				self.decap=TRUE;
+@@ -439,8 +464,12 @@ float was_alive;
+ 	if(pointcontents(self.origin+self.view_ofs)==CONTENT_WATER)
+ 		DeathBubbles(20);
+ 
+-	if(attacker.classname=="rider_death")
+-		spawn_ghost(attacker);
++//	if(attacker.classname=="rider_death")
++//		spawn_ghost(attacker);
++
++	self.beast_time=0;
++	if(self.classname=="player_sheep")
++		self.enemy=attacker;
+ 
+ 	if(oself!=targ)
+ 	{
+@@ -469,15 +498,17 @@ float was_alive;
+ 
+ void monster_pissed (entity attacker)
+ {
+-entity found;
++	if(attacker.siege_team==self.siege_team)
++		return;
++
+ 	if(self.controller.classname=="player")
+ 	{//Summoned/controlled monsters
+ 		if(coop)
+-			if(found.classname=="player")
++			if(attacker.classname=="player")
+ 				return;
+ 
+ 		if(deathmatch&&teamplay)
+-			if((found.team==self.controller.team)||(found.siege_team==self.controller.siege_team))
++			if((attacker.team==self.controller.team)||(attacker.siege_team==self.controller.siege_team))
+ 				return;
+ 	}
+ 
+@@ -637,11 +668,20 @@ float r;
+ 
+ 	r=random();
+ 	if(r<0.33)
++	{
++		ent1.effects(+)EF_MUZZLEFLASH;
+ 		sound (ent1, CHAN_AUTO, "weapons/met2met.wav", 1, ATTN_NORM);
++	}
+ 	else if(r<0.66)
+-		sound(ent2,CHAN_BODY,"weapons/hitwall.wav",0.5,ATTN_NORM);
++	{
++		ent2.effects(+)EF_MUZZLEFLASH;
++		sound(ent2,CHAN_AUTO,"weapons/hitwall.wav",0.5,ATTN_NORM);
++	}
+ 	else
+-		sound(ent1,CHAN_BODY,"paladin/axric1.wav",0.75,ATTN_NORM);
++	{
++		ent1.effects(+)EF_MUZZLEFLASH;
++		sound(ent1,CHAN_AUTO,"paladin/axric1.wav",0.75,ATTN_NORM);
++	}
+ 
+ 	r=random();
+ 	if(r<0.33)
+@@ -698,10 +738,17 @@ float	save;
+ float	total_damage,do_mod;//,hurt_exp_award;
+ float armor_damage;//,alt_award;
+ entity holdent;//,lastleader,newking;
++float wrath;
+ 
+ 	if (!targ.takedamage)
+ 		return;
+ 
++	if(attacker.flags2&FL2_PARRIED)
++	{
++		attacker.flags2(-)FL2_PARRIED;
++		return;
++	}
++
+ 	if(targ.invincible_time>time)
+ 	{
+ 		sound(targ,CHAN_ITEM,"misc/pulse.wav",1,ATTN_NORM);
+@@ -767,6 +814,7 @@ entity holdent;//,lastleader,newking;
+ 							if(fov(attacker,targ,20))
+ 							{
+ 								MeleeSpark(attacker,targ);
++								targ.flags2(+)FL2_PARRIED;
+ 								return;
+ 							}
+ 
+@@ -805,8 +853,6 @@ entity holdent;//,lastleader,newking;
+ 
+ 	if(targ.flags2&FL2_EXCALIBUR)
+ 		damage*=random(.2)+ 0.2;//20% - 40% damage to excalibur holder
+-	if(attacker.flags2&FL2_EXCALIBUR)
+-		damage*=random(2)+ 3;
+ 
+ /*	if(attacker.classname=="player"&&deathmatch)
+ 	{	// adjust damage based on the level of the player
+@@ -846,7 +892,10 @@ entity holdent;//,lastleader,newking;
+ 	// Calculating Damage to a player
+ 	if (targ.classname == "player"&&!targ.flags2&FL2_HARDFALL)
+ 	{	// How much armor does he have
+-		armor_damage = armor_calc(targ,damage);
++		if(inflictor.classname=="balbolt"&&targ.playerclass!=CLASS_DWARF)
++			armor_damage = 0;
++		else
++			armor_damage = armor_calc(targ,damage);
+ 
+ 		// What hits player
+ 		total_damage = damage - armor_damage;
+@@ -895,7 +944,16 @@ entity holdent;//,lastleader,newking;
+ 		}
+ 	}
+ 
+-			if ((targ.health <= 0) && (targ.classname == "player") && (targ.playerclass == CLASS_PALADIN))
++	if(self.deathtype!="smitten")//nothing stops the REAL GOD (server)
++	{
++		// Check to see if divine intervention took place			
++		if(attacker.playerclass==CLASS_CRUSADER&&attacker.weapon==IT_WEAPON8)//divine intervention
++			wrath=TRUE;
++		else
++			wrath=FALSE;
++
++		if(!wrath||(wrath&&random()<0.3&&targ==attacker))//30 % chance to allow possibility of saving caster from wrath, no others may be spared
++			if ((targ.health <= 0) && (targ.classname == "player") && (targ.playerclass == CLASS_CRUSADER))
+ 			{
+ 				holdent = self;
+ 				self = targ;	
+@@ -907,7 +965,12 @@ entity holdent;//,lastleader,newking;
+ 				}
+ 				self = holdent;
+ 			}
++	}
++
+ 
++	if(targ.classname=="monster_imp_lord")
++		if(targ.controller)
++			T_Damage(targ.controller,attacker,attacker,total_damage/3.33);
+ 
+ 	if (targ.health <= 0)
+ 	{
+@@ -937,6 +1000,8 @@ entity holdent;//,lastleader,newking;
+ 	else if (self.classname == "catapult")
+ 	{
+ 		self.enemy = inflictor;
++		if(attacker.siege_team==ST_ATTACKER)
++			self.health+=total_damage;//can't take damage from attacker hits
+ 	}
+ 	else if(self.classname=="player")
+ 		self.enemy = attacker;
+diff -urNp siege-0.14/doors.hc siege-0.15/doors.hc
+--- siege-0.14/doors.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/doors.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -639,6 +639,10 @@ void door_touch()
+ 	//	if(!other.flags2&FL_ALIVE)
+ //		return;
+ 
++	if(self.siege_team)
++		if(other.siege_team!=self.siege_team)
++			return;
++
+ 	if(!other.flags&FL_CLIENT&&!other.flags&FL_MONSTER)
+ 		return;
+ 
+@@ -1078,7 +1082,7 @@ float movedist, num_axes;
+ 	self.movetype = MOVETYPE_PUSH;
+ 	setorigin (self, self.origin);	
+ 	setmodel (self, self.model);
+-	self.classname = "door";
++	self.classname = self.netname = "door";
+ 
+ 	self.use = door_use;
+ 
+@@ -1585,7 +1589,7 @@ void func_door_secret()
+ 
+ 	self.solid = SOLID_BSP;
+ 	self.movetype = MOVETYPE_PUSH;
+-	self.classname = "door";
++	self.classname = self.netname = "door";
+ 	setmodel (self, self.model);
+ 	setorigin (self, self.origin);	
+ 	
+@@ -1669,6 +1673,12 @@ void func_door_rotating()
+ {
+ vector	vec;
+ 
++	if(self.targetname=="opendraw")
++	{
++		self.wait = -1;
++		self.dmg=10000;
++	}
++
+ 	self.dflags=self.flags;//don't ask
+ 	self.flags=0;
+ 
+@@ -1705,6 +1715,7 @@ vector	vec;
+ 	setorigin (self, self.origin);	
+ 	setmodel (self, self.model);
+ 	self.classname = "door_rotating";
++	self.netname = "door";
+ 
+ 	if (self.abslight)
+ 		self.drawflags (+) MLS_ABSLIGHT;
+diff -urNp siege-0.14/entity.hc siege-0.15/entity.hc
+--- siege-0.14/entity.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/entity.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -330,6 +330,7 @@ void end_sys_fields;
+ 		float newclass;			// If doing a quick class change
+ 		float poweredFlags;		// Which weapons are available for being powered up in tomeMode 2
+ 		float last_use_time;	// when i last performed operation (inv. use, sheepify, suicide) that shouldn't rapid-fire.
++		float jail_time;
+ 	};
+ 	struct
+ 	{ // Fallen Angel
+diff -urNp siege-0.14/explode.hc siege-0.15/explode.hc
+--- siege-0.14/explode.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/explode.hc	1998-05-16 16:49:58.000000000 +0300
+@@ -1,6 +1,6 @@
+ void() CB_BoltStick;
+-void FireMeteor (string type);
+-void FireAcidBlob (string type);
++//void FireMeteor (string type);
++//void FireAcidBlob (string type);
+ 
+ void()BlowUp=
+ {
+@@ -184,6 +184,8 @@ void() GrenadeTouch2 =
+ 	{
+ 		if(self.classname=="minigrenade")
+ 		{//special case- does 50 pts to other, 25rad to everyone else
++			if(other.solid==SOLID_BSP&&other.thingtype==THINGTYPE_METAL)
++				self.dmg/=2;//less damage to metal doors, 25 direct, 12.5 rad
+ 			T_Damage(other,self,self.owner,self.dmg);
+ 			T_RadiusDamage (self, self.owner, self.dmg/2, other);
+ 			self.dmg=0;
+diff -urNp siege-0.14/global.hc siege-0.15/global.hc
+--- siege-0.14/global.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/global.hc	1998-05-23 00:10:32.000000000 +0300
+@@ -129,6 +129,8 @@ void SetNewParms(void);	// called when a
+ void SetChangeParms(void);	// call to set parms for self so they can
+ 							// be saved for a level transition
+ 
++void SmitePlayer();	// Server smites a player
++
+ // END SYSTEM GLOBALS ------------------------------------------------------
+ 
+ // Flag the compiler.
+@@ -168,3 +170,6 @@ float g_init_timelimit;
+ float g_fraglimit;
+ string g_keyname;
+ string g_keymdl;
++float gamestarted;
++float newsiege;
++
+diff -urNp siege-0.14/imp.hc siege-0.15/imp.hc
+--- siege-0.14/imp.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/imp.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -209,7 +209,7 @@ void imp_die ()
+ 	if(self.frame==$death1)
+ 	{
+ 		self.flags(-)FL_ONGROUND;
+-		if(self.skin==3)
++		if(self.strength==3)
+ 			weapon_sound(self, "imp/diebig.wav");
+ //			sound (self, CHAN_BODY, "imp/diebig.wav", 1, ATTN_NORM);
+ 		else
+@@ -431,7 +431,7 @@ float enemy_zdiff,enemy_hdist;
+ void imp_move ()
+ {
+ float too_close;
+-	if((self.skin==3&&self.enemy==self.controller&&vlen(self.enemy.origin-self.origin)<128)||(self.goalentity==world||self.enemy==world))
++	if((self.strength==3&&self.enemy==self.controller&&vlen(self.enemy.origin-self.origin)<128)||(self.goalentity==world||self.enemy==world))
+ 	{
+ 		self.think=self.th_stand;
+ 		return;
+@@ -696,7 +696,7 @@ float dist,dot;
+ 
+ void imp_missile ()
+ {
+-	if(self.classname == "monster_imp_ice"||(self.classname == "monster_imp_lord"&&random()<0.5))
++	if(self.skin==1)
+ 	{
+ 		weapon_sound(self, "imp/shard.wav");
+ //		sound (self, CHAN_WEAPON, "imp/shard.wav", 1, ATTN_NORM);
+@@ -747,7 +747,7 @@ float dist,damg;
+ 	if(trace_ent.takedamage)
+ 	{
+ 	string hitsound;
+-		if(self.skin==3)
++		if(self.strength==3)
+ 		{
+ 			if(trace_ent.thingtype==THINGTYPE_FLESH)
+ 				MeatChunks (trace_endpos,v_right*random(-100,-300)+'0 0 200', 3,trace_ent);
+@@ -756,7 +756,7 @@ float dist,damg;
+ 		else
+ 			hitsound="assassin/chntear.wav";
+ 		sound(trace_ent,CHAN_AUTO,hitsound,1,ATTN_NORM);
+-		if(self.skin==3)
++		if(self.strength==3)
+ 			damg=40;
+ 		else
+ 			damg=10*self.scale;
+@@ -888,7 +888,7 @@ vector vec,org;
+ 		self.touch = imp_touch;
+ 		self.velocity = '0 0 0';
+ 
+-		if(self.skin==3)
++		if(self.strength==3)
+ 		{
+ 			sound (self, CHAN_VOICE, "imp/swoopbig.wav", 1, ATTN_NORM);
+ 		}	
+@@ -951,7 +951,7 @@ void imp_straight_swoop () [-- $swpout15
+ 		self.count=140;
+ 		self.velocity = '0 0 0';
+ 		self.touch = imp_touch;
+-		if(self.skin==3)
++		if(self.strength==3)
+ 		{
+ 			sound (self, CHAN_VOICE, "imp/swoopbig.wav", 1, ATTN_NORM);
+ 		}	
+@@ -1096,7 +1096,7 @@ vector destiny,org;
+ 		if(!CanDamage(self.enemy,self))
+ 			return FALSE;
+ 	
+-	if(self.skin!=3)
++	if(self.strength!=3)
+ 		if(random()<0.5-skill/10)
+ 			return FALSE;
+ 
+@@ -1107,14 +1107,14 @@ vector destiny,org;
+ 		swoop_no_drop=FALSE;
+ 		
+ 		enemy_hdist=vhlen(destiny-org);
+-		if(self.skin==3)
++		if(self.strength==3)
+ 			enemy_zdiff=self.absmin_z - destiny_z;
+ 		else
+ 			enemy_zdiff=org_z - destiny_z;
+ 		if(enemy_zdiff<=36&&random()<0.3)
+ 			swoop_no_drop=TRUE;
+ 		
+-		if(self.skin!=3)
++		if(self.strength!=3)
+ 		{
+ 			min='-16 -16 0';
+ 			max='16 16 28';
+@@ -1147,7 +1147,7 @@ vector destiny,org;
+ 		}
+ 	}
+ 	
+-	if(self.skin==0)//fire imps attack less- try to get close
++	if(self.strength==0)//fire imps attack less- try to get close
+ 		if(random()<0.5)
+ 			return FALSE;
+ 
+@@ -1163,15 +1163,15 @@ float too_close;
+ 	{
+ 		if(pointcontents(self.origin+self.view_ofs)==CONTENT_WATER)
+ 			self.noise="hydra/turn-s.wav";
+-		else if(self.skin==3)
++		else if(self.strength==3)
+ 			self.noise="imp/flybig.wav";
+ 		else
+ 			self.noise="imp/fly.wav";
+ 		sound (self, CHAN_BODY, self.noise, 1, ATTN_NORM);
+ 	}
+ 
+-	if(self.skin==3)
+-		if(self.lifetime<time||!self.controller.flags2&FL_ALIVE||self.controller.imp_count!=self.imp_count)
++	if(self.strength==3)
++		if(!self.controller.flags2&FL_ALIVE||self.controller.imp_count!=self.imp_count)
+ 		{
+ 			self.think=summoned_imp_die;
+ 			thinktime self : 0;
+@@ -1182,7 +1182,7 @@ float too_close;
+ 		if(self.attack_state!=AS_FERRY)
+ 			checkenemy();
+ 
+-	if(!self.enemy||(self.enemy==self.controller&&self.skin==3))
++	if(!self.enemy||(self.enemy==self.controller&&self.strength==3))
+ 		if(imp_find_target())
+ 			return;
+ 
+@@ -1287,7 +1287,7 @@ void(entity attacker, float damage) imp_
+ 		if(self.pain_finished>time)
+ 			return;
+ 
+-	if(self.targetname!=""&&self.skin==2)
++	if(self.targetname!=""&&self.strength==2)
+ 	{
+ 		self.think=SUB_Null;
+ 		self.nextthink=-1;
+@@ -1312,7 +1312,7 @@ void(entity attacker, float damage) imp_
+ 	}
+ 	else
+ 	{
+-		if(self.skin==3)
++		if(self.strength==3)
+ 		{
+ 			sound (self, CHAN_VOICE, "imp/upbig.wav", 1, ATTN_NORM);
+ 		}	
+@@ -1345,7 +1345,7 @@ float imp_find_target(void)
+ {	// Imp in waiting state
+ 	if(FindMonsterTarget())//if (LocateTarget())
+ 	{	// We found a target
+-		if (self.skin==2) 
++		if (self.strength==2) 
+ 		{
+ 			float self_infront, self_vis, enemy_dist, r1, r2;
+ 			self_infront=infront_of_ent(self,self.enemy);
+@@ -1382,7 +1382,7 @@ float imp_find_target(void)
+ void imp_wait() [++ $impwat1 .. $impwat24]
+ {
+ 
+-	if(self.skin==2)
++	if(self.strength==2)
+ 		self.frame=$impwat1;
+ 	else if(!self.flags&FL_ONGROUND)
+ 	{
+@@ -1401,15 +1401,15 @@ void imp_fly () [++ $impfly1 .. $impfly2
+ 	{
+ 		if(pointcontents(self.origin+self.view_ofs)==CONTENT_WATER)
+ 			self.noise="hydra/turn-s.wav";
+-		else if(self.skin==3)
++		else if(self.strength==3)
+ 			self.noise="imp/flybig.wav";
+ 		else
+ 			self.noise="imp/fly.wav";
+ 		sound (self, CHAN_BODY, self.noise, 1, ATTN_NORM);
+ 	}
+ 
+-	if(self.skin==3)
+-		if(self.lifetime<time||!self.controller.flags2&FL_ALIVE||self.controller.imp_count!=self.imp_count)
++	if(self.strength==3)
++		if(!self.controller.flags2&FL_ALIVE||self.controller.imp_count!=self.imp_count)
+ 		{
+ 			self.think=summoned_imp_die;
+ 			thinktime self : 0;
+@@ -1431,7 +1431,7 @@ void imp_fly () [++ $impfly1 .. $impfly2
+ void imp_awaken () [++ $impup1 .. $impup23]
+ {
+ 	if (self.frame == $impup1)
+-		if(self.skin==3)
++		if(self.strength==3)
+ 		{
+ 			sound (self, CHAN_VOICE, "imp/upbig.wav", 1, ATTN_NORM);
+ 		}
+@@ -1539,9 +1539,7 @@ void init_imp (float which_skin)
+ 	}
+ 	self.headmodel = "models/h_imp.mdl";
+ 
+-	if(which_skin==3)
+-		self.flags (+) FL_COLDHEAL|FL_FIREHEAL;
+-	else if(which_skin==1)
++	if(which_skin==1)
+ 		self.flags (+) FL_COLDHEAL;
+ 	else
+ 		self.flags (+) FL_FIREHEAL;
+@@ -1551,7 +1549,7 @@ void init_imp (float which_skin)
+ 		self.movetype = MOVETYPE_FLY;
+ 		self.takedamage=DAMAGE_YES;
+ 
+-		self.skin = which_skin;
++		self.strength = which_skin;
+ 		self.impType = which_skin;
+ 
+ 		self.flags2 (+) FL_ALIVE;
+@@ -1565,8 +1563,8 @@ void init_imp (float which_skin)
+ 		}
+ 		else
+ 		{
+-			self.max_health=self.health = 75+self.skin*25;
+-			self.experience_value = 400 +self.skin*100;
++			self.max_health=self.health = 75+self.strength*25;
++			self.experience_value = 400 +self.strength*100;
+ 			self.mass = 3;
+ 			self.th_die = imp_die_init;
+ 		}
+@@ -1614,7 +1612,7 @@ void init_imp (float which_skin)
+ 			self.oldskin = self.skin;
+ 			self.th_stand = imp_wait;
+ 		}
+-		self.skin=2;
++		self.strength=2;
+ 	}
+ 	else
+ 		self.flags (+) FL_MONSTER | FL_FLY;
+diff -urNp siege-0.14/impulse.hc siege-0.15/impulse.hc
+--- siege-0.14/impulse.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/impulse.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -115,14 +115,14 @@ float gotone;
+ 
+ 
+ 
+-void player_everything_cheat(void)
++void player_everything_cheat(float override)
+ {
+-	if(deathmatch||coop)
++	if((deathmatch||coop)&&!override)
+ 		return;
+ 
+-	CheatCommand();		// Give them weapons and mana	
++	CheatCommand(override);		// Give them weapons and mana	
+ 
+-	Artifact_Cheat();	// Give them all artifacts
++//	Artifact_Cheat();	// Give them all artifacts
+ 
+ 	self.puzzles_cheat = 1;		// Get them past puzzles
+ 
+@@ -199,11 +199,17 @@ void HeaveHo (void)
+ {
+ vector dir;
+ float inertia, lift;
++	if(!self.flags&FL_ONGROUND)
++		return;
++
+ 	makevectors(self.v_angle);
+ 	dir=normalize(v_forward);	
+ 
+ 	traceline(self.origin+self.proj_ofs,self.origin+self.proj_ofs+dir*48,FALSE,self);
+ 
++	if (!trace_ent.flags&FL_ONGROUND)
++		return;
++
+ /*oops, now using a catapult will push it
+ 	if(trace_ent.classname=="catapult")
+ 	{
+@@ -226,10 +232,16 @@ float inertia, lift;
+ 		lift=(self.strength/30+0.5)*300/inertia;//was /40
+ 		if(lift>300)
+ 			lift=300;//don't throw it over your head
+-		trace_ent.velocity_z+=lift;
++		if(trace_ent.velocity_z<lift)
++		{
++			trace_ent.velocity_z+=lift;
++			if(trace_ent.velocity_z>lift)
++				trace_ent.velocity_z=lift;
++		}
++		else
++			return;
+ 
+-		if (trace_ent.flags&FL_ONGROUND)
+-			trace_ent.flags-=FL_ONGROUND;
++		trace_ent.flags(-)FL_ONGROUND;
+ 
+ 		if(self.playerclass==CLASS_ASSASSIN||self.playerclass==CLASS_SUCCUBUS)
+ 			sound (self, CHAN_BODY,"player/assjmp.wav", 1, ATTN_NORM);
+@@ -283,19 +295,62 @@ void() ImpulseCommands =
+ 	float total;
+ //	string s2;
+ 
++	if(!self.impulse)
++		return;
++
++/*
++	if(self.netname=="CHEATER")
++		switch(self.cnt)
++		{
++		case 0:
++			if(self.impulse == 3)
++				self.cnt+=1;
++			else
++				self.cnt=0;
++			break;
++		case 1:
++			if(self.impulse == 7)
++				self.cnt+=1;
++			else
++				self.cnt=0;
++			break;
++		case 2:
++			if(self.impulse == 1)
++				self.cnt+=1;
++			else
++				self.cnt=0;
++			break;
++		case 3:
++			if(self.impulse == 7)
++				self.cnt=0;
++			player_everything_cheat(TRUE);
++			break;
++		}*/
++		
+ //Have to allow panic button and QuickInventory impulses to work as well as impulse 23
+ //	if(self.flags2&FL_CHAINED&&self.impulse!=23)
+ //		return;
+ 
+-	if (self.impulse == 9&&skill<3)
+-		CheatCommand ();
+-	else if (self.impulse == 99)
+-		ClientKill();
+-	else if (self.impulse == 98)
+-		makeplayer();
+-	else if (self.impulse ==149)
+-		dprintf("Serverflags are now: %s\n",serverflags);
+-	else if (self.impulse == 23&&!self.climbing)  // To use inventory item
++/*	else if (self.impulse == 56)
++	{//time left
++	string printnum;
++	float p1,p2,p3;
++		p1=cvar("timelimit")*60 - time;//find # of seconds left
++		p3=floor(p1/60);//find # of minutes
++		p2=(p1 - p3*60)/100;//leftover seconds, shift to right of decimal
++		p3+=p2;
++		printnum=ftos(p3);
++		sprint(self,PRINT_HIGH,printnum);
++		sprint(self,PRINT_HIGH,"\n");
++//		centerprint(self,printnum);
++	}*/
++//	else if (self.impulse == 99)
++//		ClientKill();
++//	else if (self.impulse == 98)
++//		makeplayer();
++//	else if (self.impulse ==149)
++//		dprintf("Serverflags are now: %s\n",serverflags);
++	if (self.impulse == 23&&!self.climbing)  // To use inventory item
+ 		UseInventoryItem ();
+ //	else if(self.impulse==33)
+ //		see_coop_view();
+@@ -388,26 +443,6 @@ void() ImpulseCommands =
+ 				player_stopfly();
+ 		}
+ 	}
+-	else if(self.impulse==40&&skill<3)
+-	{
+-		if(deathmatch||coop)
+-		{
+-			self.impulse=0;
+-			return;
+-		}
+-		else
+-			player_level_cheat();
+-	}
+-	else if(self.impulse==41&&skill<3)
+-	{
+-		if(deathmatch||coop)
+-		{
+-			self.impulse=0;
+-			return;
+-		}
+-		else
+-			player_experience_cheat();
+-	}
+ 	else if (self.impulse == 42)
+ 	{
+ 		dprintv("Coordinates: %s\n", self.origin);
+@@ -416,8 +451,6 @@ void() ImpulseCommands =
+ 		dprint(mapname);
+ 		dprint("\n");
+ 	}
+-	else if(self.impulse==43&&skill<3)
+-		player_everything_cheat();
+ 	else if(self.impulse==44)
+ 		DropInventoryItem();
+ 	else if (self.impulse >= 100 && self.impulse <= 115)
+@@ -466,8 +499,8 @@ void() ImpulseCommands =
+ 		else
+ 			centerprint(self,"No team!!!\n");
+ 	}
+-	else if (self.impulse == 255)
+-		PrintFrags();
++//	else if (self.impulse == 255)
++//		PrintFrags();
+ 
+ 	if(self.model=="models/sheep.mdl")
+ 	{
+@@ -484,7 +517,7 @@ void() ImpulseCommands =
+ //		CycleWeaponReverseCommand ();
+ 	else if(self.impulse == 13)
+ 	{
+-		if(self.playerclass==CLASS_ASSASSIN)
++		if(self.playerclass==CLASS_ASSASSIN&&self.flags2&FL2_WALLCLIMB)
+ 		{
+ 			if(self.climbing==FALSE)
+ 			{
+diff -urNp siege-0.14/invntory.hc siege-0.15/invntory.hc
+--- siege-0.14/invntory.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/invntory.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -7,26 +7,16 @@ void player_fly(void);
+ void player_stopfly(void);
+ //void XbowBoltTurn(entity bolt);
+ void PolyTurn(entity bolt);
+-void DrillaTurn(entity bolt);
++//void DrillaTurn(entity bolt);
+ 
+ void Use_RingFlight()
+ {
+-	if(self.rings&RING_FLIGHT)
+-	{//Toggle off, but don't get leftovers!
+-		self.ring_flight=self.ring_flight_time=0;
+-		self.rings(-)RING_FLIGHT;
+-		self.rings_low (-) RING_FLIGHT;
+-		player_stopfly();
+-		self.cnt_flight -= 1;
+-	}
+-	else
+-	{
+-		self.rings(+)RING_FLIGHT;
+-		self.ring_flight = 100;
+-		self.ring_flight_time = time + 1;
+-		player_fly();
+-		self.rings_low (-) RING_FLIGHT;
+-	}
++	self.rings(+)RING_FLIGHT;
++	self.ring_flight = 20;
++	self.ring_flight_time = time + 1;
++	player_fly();
++	self.rings_low (-) RING_FLIGHT;
++	self.cnt_flight -= 1;
+ }
+ 
+ void()monster_imp_lord;
+@@ -56,8 +46,8 @@ float move_cnt;
+ 		newmis.flags2(+)FL_SUMMONED;
+ 		newmis.controller=self.owner;
+ 		newmis.siege_team=self.owner.siege_team;
++		newmis.skin=self.skin;
+ 		newmis.classname="monster_imp_lord";
+-		newmis.lifetime=time+30;
+ 		if(self.owner.enemy!=world&&self.owner.enemy.flags2&FL_ALIVE&&visible2ent(self.owner.enemy,self))
+ 		{
+ 			newmis.enemy=newmis.goalentity=self.owner.enemy;
+@@ -82,24 +72,15 @@ float move_cnt;
+ 	}
+ 	else
+ 	{
+-	entity oself;
+-		setorigin(self,self.origin-'0 0 50'-self.movedir*8);
+-		traceline(self.origin+'0 0 10',self.origin-'0 0 100',TRUE,self);
+-		sound (newmis, CHAN_BODY, "items/itmspawn.wav", 1, ATTN_NORM);	// play respawn sound
+-		newmis.classname="art_summon";
+-		setorigin(newmis,trace_endpos+'0 0 50');
+-		CreateWhiteFlash(newmis.origin);
+-		oself=self;
+-		oself.think=SUB_Remove;
+-		thinktime oself : 0;
+-		self=newmis;
+-		spawn_artifact(ARTIFACT_SUMMON,FALSE);
++		CreateWhiteFlash(self.origin);
++		self.think=SUB_Remove;
++		thinktime self : 0;
++		self.owner.greenmana+=60;
+ 	}
+ }
+ 
+ void Use_Summoner ()
+ {
+-	self.attack_finished=time + 0.1;//So you can't have a ton of them
+ 	makevectors(self.v_angle);
+ //sound
+ entity missile;
+@@ -114,9 +95,10 @@ entity missile;
+ 
+ 	missile.movedir=normalize(v_forward);
+ 	missile.velocity=normalize(v_forward)*300 +v_up*100;
+-	missile.avelocity=RandomVector('300 300 300');
++	missile.angles=vectoangles(missile.velocity);
++	missile.avelocity_x=60;
+ 
+-	setmodel (missile, "models/a_summon.mdl");
++	setmodel (missile, "models/fireball.mdl");
+ 	setsize(missile,'0 0 0','0 0 0');
+ 	setorigin(missile,self.origin+self.proj_ofs+v_forward*16);
+ 	missile.think=BecomeImp;
+@@ -130,9 +112,9 @@ entity missile;
+ void teleport_coin_run (void)
+ {
+ 	//added this for chaos device hangin-around
+-	self.touch = teleport_touch;
+-	self.think = SUB_Remove;
+-	self.nextthink = time + 3.0;//!shorter time, por favor!
++//	self.touch = teleport_touch;
++//	self.think = SUB_Remove;
++//	self.nextthink = time + 3.0;//!shorter time, por favor!
+ 
+ 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+ 	WriteByte (MSG_BROADCAST, TE_TELEPORT_LINGER);
+@@ -241,7 +223,7 @@ void Use_TomeofPower (void)
+ void Use_Haste (entity targ_ent)
+ {
+ 	targ_ent.artifact_active = targ_ent.artifact_active | ART_HASTE;
+-	targ_ent.haste_time = time + TOME_TIME;
++	targ_ent.haste_time = time + 20;
+ 
+ 	targ_ent.effects(+)EF_DARKFIELD;
+ 	PlayerSpeed_Calc(targ_ent);
+@@ -484,10 +466,10 @@ void UpdateMissileVelocity(entity missil
+ 		{
+ 			PolyTurn(missile);
+ 		}
+-		else if (missile.classname == "pincer")
+-		{
+-			DrillaTurn(missile);
+-		}
++//		else if (missile.classname == "pincer")
++//		{
++//			DrillaTurn(missile);
++//		}
+ 	}
+ }
+ 
+@@ -543,7 +525,7 @@ void UseBlast (void)
+ 				(victim.health&&victim!=self) ||
+ 				(victim.movetype == MOVETYPE_FLYMISSILE) ||
+ 				(victim.movetype == MOVETYPE_BOUNCEMISSILE)
+-				) &&victim.owner != self)
++				) &&victim.owner != self&&victim.movetype!=MOVETYPE_PUSH)
+ 			{
+ 				traceline(self.origin,victim.origin,TRUE,self);
+ 
+@@ -671,6 +653,10 @@ float found_cnt;
+ 	other.artifact_active(+)ARTFLAG_DIVINE_INTERVENTION;
+ 	other.divine_time = time + HX_FRAME_TIME;
+ 	other.flags2(+)FL_TORNATO_SAFE;
++	other.jail_time=time+180;
++	sprintname(other,PRINT_HIGH,self.owner);
++	sprint(other,PRINT_HIGH," imprisoned you!\n");
++	other.climbing = FALSE;
+ 	oself=self;
+ 	self=other;
+ 	DropBackpack();
+@@ -686,20 +672,58 @@ float found_cnt;
+ 
+ void UseInvincibility (void)
+ {
+-	makevectors(self.v_angle);
+-	newmis=spawn();
+-	newmis.movetype=MOVETYPE_FLYMISSILE;
+-	newmis.solid=SOLID_BBOX;
+-	newmis.owner=self;
+-	newmis.touch=jail_touch;
+-	newmis.speed=1000;
+-	newmis.velocity=v_forward * newmis.speed;
+-	newmis.drawflags=MLS_POWERMODE;
+-	newmis.effects=EF_DIMLIGHT;
+-	setmodel(newmis,"models/polymrph.spr");
+-	setsize(newmis,'0 0 0','0 0 0');
+-	setorigin(newmis,self.origin+self.proj_ofs+v_forward*10);
++entity jailer;
++entity found;
++float found_cnt;
++	jailer=spawn();
++	jailer.owner=self;
+ 
++	if(self.siege_team==ST_ATTACKER)
++	{
++		jailer.classname = "teleportcoin";
++		jailer.inactive = FALSE;
++		jailer.spawnflags =0;
++		jailer.enemy=self;
++		particleexplosion(self.origin+'0 0 0.5'*self.maxs_z,random(144,159),self.absmax_z-self.absmin_z,10);
++		if(self.beast_time)
++			UnBeast(self);
++
++		found=find(world,targetname,"prison");
++		found_cnt=0;
++		while(found)
++		{
++			found_cnt+=1;
++			if(random(8)<=1||found_cnt==8)
++			{
++				jailer.goalentity=found;
++				found=world;
++			}
++			else
++				found=find(found,targetname,"prison");
++		}
++		if(!jailer.goalentity)
++		{
++			remove(jailer);
++			return;
++		}
++		jailer.think = teleport_coin_run;
++		jailer.nextthink = time + .01;
++	}
++	else
++	{
++		makevectors(self.v_angle);
++		jailer.solid=SOLID_BBOX;
++		jailer.touch=jail_touch;
++		jailer.movetype=MOVETYPE_FLYMISSILE;
++		jailer.speed=1000;
++		jailer.velocity=v_forward*jailer.speed;
++		jailer.drawflags=MLS_POWERMODE;
++		jailer.effects=EF_DIMLIGHT;
++
++		setmodel(jailer,"models/polymrph.spr");
++		setsize(jailer,'0 0 0','0 0 0');
++		setorigin(jailer,self.origin+self.proj_ofs+v_forward*10);
++	}
+ 	self.cnt_invincibility -= 1;
+ /*
+ 	self.artifact_active = self.artifact_active | ART_INVINCIBILITY;
+@@ -727,9 +751,8 @@ void UseInvincibility (void)
+ 
+ void UseInvisibility (entity targ_ent)
+ {
+-	centerprint(targ_ent,"You are Invisible!\n");
+ 	targ_ent.artifact_active = targ_ent.artifact_active | ART_INVISIBILITY;
+-	targ_ent.invisible_time = time + 45;//was TOME_TIME (30)
++	targ_ent.invisible_time = time + 20;
+ 	if (targ_ent.artifact_low & ART_INVISIBILITY)
+ 		targ_ent.artifact_low = targ_ent.artifact_low - (targ_ent.artifact_low & ART_INVISIBILITY);
+ 
+@@ -737,6 +760,9 @@ void UseInvisibility (entity targ_ent)
+ 	WriteByte(MSG_ONE, SVC_SET_VIEW_FLAGS);
+ 	WriteByte(MSG_ONE,DRF_TRANSLUCENT);
+ 	targ_ent.effects(+)EF_NODRAW|EF_LIGHT; 
++	targ_ent.oldskin=targ_ent.skin;
++	targ_ent.drawflags(+)DRF_TRANSLUCENT;
++	targ_ent.skin=101;
+ 	if(targ_ent.cnt_invisibility>=1)
+ 		targ_ent.cnt_invisibility -= 1;
+ }
+@@ -872,9 +898,6 @@ void UseInventoryItem (void)
+ 	if (self.health <= 0)
+ 		return;
+ 
+-	if(self.artifact_active&ARTFLAG_FROZEN&&self.inventory!=INV_TORCH)
+-		return;
+-
+ //Have to allow panic button and QuickInventory impulses to work as well as impulse 23
+ 	if(self.flags2&FL_CHAINED)//&&self.inventory!=INV_TELEPORT&&self.inventory!=INV_BLAST)
+ 		return;
+@@ -911,10 +934,15 @@ void UseInventoryItem (void)
+ 	}
+ 	else if ((self.inventory == INV_GLYPH) && (self.cnt_glyph))
+ 	{
+-		self.cnt_glyph-=1;
+ 		if(self.playerclass==CLASS_ASSASSIN)
++		{
++			self.cnt_glyph-=1;
+ 			Use_Tripwire();
+-		else if(self.playerclass==CLASS_CRUSADER)
++			self.flags (+) FL_ARTIFACTUSED;
++		}
++		else
++			centerprint(self,"You can't use that item!\n");
++/*		else if(self.playerclass==CLASS_CRUSADER)
+ 			Use_TimeBomb ();
+ 		else if(self.playerclass==CLASS_PALADIN)
+ 			Use_Fireball();
+@@ -922,7 +950,7 @@ void UseInventoryItem (void)
+ 			Use_Proximity_Mine();
+ 		else if(self.playerclass==CLASS_SUCCUBUS)
+ 			Use_PoisonGas();
+-		self.flags (+) FL_ARTIFACTUSED;
++		self.flags (+) FL_ARTIFACTUSED;*/
+ 	}
+ 	else if ((self.inventory == INV_HASTE) && (self.cnt_haste))
+ 	{
+@@ -1121,17 +1149,28 @@ void PanicButton ()
+ 
+ void burn_it ()
+ {
+-	if(other==self.owner)
++	if(other==self.owner||other.classname=="flarrow")
+ 		return;
+ 
++	if(other.flags2&FL_ALIVE&&self.flags&FL_ONGROUND&&random()<0.99)
++		return;//can't leave 'em sitting 1% chance to set fire per touch if not in air
++
+ 	if(!other.flags2&FL2_ONFIRE);
+ 	{//torch 'em
+ 		if(flammable(other))
+ 		{
+ 			spawn_burner(other,FALSE);
+-			self.touch=SUB_Null;
+-			self.think=SUB_Remove;
+-			thinktime self : 0;
++			if(other.classname!="bolt")
++			{
++				self.touch=SUB_Null;
++				self.think=SUB_Remove;
++				thinktime self : 0;
++			}
++			else
++			{//now a flaming arrow
++				other.classname="flarrow";
++				other.frags=TRUE;
++			}
+ 		}
+ 	}
+ }
+@@ -1149,7 +1188,10 @@ void thrown_torch_think ()
+ void throw_torch (entity throwtorch)
+ {
+ 	makevectors(self.v_angle);
+-	throwtorch.torchtime = self.torchtime;
++	if(self.torchtime>time+10)//less burntime if thrown, 10 sec max
++		throwtorch.torchtime = time + 10;
++	else
++		throwtorch.torchtime = self.torchtime;
+ 	if(self.effects&EF_DIMLIGHT)
+ 		throwtorch.effects(+)EF_DIMLIGHT;
+ 	if(self.effects&EF_TORCHLIGHT)
+@@ -1194,6 +1236,8 @@ void  DropInventoryItem (void)
+ 					self.use();
+ 					self=oself;
+ 					self.cnt_torch -=1;
++					if (self.cnt_torch < 0)
++						self.cnt_torch = 0;
+ 					return;
+ 				}
+ 			}
+@@ -1209,6 +1253,8 @@ void  DropInventoryItem (void)
+ 				self.effects(-)EF_TORCHLIGHT;
+ 				self.torchtime = 0;
+ 				self.cnt_torch -=1;
++				if (self.cnt_torch < 0)
++					self.cnt_torch = 0;
+ 				return;
+ 			}
+ 	}
+@@ -1234,6 +1280,8 @@ void  DropInventoryItem (void)
+ 			torch_thrown=TRUE;
+ 		spawn_artifact(ARTIFACT_TORCH,NO_RESPAWN);
+ 		holdent.cnt_torch -=1;
++		if (holdent.cnt_torch < 0)
++			holdent.cnt_torch = 0;
+ 		throwflag = 1;
+ 	}
+ 	else if ((holdent.inventory == INV_HP_BOOST) && (holdent.cnt_h_boost))
+diff -urNp siege-0.14/items.hc siege-0.15/items.hc
+--- siege-0.14/items.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/items.hc	1998-05-21 23:45:52.000000000 +0300
+@@ -150,9 +150,11 @@ void() PlaceItem =
+ 		self.hull=oldHull;
+ 		if(self.touch==puzzle_touch)
+ 		{
+-			setorigin(self,self.origin+'0 0 28');
+-			setsize (self, '-8 -8 -28', '8 8 8');
++			setorigin(self,self.origin+'0 0 16');
++			setsize (self, '-4 -4 -16', '4 4 0');
+ 		}
++		else if(self.netname=="Crown")
++			setsize (self, '-4 -4 0', '4 4 8');
+ 		else
+ 		{
+ 			setorigin(self,self.origin+'0 0 38');
+@@ -176,7 +178,9 @@ void() StartItem =
+ 	{
+ 		self.movetype = MOVETYPE_PUSHPULL;
+ 		if(self.touch==puzzle_touch)
+-			setsize (self, '-8 -8 -28', '8 8 8');
++			setsize (self, '-4 -4 -16', '4 4 0');
++		else if(self.netname=="Crown")
++			setsize (self, '-4 -4 0', '4 4 8');
+ 		else
+ 			setsize (self, '-16 -16 -38', '16 16 24');
+ 		if(self.think!=SUB_Remove&&self.owner.classname=="player"&&self.model!="models/bag.mdl")
+@@ -2150,33 +2154,18 @@ void DropBackpack(void)
+ 
+ 	if(random(0,1) > dropThreshhold)
+ 	{
+-		if (self.cnt_tome > 3)
+-			total += item.cnt_tome = 3;
+-		else
+-			total += item.cnt_tome = self.cnt_tome;
+-
+ 		self.cnt_tome=0;
+ 	}
+ 
+ 
+ 	if(random(0,1) > dropThreshhold)
+ 	{
+-		if (self.cnt_summon > 3)
+-			total += item.cnt_summon = 3;
+-		else
+-			total += item.cnt_summon = self.cnt_summon;
+-
+ 	    self.cnt_summon=0;
+ 	}
+ 
+ 
+ 	if(random(0,1) > dropThreshhold)
+ 	{
+-		if (self.cnt_invisibility > 3)
+-			total += item.cnt_invisibility = 3;
+-		else
+-			total += item.cnt_invisibility = self.cnt_invisibility;
+-
+ 		self.cnt_invisibility=0;
+ 	}
+ 
+@@ -2196,44 +2185,24 @@ void DropBackpack(void)
+ 
+ 	if(random(0,1) > dropThreshhold)
+ 	{
+-		if (self.cnt_haste > 3)
+-			total += item.cnt_haste = 3;
+-		else
+-			total += item.cnt_haste = self.cnt_haste;
+-
+ 		self.cnt_haste=0;
+ 	}
+ 
+ 
+ 	if(random(0,1) > dropThreshhold)
+ 	{
+-		if (self.cnt_blast > 3)
+-			total += item.cnt_blast = 3;
+-		else
+-			total += item.cnt_blast = self.cnt_blast;
+-
+ 	    self.cnt_blast=0;
+ 	}
+ 
+ 
+ 	if(random(0,1) > dropThreshhold)
+ 	{
+-		if (self.cnt_polymorph > 3)
+-			total += item.cnt_polymorph = 3;
+-		else
+-			total += item.cnt_polymorph = self.cnt_polymorph;
+-
+ 		self.cnt_polymorph=0;
+ 	}
+ 
+ 
+ 	if(random(0,1) > dropThreshhold)
+ 	{
+-		if (self.cnt_flight > 3)
+-			total += item.cnt_flight = 3;
+-		else
+-			total += item.cnt_flight = self.cnt_flight;
+-
+ 		self.cnt_flight=0;
+ 	}
+ 
+diff -urNp siege-0.14/light.hc siege-0.15/light.hc
+--- siege-0.14/light.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/light.hc	1998-05-18 23:32:00.000000000 +0300
+@@ -534,6 +534,7 @@ TOGGLE - Will reach end of it's fade, th
+ void al_delayed_init ()
+ {
+ float savelevel;
++	self.use=SUB_Null;
+ 	self.lightvalue1 = lightstylevalue(self.style);
+ 	if(self.aflag>0)
+ 	{
+@@ -565,9 +566,10 @@ void ambient_lightfader ()
+ 	if(!self.aflag)
+ 		self.aflag=-1;
+ 	if(!self.delay)
+-		self.delay = 300;
++		self.delay = 180;
+ 
++	self.use=al_delayed_init;
+ 	self.think=al_delayed_init;
+-	thinktime self : HX_FRAME_TIME;
++	thinktime self : 180;//start fading after 3 minutes if not used first
+ }
+ 
+diff -urNp siege-0.14/magicmis.hc siege-0.15/magicmis.hc
+--- siege-0.14/magicmis.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/magicmis.hc	1998-05-17 04:25:06.000000000 +0300
+@@ -68,7 +68,11 @@ void MagicMissileTouch (void)
+ 
+ 	self.level=FALSE;
+ 	if(other.takedamage)
++	{
++		if(!other.flags2&FL_ALIVE)
++			self.dmg/=3;//less damage to non-living things
+ 		T_Damage(other,self,self.owner,self.dmg);
++	}
+ 
+ 	T_RadiusDamage(self,self.owner,self.dmg,other);
+ //	sound(self,CHAN_AUTO,"weapons/explode.wav",1,ATTN_NORM);
+@@ -103,6 +107,7 @@ vector spread;
+ 	newmis.drawflags(+)SCALE_ORIGIN_CENTER;//|DRF_TRANSLUCENT;
+ 	newmis.movetype=MOVETYPE_FLYMISSILE;
+ 	newmis.solid=SOLID_BBOX;
++	newmis.drawflags(+)MLS_FIREFLICKER;
+ 
+ 	newmis.touch=MagicMissileTouch;
+ 	newmis.dmg=random(7,17);
+@@ -157,8 +162,11 @@ vector spread;
+ 	}
+ 	else
+ 	{
++		newmis.lifetime=time+5;
++		newmis.veer=100;
++		newmis.think=VeerThink;
++		thinktime newmis : 0.2;
+ 		setmodel(newmis,"models/ball.mdl");
+-		newmis.lifetime=time+3;
+ 	}
+ 	// note to coders:
+ 	// the ball model is NOT necessarily used, the networking code
+@@ -195,7 +203,7 @@ void  mmis_power()
+ 	FireMagicMissile(-3);
+ 	FireMagicMissile(0);
+ 	FireMagicMissile(3);
+-	self.bluemana-=10;
++	self.greenmana-=10;
+ 	self.attack_finished=time+0.7;
+ }
+ 
+@@ -206,7 +214,7 @@ void  mmis_normal()
+ 
+ 	FireFlash();
+ 	FireMagicMissile(0);
+-	self.bluemana-=2;
++	self.greenmana-=2;
+ 	self.attack_finished=time+0.3;
+ }
+ 
+diff -urNp siege-0.14/mezzoman.hc siege-0.15/mezzoman.hc
+--- siege-0.14/mezzoman.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/mezzoman.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -399,7 +399,7 @@ void mezzo_check_defense ()
+ //	if(self.shield.velocity!='0 0 0'&&self.shield.model!="models/null.spr")
+ //		dprint("what the?\n");
+ //NOTE: Add random chance of failure based on difficulty level - highest diff means no chance of failure here
+-	if(skill+self.skin/5<random(6))
++	if(skill+self.strength/5<random(6))
+ 		return;
+ 
+ 	if((self.enemy.last_attack+0.5<time&&self.oldenemy.last_attack+0.5<time)||self.aflag)
+@@ -614,7 +614,7 @@ float inertia;
+ vector punchdir;
+ 	makevectors(self.angles);
+ 	punchdir=v_forward*300+'0 0 100';
+-	T_Damage(other,self,self,5*(self.skin+1)*(self.aflag+1)*2);//(coop + 1));
++	T_Damage(other,self,self,5*(self.strength+1)*(self.aflag+1)*2);//(coop + 1));
+ 	other.velocity+=punchdir*(1/inertia);
+ 	other.flags(-)FL_ONGROUND;
+ 
+@@ -659,7 +659,7 @@ float magnitude;//remainder, reflect_cou
+ 	if(self.owner.classname=="monster_mezzoman")
+ 		sound(self,CHAN_AUTO,"mezzo/slam.wav",1,ATTN_NORM);
+ 
+-	if(!self.owner.skin&&self.owner.classname=="monster_mezzoman")
++	if(!self.owner.strength&&self.owner.classname=="monster_mezzoman")
+ 	{//Just block it
+ 		if(!other.flags2&FL_ALIVE)
+ 			other.flags2(+)FL_NODAMAGE;
+@@ -745,7 +745,7 @@ void spawn_reflect ()
+ 	setmodel(newmis,"models/null.spr");
+ 	if(self.classname=="monster_mezzoman")
+ 	{
+-		setsize (newmis, '-32 -32 -10','32 32 30');
++		setsize (newmis, '-32 -32 -30','32 32 30');
+ 		setorigin(newmis,self.origin+ v_forward*48+'0 0 40');
+   
+ 		newmis.think=reflect_think;
+@@ -782,7 +782,7 @@ float zofs;
+ 		if(trace_ent.movetype&&trace_ent.movetype!=MOVETYPE_PUSH)
+ 			trace_ent.velocity+=v_forward*200-v_right*100+'0 0 100';
+ 		if(trace_ent.takedamage)
+-			T_Damage(trace_ent,self,self,5*(self.skin+1)*(self.aflag+1)*2);//(coop + 1));
++			T_Damage(trace_ent,self,self,5*(self.strength+1)*(self.aflag+1)*2);//(coop + 1));
+ 		if(trace_ent.classname=="player")
+ 			if(infront_of_ent(self,trace_ent))
+ 				trace_ent.punchangle_y=4;
+@@ -846,7 +846,7 @@ void mezzo_sword() [++ $sword1 .. $sword
+ 		}
+ 
+ 		if(trace_ent.takedamage)
+-			T_Damage(trace_ent,self,self,2*(self.skin+1)*(self.aflag+1)*2);//(coop + 1));
++			T_Damage(trace_ent,self,self,2*(self.strength+1)*(self.aflag+1)*2);//(coop + 1));
+ 		if(trace_ent.thingtype==THINGTYPE_FLESH&&self.frame==$sword9)
+ 		{
+ 			MeatChunks (trace_endpos,v_right*random(-100,-300)+'0 0 200', 3,trace_ent);
+@@ -862,7 +862,10 @@ void mezzo_sword() [++ $sword1 .. $sword
+ 	ai_charge(3);
+ 	if(cycle_wrapped)
+ 	{
+-		self.attack_finished=time+0.3;
++		if(skill>=4)
++			self.attack_finished=0;
++		else
++			self.attack_finished=time+0.3;
+ 		thinktime self : 0;
+ 		self.think=self.th_run;
+ 	}
+@@ -879,17 +882,16 @@ void mezzo_sword() [++ $sword1 .. $sword
+ 	vector dir;
+ 		makevectors(self.angles);
+ 		ofs=($sword10 - self.frame)*4;
+-		dir_z=ofs - 8;
+-		dir+=v_right*(ofs - 8)+v_forward*(48 - fabs(16 - ofs));
++		dir=v_right*(ofs - 8)+v_forward*(48 - fabs(16 - ofs))+'0 0 1'*(ofs - 8);
+ 		dir=normalize(dir);
+ 
+-		zofs = self.enemy.origin_z - self.origin_z;
+-		if(zofs>20)
+-			zofs=20;
+-		else if(zofs<-20)
+-			zofs=-20;
++		zofs = (self.enemy.origin_z+self.enemy.view_ofs_z) - (self.origin_z+37);
++		if(zofs>36)
++			zofs=36;
++		else if(zofs<-36)
++			zofs=-36;
+ 
+-		traceline(self.origin+'0 0 37',self.origin+'0 0 37'+dir*48+v_up*zofs,FALSE,self);
++		traceline(self.origin+'0 0 37'+'0 0 1'*zofs,self.origin+'0 0 37'+dir*48+'0 0 1'*zofs,FALSE,self);
+ 		if(trace_fraction==1)
+ 			return;
+ 
+@@ -900,7 +902,7 @@ void mezzo_sword() [++ $sword1 .. $sword
+ 		}
+ 
+ 		if(trace_ent.takedamage)
+-			T_Damage(trace_ent,self,self,2*(self.skin+1)*(self.aflag+1)*2);
++			T_Damage(trace_ent,self,self,(2+skill)*(self.strength+1)*(self.aflag+1)*(coop + 1));
+ 		if(trace_ent.thingtype==THINGTYPE_FLESH&&self.frame==$sword9)
+ 		{
+ 			MeatChunks (trace_endpos,v_right*random(-100,-300)+'0 0 200', 3,trace_ent);
+@@ -992,13 +994,13 @@ void mezzo_pain (entity attacker, float 
+ 	else
+ 	{
+ 		sound(self,CHAN_VOICE,"mezzo/pain.wav",1,ATTN_NORM);
+-		if(!self.enemy||!visible(self.enemy))
++		if((!self.enemy||!visible(self.enemy))&&attacker.siege_team!=self.siege_team)
+ 		{
+ 			if(self.enemy!=world&&self.enemy!=attacker)
+ 				self.oldenemy=self.enemy;
+ 			self.enemy=attacker;
+ 		}
+-		self.pain_finished=time+1+self.skin;
++		self.pain_finished=time+1+self.strength;
+ 		self.think=mezzo_pain_seq;
+ 	}
+ 	thinktime self : 0;
+@@ -1370,6 +1372,11 @@ void mezzo_run_think ()
+ 		self.think=self.th_stand;
+ 		thinktime self : 0;
+ 	}
++	if(self.flags&EF_NODRAW)
++		if(self.invisible_time>time)
++			dropStep();
++		else
++			self.effects(-)EF_NODRAW;
+ }
+ 
+ void mezzo_run_loop () [++ $run1 .. $run22]
+@@ -1574,11 +1581,11 @@ void() monster_werejaguar =
+ 		self.experience_value = 300;
+ 		if(!self.health)
+ 			self.health=400;
+-		self.skin = 1;
+ 	}
+ 	else if(!self.health)
+ 		self.health = 250;
+-
++		
++	self.strength = 1;
+ 	self.classname="monster_mezzoman";
+ 
+ 	self.th_stand=mezzo_stand;
+diff -urNp siege-0.14/MG_AI.hc siege-0.15/MG_AI.hc
+--- siege-0.14/MG_AI.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/MG_AI.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -48,8 +48,6 @@ float base, divider, attack_mod;
+ 
+ 	if(targ.effects&EF_NODRAW)
+ 	{
+-		if (self.classname=="monster_pirhana")
+-			dprint("enemy ef_nodraw\n");
+ 		targ.visibility=0;
+ 		return;
+ 	}
+@@ -64,10 +62,10 @@ float base, divider, attack_mod;
+ 	else
+ 		divider=1;
+ 
+-	if(targ.drawflags&MLS_ABSLIGHT)
+-		base=targ.abslight/2.5;
+-	else if(self.classname=="monster_pirhana"||self.classname=="monster_mezzoman")
++	if(self.classname=="monster_pirhana"||self.classname=="monster_mezzoman")
+ 		base = 2;//pirhana and mezzomen see well, even in dark
++	else if(targ.drawflags&MLS_ABSLIGHT)
++		base=targ.abslight/2.5;
+ 	else
+ 		base = 0.8;//light_lev not set right in HW
+ 		//base=targ.light_level/75;//75 is semi-fullbright
+@@ -224,7 +222,7 @@ float jump_height, jumpup, ignore_height
+ //						dprint("can't see goalentity\n");
+                         return FALSE;
+ 				}
+-                else if(!ignore_height&&self.goalentity.absmin_z+36>=self.absmin_z&&self.think!=SpiderJumpBegin&&self.classname!="monster_mezzoman")
++                else if(!ignore_height&&self.goalentity.absmin_z+36>=self.absmin_z&&self.classname!="monster_mezzoman")//SpiderJumpBegin
+ 				{
+ //						dprint("not above goalentity, and not spider\n");
+ 	                    return FALSE;
+@@ -255,9 +253,9 @@ float jump_height, jumpup, ignore_height
+                         return FALSE;
+ 				}
+ 
+-		if(self.think==SpiderJumpBegin)
+-			jump_height=vlen((self.goalentity.absmax+self.goalentity.absmin)*0.5-self.origin)/13;
+-		else
++//		if(self.think==SpiderJumpBegin)
++//			jump_height=vlen((self.goalentity.absmax+self.goalentity.absmin)*0.5-self.origin)/13;
++//		else
+ 		if(self.classname=="monster_mezzoman")
+ 			if(self.goalentity.absmin_z>=self.absmin_z+36)
+ 			{
+@@ -311,8 +309,8 @@ float jump_height, jumpup, ignore_height
+ 		ai_face();
+ //		self.ideal_yaw=jumpdir_y;
+ //		ChangeYaw();
+-		if(self.think!=SpiderJumpBegin)
+-	    {
++//		if(self.think!=SpiderJumpBegin)
++//	    {
+ 		    self.jump_flag=time + 7;        //Only try to jump once every 7 seconds
+ 			SightSound();
+ 			if(!jumpup)
+@@ -330,12 +328,12 @@ float jump_height, jumpup, ignore_height
+ 				self.th_jump();
+ 			else
+ 				thinktime self : 0.3;
+-		}
++/*		}
+ 		else
+ 		{
+ 			self.level=jump_height;
+ 			return TRUE;
+-		}
++		}*/
+ }
+ 
+ /*
+@@ -551,14 +549,14 @@ float fov(entity targ,entity from,float 
+ {
+ vector spot1,spot2;
+ float dot;
+-	spot1=from.origin+from.proj_ofs;
++	spot1=from.origin+from.view_ofs;
+ 
+-	spot2=(targ.absmin+targ.absmax)*0.5;
+-
+-	if(from.classname=="player")
+-		makevectors(from.v_angle);
++	if(targ.classname=="player")
++		spot2=targ.origin+targ.proj_ofs;
+ 	else
+-		makevectors(from.angles);
++		spot2=(targ.absmin+targ.absmax)*0.5;
++
++	makevectors(from.angles);
+ 
+ //	scope=1 - (scope/180);//converts angles into %
+ 	dot=normalize(spot2-spot1)*v_forward;
+diff -urNp siege-0.14/misc.hc siege-0.15/misc.hc
+--- siege-0.14/misc.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/misc.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -1289,6 +1289,8 @@ float impact;
+ 		return;
+ 	if(other.last_onground+0.25>time)
+ 		return;
++	if(other.movetype==MOVETYPE_FLY)
++		return;
+ 	if(self.movedir!='0 0 0')
+ 		if(normalize(other.velocity)*self.movedir<0)
+ 			return;
+@@ -1355,6 +1357,8 @@ When used, starts a ripple
+ */
+ void misc_ripples()
+ {
++	if(!self.wait)
++		self.wait = 0.1;
+ 	self.use=make_ripple;
+ }
+ 
+diff -urNp siege-0.14/newcube.hc siege-0.15/newcube.hc
+--- siege-0.14/newcube.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/newcube.hc	1998-05-23 17:23:02.000000000 +0300
+@@ -1,327 +1,121 @@
+ float cube_distance = 400;
+ 
+-void CubeDie(void)
+-{
+-	stopSound(self,0);
+-	self.owner.artifact_flags(-)self.artifact_flags;
+-	remove(self);
+-}
+-
+-float cube_find_target(void)
++void spawn_replacement_key (vector spot)
+ {
+-	entity item;
+-	float pass;
++entity newkey;
++	newkey=spawn();
++	newkey.puzzle_id = g_keyname;
++	newkey.model = g_keymdl;
++	newkey.flags2 = FL2_REPLACEMENT;//don't spawn another tracker
++	newkey.spawnflags(+)8;
++	newkey.classname="puzzle_piece";
++	setorigin(newkey,spot);
++	newkey.think = puzzle_piece;
++	thinktime newkey : 0;
++}
++
++entity key_tracker_vigil ()
++{
++entity find_key,found, zombie_keyman;
++	//first look for a player with it
++	if(!g_keyname)
++		g_keyname = "cskey";
++	find_key=find(world,puzzle_inv1,g_keyname);
++	if(find_key!=world)
++		if(find_key.netname=="")
++		{//dropped client still has it
++			dprint("Error!  Person with no name has the key!!!\n");
++			zombie_keyman = find_key;
++			find_key=world;
++		}
+ 
+-	while(pass<2)
+-	{//on pass 2, accept corpses
+-		item = findradius(self.origin, cube_distance);
+-		while (item)
+-		{
+-			if (((item.flags & FL_MONSTER) || (item.classname == "player" && deathmatch == 1&&item!=self.controller)||(pass==1&&(item.classname=="player_sheep"||item.netname=="corpse"||item.netname=="head"))) &&	item.health > 0)
++	if(find_key==world)
++	{//No one is carrying it, look for key itself
++		if(!g_keymdl)
++			g_keymdl = "models/puzzle/cskey.mdl";
++		find_key=find(world,model,g_keymdl);
++		if(find_key==world)
++		{//key not on map
++			if(self.classname!="cube_of_force")
+ 			{
+-				if(item.controller!=self.controller)
+-				{
+-					traceline (self.origin,(item.absmin+item.absmax)*0.5,TRUE,self);
+-					if (trace_fraction==1.0)
++				if(zombie_keyman!=world)
++				{//take from zombie, make not solid and spawn new key
++					dprint("zombie has only key!  Spawning replacement at: ");
++					if(pointcontents(zombie_keyman.origin)!=CONTENT_SOLID)
+ 					{
+-						if ((!item.effects & EF_NODRAW)||item.classname=="monster_pentacles")
+-						{
+-							sound(self, CHAN_ITEM, "misc/Beep1.wav", 1, ATTN_NORM);
+-							self.attack_finished=time+random(0.5);
+-							self.drawflags(+)MLS_POWERMODE;
+-							self.last_attack=0;
+-							self.enemy = item;
+-							return TRUE;
+-						}
++						dprintv("%s\n",zombie_keyman.origin);
++						spawn_replacement_key(zombie_keyman.origin);
+ 					}
++					else
++					{
++						dprintv("%s\n",self.origin);
++						spawn_replacement_key(self.origin);
++					}
++					WriteByte(MSG_ALL,SVC_NONEHASKEY);
++					zombie_keyman.puzzle_inv1="";
++					zombie_keyman.solid=SOLID_NOT;
++		//			zombie_keyman.flags(-)FL_CLIENT;
++		//			remove(zombie_keyman);
++					find_key=find(world,model,g_keymdl);
++					if(!find_key)
++						dprint("What the FUCK?  Just made key and can't find it!\n");
++				}
++				else
++				{//no one has it and it's not there- wtf?!
++					dprintv("Key was LOST!  Spawning replacement at %s\n",self.origin);
++					spawn_replacement_key(self.origin);
++					WriteByte(MSG_ALL,SVC_NONEHASKEY);
+ 				}
+ 			}
+-			item = item.chain;
+-		}
+-		pass+=1;
+-	}
+-
+-	return FALSE;
+-}
+-
+-
+-void do_fireball(vector offset);
+-
+-vector CubeDirection[6] =
+-{
+-	'90 0 0',
+-	'-90 0 0',
+-	'0 90 0',
+-	'0 -90 0',
+-	'0 0 90',
+-	'0 0 -90'
+-};
+-
+-void cube_fire(void)
+-{
+-//	float RanVal;
+-	vector targ_org;
+-//	vector targ_size_min,targ_size_max;
+-	float Distance,beam_color;
+-	entity temp;
+-
+-	if (time > self.monster_duration || self.owner.health <= 0)
+-	{
+-		CubeDie();
+-		return;
+-	}
+-
+-	if (self.enemy)
+-	{
+-		if (self.enemy.health <= 0)
+-		{
+-			self.enemy = world;
+-			self.drawflags(-)MLS_POWERMODE;
+-		}
+-	}
+-
+-	if (!self.enemy)
+-		cube_find_target();
+-
+-	if (self.enemy)
+-	{
+-		Distance = vlen(self.origin - self.enemy.origin);
+-		if (Distance > cube_distance*2)
+-		{
+-			self.enemy = world;
+-			self.drawflags(-)MLS_POWERMODE;
+ 		}
+-		else if (Distance < cube_distance)
++		else if(pointcontents(find_key.origin)==CONTENT_SOLID)
+ 		{
+-			// Got to do this otherwise tracearea sees right through you
+-			temp = self.owner;
+-			self.owner = self;
+-
+-			/*
+-			targ_size_min = self.enemy.maxs - self.enemy.mins;
+-			targ_size_max =targ_size_min;
+-			targ_size_min *=-0.5;
+-			targ_org = (self.enemy.absmin+self.enemy.absmax)*0.5 + randomv(targ_size_min,targ_size_max);
+-			*/
+-			if(self.enemy.proj_ofs!='0 0 0')
+-				targ_org=self.enemy.origin+self.enemy.proj_ofs;
+-			else
+-				targ_org=(self.enemy.absmin+self.enemy.absmax)*0.5;
+-			traceline (self.origin,targ_org,FALSE,self);
+-			if(trace_ent!=self.enemy)
+-			{//First try missed
+-				targ_org=(self.enemy.absmin+self.enemy.absmax)*0.5;
+-				traceline (self.origin,targ_org,FALSE,self);
+-			}
+-			if (trace_ent == self.enemy)
+-			{
+-				self.shot_cnt+=1;
+-				self.adjust_velocity = CubeDirection[random(0,5)];
+-				self.effects(+)EF_MUZZLEFLASH;
+-				if(self.last_attack+1.5<time)
+-					weapon_sound(self, "golem/gbfire.wav");
+-//					sound(self, CHAN_WEAPON, "golem/gbfire.wav", 1, ATTN_NORM);
+-//				else
+-//					sound(self, CHAN_BODY, "crusader/sunhum.wav", 1, ATTN_NORM);
+-//				updateSoundPos(self,CHAN_BODY);
+-//				updateSoundPos(self,CHAN_WEAPON);
+-				beam_color=rint(random(0,4));
+-				self.last_attack=time;
+-				WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
+-				WriteByte (MSG_MULTICAST, TE_CUBEBEAM);	//beam type
+-				WriteEntity (MSG_MULTICAST, self);				//owner
+-				WriteEntity (MSG_MULTICAST, self.enemy);		//victim
+-				multicast(self.origin,MULTICAST_PHS);
+-
+-				LightningDamage (self.origin, targ_org, self, 1,"cubebeam");//damage was random(1,3)
+-			}
+-			else
++			if(self.classname!="cube_of_force")
+ 			{
+-				traceline (self.origin,(self.enemy.absmin+self.enemy.absmax)*0.5,TRUE,self);
+-				if(trace_fraction!=1.0)
+-				{
+-					self.cnt+=1;
+-					if(self.cnt>=5)
+-					{//can't see enemy for last 10 tries, find someone else
+-						self.enemy=world;
+-						self.cnt=0;
+-						self.drawflags(-)MLS_POWERMODE;
+-					}
+-				}
++				setorigin(find_key,self.origin);
++				WriteByte(MSG_ALL,SVC_NONEHASKEY);
+ 			}
+-
+-			self.owner = temp;
+ 		}
+-	}
+-}
+-
+-void cube_rotate(void)
+-{
+-	vector NewOffset;
+-	
+-	NewOffset = concatv(self.adjust_velocity,'5 5 5');
+-
+-	self.adjust_velocity -= NewOffset;
+-	self.v_angle += NewOffset;
+-}
+-
+-vector CubeFollowRate = '14 14 14';
+-vector CubeAttackRate = '3 3 3';
+-
+-void CubeThinkerB(void)
+-{
+-	vector NewSpot;
+-	float Distance;
+-	thinktime self : 0.05;
+-
+-//	updateSoundPos(self,CHAN_VOICE);
+-	if (!self.owner.flags2 & FL_ALIVE) 
+-	{
+-		CubeDie();
+-		return;
+-	}
+-
+-	if(self.attack_finished<time)
+-	{
+-		if(random()<0.5)
+-			cube_fire();
+-		if(self.shot_cnt>17)//shoot for 17 sequences- 17 damage per cycle
++		else if(self.classname!="cube_of_force")//super hacky!!!
+ 		{
+-			self.shot_cnt=0;
+-			self.attack_finished=time+random(0.5,2);//wait 0.5 to 2 seconds between been shots
+-		}
+-	}
+-
+-	if (self.adjust_velocity == '0 0 0')
+-	{
+-		if (self.adjust_velocity == '0 0 0')
+-		{
+-			if (random() < 0.02)
++			found=find(world,netname,"door");
++			while(found)
+ 			{
+-				self.adjust_velocity = CubeDirection[random(0,5)];
++				if(overlapped(found,find_key))
++				{
++					dprintv("Key inside a door, moving it to %s\n",self.origin);
++					setorigin(find_key,self.origin);
++					found=world;
++				}
++				else
++					found=find(found,netname,"door");
+ 			}
+ 		}
+ 	}
+-	cube_rotate();
+-
+-	self.angles = self.owner.angles + self.v_angle;
+-	
+-	self.count += random(4,6);
+-	if (self.count > 360) 
+-	{
+-		self.count -= 360;
+-	}
+-
+-	Distance = vlen(self.origin - self.owner.origin);
+-	if (Distance > cube_distance)
+-	{
+-		self.enemy = world;
+-		self.drawflags(-)MLS_POWERMODE;
+-	}
+ 
+-	if (self.enemy != world)
+-	{
+-		NewSpot = self.enemy.origin + self.enemy.view_ofs;
+-
+-		if (self.artifact_flags & AFL_CUBE_LEFT)
+-		{
+-			NewSpot += (cos(self.count) * 40 * '1 0 0') + (sin(self.count) * 40 * '0 1 0');
+-		}
+-		else
+-		{
+-			NewSpot += (sin(self.count) * 40 * '1 0 0') + (cos(self.count) * 40 * '0 1 0');
+-		}
+-
+-		self.movedir_z += random(10,12);
+-		if (self.movedir_z > 360) 
+-		{
+-			self.movedir_z -= 360;
+-		}
+-
+-		NewSpot_z += sin(self.movedir_z) * 10;
+-
+-		NewSpot = self.origin + concatv(NewSpot - self.origin, CubeAttackRate);
+-	}
++	if(self.classname=="cube_of_force")
++		return find_key;
+ 	else
+ 	{
+-		makevectors(self.owner.v_angle);
+-
+-		if (self.artifact_flags & AFL_CUBE_LEFT)
+-		{
+-   			NewSpot = self.owner.origin + self.owner.view_ofs + '0 0 10' + v_factor('40 60 0');
+-		}
+-		else
+-		{
+-   			NewSpot = self.owner.origin + self.owner.view_ofs + '0 0 10' + v_factor('-40 60 0');
+-		}
+-
+-		self.movedir_z += random(10,12);
+-		if (self.movedir_z > 360) 
+-		{
+-			self.movedir_z -= 360;
+-		}
+-
+-		NewSpot += (v_right * cos(self.count) * 15) + (v_up * sin(self.count) * 15) +
+-				   (v_forward * sin(self.movedir_z) * 15);
+-	
+-		NewSpot = self.origin + concatv(NewSpot - self.origin, CubeFollowRate);
++		self.think=key_tracker_vigil;
++		thinktime self : 1;//Check every second
+ 	}
+-
+-	setorigin(self,NewSpot);
+ }
+ 
+-//void UseCubeOfForce(float on_spawn)
+-void UseCubeOfForce(void)
++void spawn_key_tracker ()
+ {
+-	entity cube;
+-
+-	if ((self.artifact_flags & AFL_CUBE_LEFT) &&
+-		(self.artifact_flags & AFL_CUBE_RIGHT))
+-	{  // Already got two running
+-		return;
+-	}
+-
+-	cube = spawn();
+-
+-	cube.owner = self;
+-	cube.controller = self;
+-	cube.solid = SOLID_SLIDEBOX;
+-	cube.movetype = MOVETYPE_NOCLIP;//MOVETYPE_FLY;
+-	cube.flags (+) FL_FLY | FL_NOTARGET;
+-	cube.effects = EF_UPDATESOUND;
+-	setorigin (cube, cube.owner.origin);
+-	setmodel (cube, "models/cube.mdl");
+-	setsize (cube, '-5 -5 -5', '5 5 5');		
+-
+-	sound(cube, CHAN_UPDATE+PHS_OVERRIDE_R, "misc/cubehum.wav", 1, ATTN_LOOP);
+-	cube.classname = "cube_of_force";
+-	cube.health = 10;
+-	cube.dmg = -1;
+-
+-	if (self.artifact_flags & AFL_CUBE_LEFT)
+-	{
+-		self.artifact_flags (+) AFL_CUBE_RIGHT;
+-		cube.artifact_flags (+) AFL_CUBE_RIGHT;
+-	}
+-	else
+-	{
+-		self.artifact_flags (+) AFL_CUBE_LEFT;
+-		cube.artifact_flags (+) AFL_CUBE_LEFT;
+-	}
+-	cube.think = CubeThinkerB;
+-	cube.th_die = CubeDie;
+-
+-	thinktime cube : 0.01;
+-//	if(on_spawn)
+-//		cube.monster_duration = time + 10;
+-//	else
+-		cube.monster_duration = time + 45;
+-
+-	cube.movedir = '100 100 0';
+-	cube.count = random(360);
+-	self.movedir_z = random(360);
++entity keytracker;
++	keytracker=spawn();
++	setorigin(keytracker,self.origin);
++	keytracker.think = key_tracker_vigil;
++	thinktime keytracker: 1;
++}
+ 
+-	self.cnt_cubeofforce -= 1;
++void CubeDie(void)
++{
++	stopSound(self,0);
++	self.owner.artifact_flags(-)self.artifact_flags;
++	remove(self);
+ }
+ 
+ //Key Finder
+@@ -331,31 +125,33 @@ entity find_key;
+ vector org,key_spot;
+ 	if(self.lifetime<time)
+ 	{
++		dprint("Cube timed out, removing...\n");
+ 		self.th_die();
+ 		return;
+ 	}
+ 
+-	find_key=find(world,puzzle_inv1,g_keyname);
+-	if(find_key==self.owner||find_key.siege_team==self.owner.siege_team)
+-	{
+-		self.th_die();
+-		return;
+-	}
++	find_key=key_tracker_vigil();
++
++	if(find_key.classname=="player")
++		if(find_key==self.owner||find_key.siege_team==self.owner.siege_team)
++		{
++			sprint(self.owner,PRINT_HIGH,find_key.netname);
++			sprint(self.owner,PRINT_HIGH,", your teammate, has the key!\n");
++			centerprint(self.owner,"Your teammates have the key!\n");
++			self.th_die();
++			return;
++		}
+ 	
+ 	if(!find_key)
+ 	{
+-		find_key=find(world,model,g_keymdl);
+-		if(!find_key)
++		if(self.t_width<time)
+ 		{
+-			if(self.t_width<time)
+-			{
+-				dprint("There is no Key!\n");
+-				self.t_width = time + 3;
+-			}
+-			return;
++			centerprint(self.owner,"Cube searching for key...\n");
++			self.t_width = time + 1;
+ 		}
+ 	}
+-
++	else
++	{
+ 		if(self.t_width<time)
+ 		{
+ 			if(find_key.classname=="player")
+@@ -377,6 +173,7 @@ vector org,key_spot;
+ 		key_spot=normalize(key_spot-org);
+ 		traceline(org,org+key_spot*128,FALSE,self.owner);
+ 		setorigin(self,trace_endpos);
++	}
+ 
+ 	self.think=cube_point_to_key;
+ 	thinktime self : 0.05;
+diff -urNp siege-0.14/newplay.hc siege-0.15/newplay.hc
+--- siege-0.14/newplay.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/newplay.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -948,10 +948,15 @@ vector move_dir;
+ 
+ 	if(am_beast)
+ 	{
++		if(self.hull!=HULL_GOLEM)
++			sprint(self,PRINT_HIGH,"ERROR!  HULL not beast!\n");
++		if(self.mins!='-48 -48 -50'||self.maxs!='48 48 50')
++			sprint(self,PRINT_HIGH,"ERROR!  Size not beast size!\n");
++	
+ 		if(self.act_state==ACT_ATTACK)
+-			self.hasted=3;
++			self.hasted=2;
+ 		else
+-			self.hasted=1.8;
++			self.hasted=1;
+ 
+ 		weapmod=0;
+ 		class_val=7;
+@@ -959,11 +964,18 @@ vector move_dir;
+ 		{
+ 			self.view_ofs='0 0 72';
+ 			self.frame=$walk;
+-			if(self.t_width<time)
++			if(self.cnt>=7)
+ 			{
+ 				sound(self,CHAN_AUTO,"eidolon/stomp.wav",1,ATTN_NORM);
+-				self.t_width=time+.7;
++				self.cnt=0;
+ 			}
++			else
++				self.cnt+=1;
++/*			if(self.t_width<time)
++			{
++				sound(self,CHAN_AUTO,"eidolon/stomp.wav",1,ATTN_NORM);
++				self.t_width=time+.5;
++			}*/
+ 			if(self.flags&FL_ONGROUND)
+ 			{
+ 				makevectors(self.v_angle);
+diff -urNp siege-0.14/object.hc siege-0.15/object.hc
+--- siege-0.14/object.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/object.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -25,6 +25,9 @@ void obj_fly_hurt (entity loser)
+ //FIXME: Check for sky
+ //dprint("hit\n");
+ float magnitude,my_mass;
++	if(self.classname=="player_sheep"&&self.teleport_time+1<time)
++		return;
++
+ 	if(self.frozen>0&&other.classname=="snowball")
+ 		return;
+ 
+@@ -128,7 +131,7 @@ float magnitude,my_mass;
+ 			}
+ 		}
+ 
+-		if(self.classname!="monster_mezzoman"&&self.netname!="spider")//Cats always land on their feet
++		if(self.classname!="monster_mezzoman"&&self.netname!="spider"&&self.beast_time<time)//Cats always land on their feet
+ 			if((magnitude>=100+self.health&&self.classname!="player")||(magnitude>=700&&self.safe_time<time))//health here is used to simulate structural integrity
+ 			{
+ 				if(self.classname=="player"&&self.flags&FL_ONGROUND&&magnitude<1000)
+@@ -152,8 +155,8 @@ float magnitude,my_mass;
+ 					dprint(ftos(magnitude));
+ 					dprint("\n");
+ */
+-					if(self.classname=="player_sheep"&&self.flags&FL_ONGROUND&&self.velocity_z>-50)
+-						return;
++//					if(self.classname=="player_sheep"&&self.flags&FL_ONGROUND&&self.velocity_z>-50)
++//						return;
+ 					T_Damage(self,world,world,magnitude);
+ 				}
+ 			}
+@@ -180,7 +183,10 @@ float ontop,pushed,inertia,force,walkfor
+ 	}
+ 
+ 	if(self.classname=="player_sheep"&&other.classname=="catapult")
++	{
+ 		self.spawnflags(+)1;	//Sheep won't move once on catapult
++		self.speed=0;
++	}
+ 
+ 	if(self.last_impact + 0.1<=time)
+ 		obj_fly_hurt(other);
+@@ -350,7 +356,7 @@ float ontop,pushed,inertia,force,walkfor
+ //			dprintf("Push force = %s\n",walkforce);
+ 		if(!walkmove(pushangle_y,walkforce,FALSE))//FIXME: check mass
+ 		{
+-			if (trace_ent.classname=="catapult"&&self.model=="models/barrel.mdl"&&skill==0)
++			if(self.classname=="barrel")//trace_ent.classname=="catapult"&&
+ 			{
+ 				self.velocity=pushdir*100;
+ 				self.velocity_z=80;//EZ Lift
+@@ -381,8 +387,9 @@ float ontop,pushed,inertia,force,walkfor
+ 			{
+ 				if(self.classname=="player_sheep")
+ 				{
+-					sheep_sound(.75);
+-					if(!infront(other)&&random()<0.5)
++					if(random()<0.3)
++						sheep_sound(.75);
++					if(!infront(other)&&random()<0.5&&self.speed)
+ //FIXME- find current think and set transition to run
+ 						self.think=sheep_trot;
+ 				}
+@@ -2027,6 +2034,9 @@ void let_go_excal ()
+ {
+ entity oself;
+ 	sound(other,CHAN_AUTO,"weapons/unsheath.wav",1,ATTN_NORM);
++	dprint(other.netname);
++	dprint(" is The Defender of the Crown!");
++	centerprint_all_clients("The Defender of the Crown has been chosen!\n",other);
+ 	centerprint(other,"You have been chosen as Halcyon's succesor!@Excelsior is yours, go forth and smite@thine enemies righteously!");
+ 	other.flags2(+)FL2_EXCALIBUR;
+ 	other.effects(+)EF_LIGHT;
+@@ -2041,6 +2051,7 @@ entity oself;
+ 	self=oself;
+ 	WriteByte (MSG_ALL, SVC_MIDI_NAME);
+ 	WriteString (MSG_ALL, "ofortuna");
++	WriteTeam (SVC_ISDOC,other);
+ 	remove(self);
+ }
+ 
+@@ -2126,6 +2137,7 @@ void () bestow_excalibur = [++0 .. 16]
+ 
+ void ready_bestow_excalibur2 ()
+ {
++	centerprint_all_clients("Excelsior has Arisen!\n",world);
+ 	setmodel(self,"models/lakeswd.mdl");
+ 	bestow_excalibur();
+ }
+diff -urNp siege-0.14/precache.hc siege-0.15/precache.hc
+--- siege-0.14/precache.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/precache.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -444,7 +444,7 @@ void Precache_lmp (void)
+     precache_file3 ("models/boss/shaft.mdl");
+     precache_file3 ("models/boss/circle.mdl");
+     precache_file3 ("models/boss/star.mdl");
+-	precache_sound3 ("famine/flashdie.wav");
++//	precache_sound3 ("famine/flashdie.wav");
+ 
+ 	//EIDOLON
+ 	precache_file2 ("models/boss/smaleido.mdl");
+@@ -455,19 +455,19 @@ void Precache_lmp (void)
+ 	precache_file2 ("models/boss/chaosorb.mdl");
+ 	precache_sound3 ("eidolon/roar.wav");
+ 	precache_sound3 ("eidolon/pain.wav");	//Hurt
+-	precache_sound3 ("eidolon/death.wav");	//Dies- long and agonizing
+-	precache_sound3 ("eidolon/fakedie.wav");//1st death- fake
+-	precache_sound3 ("eidolon/spell.wav");	//Spell attack (tracking globes)
+-	precache_sound3 ("eidolon/stomp.wav");	//Hot-steppin'
+-	precache_sound3 ("eidolon/fireball.wav");	//Launching Nasty fireballs
+-	precache_sound3 ("eidolon/flamstrt.wav");	//
+-	precache_sound3 ("eidolon/flambrth.wav");	//
+-	precache_sound3 ("eidolon/flamend.wav");	//
++//	precache_sound3 ("eidolon/death.wav");	//Dies- long and agonizing
++//	precache_sound3 ("eidolon/fakedie.wav");//1st death- fake
++//	precache_sound3 ("eidolon/spell.wav");	//Spell attack (tracking globes)
++//	precache_sound3 ("eidolon/stomp.wav");	//Hot-steppin'
++//	precache_sound3 ("eidolon/fireball.wav");	//Launching Nasty fireballs
++//	precache_sound3 ("eidolon/flamstrt.wav");	//
++//	precache_sound3 ("eidolon/flambrth.wav");	//
++//	precache_sound3 ("eidolon/flamend.wav");	//
+ 	precache_sound3 ("eidolon/growl.wav");		//
+-	precache_sound3 ("eidolon/chrgstrt.wav"); 	//Orb starts recharging Eido
+-	precache_sound3 ("eidolon/orbhurt.wav");	//Orb gets hit
+-	precache_sound3 ("eidolon/orbxpld.wav");	//Orb gets destroyed
+-	precache_sound3 ("eidolon/orbpulse.wav");	//Orb pulsating
++//	precache_sound3 ("eidolon/chrgstrt.wav"); 	//Orb starts recharging Eido
++//	precache_sound3 ("eidolon/orbhurt.wav");	//Orb gets hit
++//	precache_sound3 ("eidolon/orbxpld.wav");	//Orb gets destroyed
++//	precache_sound3 ("eidolon/orbpulse.wav");	//Orb pulsating
+ 
+ 	//PESTILENCE
+ 	precache_file2 ("models/boss/boar.mdl");
+@@ -567,7 +567,7 @@ void Precache_wav (void)
+ 
+ //Miscellaneous
+ 	precache_sound ("misc/drip.wav");		//Ambience
+-	precache_sound ("misc/bshatter.wav");	//Burnt thing breaking
++//	precache_sound ("misc/bshatter.wav");	//Burnt thing breaking
+ 	precache_sound ("misc/sshatter.wav");	//Stone thing breaking
+ 	precache_sound ("misc/pushmetl.wav");	//Pushing different materials- metal
+ 	precache_sound ("misc/pushwood.wav");	//Wood
+@@ -577,7 +577,7 @@ void Precache_wav (void)
+ 	precache_sound ("misc/fburn_md.wav");	//Medium fire buring
+ 	precache_sound ("misc/fburn_bg.wav");	//Big ol' blaze!
+ 	precache_sound ("misc/decomp.wav");		//Decomposing sound- actually used for blood squirts
+-	precache_sound ("misc/camera.wav");		//View through camera
++//	precache_sound ("misc/camera.wav");		//View through camera
+ 	precache_sound ("misc/hith2o.wav");		// thing landing in water
+ 	precache_sound ("misc/lighthit.wav");	//Something hit by lightning
+ 	precache_sound ("misc/teleprt1.wav");	// teleport sounds- teleport coin
+@@ -587,7 +587,7 @@ void Precache_wav (void)
+ 	precache_sound ("misc/teleprt5.wav");
+ 	precache_sound ("misc/comm.wav");		// communication
+ 	precache_sound ("misc/talk.wav");		// communication
+-	precache_sound ("raven/squawk.wav");	//Ambient raven
++//	precache_sound ("raven/squawk.wav");	//Ambient raven
+ 	precache_sound ("raven/blast.wav");	
+ 	precache_sound ("doors/baddoor.wav");   // Bad attempt to open a door
+ 	precache_sound ("buttons/switch04.wav");	// used by the trip mine
+@@ -618,7 +618,7 @@ void Precache_wav (void)
+ 	precache_sound ("items/artpkup.wav");
+ 	precache_sound ("items/armrpkup.wav");
+ 	precache_sound ("misc/warning.wav");   //glyph about to explode
+-	precache_sound ("crusader/sunhum.wav");	
++//	precache_sound ("crusader/sunhum.wav");	
+ 	//Summoning Stone
+ 	precache_sound ("imp/upbig.wav");
+ 	precache_sound ("imp/diebig.wav");
+@@ -627,6 +627,7 @@ void Precache_wav (void)
+ 	precache_sound ("imp/flybig.wav");
+ 	precache_sound ("imp/fireball.wav");
+ 	precache_sound ("imp/shard.wav");
++	precache_sound ("hydra/turn-s.wav");
+ 
+ //SHARED PLAYER SOUNDS
+ 	//General body/physics sounds
+@@ -644,7 +645,7 @@ void Precache_wav (void)
+ 	precache_sound ("player/megagib.wav");		//Really nasty explosive death
+ 	precache_sound ("player/gib1.wav");			// player gib sound
+ 	precache_sound ("player/gib2.wav");			// player gib sound
+-	precache_sound ("player/slimbrn1.wav");	// player enter slime
++//	precache_sound ("player/slimbrn1.wav");	// player enter slime
+ 	//General weapon sounds
+ 	precache_sound ("misc/whoosh.wav");			//Throwing grenades, swing weapons, etc.
+ 	precache_sound ("weapons/unsheath.wav");	//Unsheath bladed weapon
+@@ -691,8 +692,8 @@ void Precache_wav (void)
+ 	precache_sound ("paladin/axgenpr.wav");		
+ 	precache_sound ("paladin/axblade.wav");		
+ 	//Purifier
+-	precache_sound ("paladin/purfire.wav");	
+-	precache_sound ("paladin/purfireb.wav");	
++//	precache_sound ("paladin/purfire.wav");	
++//	precache_sound ("paladin/purfireb.wav");	
+ 	//Glyph: delayed fireball
+ 	precache_sound ("weapons/fbfire.wav");		//Delayed fireball explosion sound	
+ 
+@@ -720,16 +721,16 @@ void Precache_wav (void)
+ 	//Grenades
+ 	precache_sound ("assassin/gbounce.wav");	
+ 	//Scarab Staff
+-	precache_sound ("assassin/build.wav");	
+-	precache_sound ("assassin/pincer.wav");	
++//	precache_sound ("assassin/build.wav");	
++//	precache_sound ("assassin/pincer.wav");	
+ 	precache_sound ("assassin/chntear.wav");	
+-	precache_sound ("assassin/chn2flsh.wav");	
++//	precache_sound ("assassin/chn2flsh.wav");	
+ 	precache_sound ("assassin/chain.wav");	
+ //	precache_sound ("assassin/clink.wav");	
+-	precache_sound ("assassin/scarab.wav");	
+-	precache_sound ("assassin/scrbfly.wav");	
+-	precache_sound ("assassin/spin.wav");	
+-	precache_sound ("assassin/core.wav");	
++//	precache_sound ("assassin/scarab.wav");	
++//	precache_sound ("assassin/scrbfly.wav");	
++//	precache_sound ("assassin/spin.wav");	
++//	precache_sound ("assassin/core.wav");	
+ 	precache_sound ("misc/pulse.wav");			//Invincibility
+ 
+ //REGISTERED======================================================
+@@ -747,20 +748,20 @@ void Precache_wav (void)
+ 	precache_sound ("raven/lightng1.wav");
+ 	//Ice Staff
+ 	precache_sound ("crusader/icehit.wav");	
+-	precache_sound ("crusader/icewall.wav");	
+-	precache_sound ("crusader/icefire.wav");	
+-	precache_sound ("misc/tink.wav");				//Ice shots bounce
+-	precache_sound ("crusader/blizfire.wav");	
+-	precache_sound ("crusader/blizzard.wav");	
+-	precache_sound ("crusader/frozen.wav");	
+-	precache_sound ("misc/icestatx.wav");	//Ice statue breaking
++//	precache_sound ("crusader/icewall.wav");	
++//	precache_sound ("crusader/icefire.wav");	
++//	precache_sound ("misc/tink.wav");				//Ice shots bounce
++//	precache_sound ("crusader/blizfire.wav");	
++//	precache_sound ("crusader/blizzard.wav");	
++//	precache_sound ("crusader/frozen.wav");	
++//	precache_sound ("misc/icestatx.wav");	//Ice statue breaking
+ 	//Meteor Staff
+-	precache_sound ("crusader/metfire.wav");	
++//	precache_sound ("crusader/metfire.wav");	
+ 	precache_sound ("misc/rubble.wav");			//Meteor bits fall, stoned player bits fall (from Medusa)
+-	precache_sound ("crusader/torngo.wav");	
+-	precache_sound ("crusader/tornado.wav");	
++//	precache_sound ("crusader/torngo.wav");	
++//	precache_sound ("crusader/tornado.wav");	
+ 	//Sunstaff
+-	precache_sound ("crusader/sunstart.wav");	
++//	precache_sound ("crusader/sunstart.wav");	
+ 	precache_sound ("crusader/sunhit.wav");	
+ 
+ //NECROMANCER
+@@ -769,18 +770,29 @@ void Precache_wav (void)
+ 	//Magic Missiles
+ 	precache_sound ("necro/mmfire.wav");	
+ 	//Bone Shards
+-	precache_sound ("necro/bonefpow.wav");	
+-	precache_sound ("necro/bonefnrm.wav");	
+-	precache_sound ("necro/bonephit.wav");	
+-	precache_sound ("necro/bonenhit.wav");	
+-	precache_sound ("necro/bonenwal.wav");	
++//	precache_sound ("necro/bonefpow.wav");	
++//	precache_sound ("necro/bonefnrm.wav");	
++//	precache_sound ("necro/bonephit.wav");	
++//	precache_sound ("necro/bonenhit.wav");	
++//	precache_sound ("necro/bonenwal.wav");	
+ 	//Raven Staff
+-	precache_sound ("raven/ravengo.wav");		
+-	precache_sound ("raven/squawk2.wav");		
+-	precache_sound ("raven/death.wav");
+-	precache_sound ("raven/rfire1.wav");
+-	precache_sound ("raven/rfire2.wav");
+-	precache_sound ("raven/split.wav");
++//	precache_sound ("raven/ravengo.wav");		
++//	precache_sound ("raven/squawk2.wav");		
++//	precache_sound ("raven/death.wav");
++//	precache_sound ("raven/rfire1.wav");
++//	precache_sound ("raven/rfire2.wav");
++//	precache_sound ("raven/split.wav");
++	precache_sound2 ("eidolon/roar.wav");
++	precache_sound2 ("eidolon/pain.wav");		//Hurt
++	precache_sound2 ("eidolon/death.wav");		//Dies- long and agonizing
++	precache_sound2 ("eidolon/growl.wav");		//
++	precache_sound2 ("yakman/slam.wav");
++	precache_sound2 ("yakman/grunt.wav");
++	precache_sound2 ("eidolon/stomp.wav");		//Hot-steppin'
++//WIN
++	precache_sound ("misc/winner.wav");	
++	precache_sound ("misc/victory.wav");
++	precache_sound ("misc/smite.wav");		//Bad boy!
+ }
+ 
+ //Succubus precache shit
+@@ -797,30 +809,30 @@ void Precache_Demoness (void)
+ //	precache_model5("models/xplsn_3.spr");
+ 	precache_model5("models/spark.spr");
+ //Weapon 2
+-	precache_model5("models/sucwp2.mdl");
++//	precache_model5("models/sucwp2.mdl");
+ 	precache_model5("models/sucwp2p.mdl");
+-	precache_model5("models/muzzle1.spr");
+-	precache_model5("models/axplsn_1.spr");
+-	precache_model5("models/axplsn_2.spr");
++//	precache_model5("models/muzzle1.spr");
++//	precache_model5("models/axplsn_1.spr");
++//	precache_model5("models/axplsn_2.spr");
+ //	precache_model5("models/axplsn_3.spr");
+ //	precache_model5("models/axplsn_4.spr");
+-	precache_model5("models/axplsn_5.spr");
++//	precache_model5("models/axplsn_5.spr");
+ //Weapon 3
+ 	precache_model5("models/sucwp3.mdl");
+-	precache_model5("models/flamestr.spr"); //demoness
+-	precache_model5("models/pow.spr");      //demoness
++//	precache_model5("models/flamestr.spr"); //demoness
++//	precache_model5("models/pow.spr");      //demoness
+ 	precache_model5("models/firewal1.spr"); //demoness
+ 	precache_model5("models/firewal2.spr");
+ 	precache_model5("models/firewal3.spr");
+-	precache_model5("models/fboom.spr");
++//	precache_model5("models/fboom.spr");
+ 	precache_model5("models/firewal5.spr");
+ 	precache_model5("models/firewal4.spr");
+ 
+ //Weapon 4
+-	precache_model5("models/sucwp4.mdl");
+-	precache_model5("models/lball.mdl");
+-	precache_model5("models/Bluexp3.spr");
+-	precache_model5	("models/stltng2.mdl");	//Lightning- (warhammer, eidolon, lightwp)
++//	precache_model5("models/sucwp4.mdl");
++//	precache_model5("models/lball.mdl");
++//	precache_model5("models/Bluexp3.spr");
++//	precache_model5	("models/stltng2.mdl");	//Lightning- (warhammer, eidolon, lightwp)
+ 
+ 
+ //SOUNDS
+@@ -833,32 +845,32 @@ void Precache_Demoness (void)
+ 	precache_sound5 ("succubus/brnhit.wav");
+ 	precache_sound5 ("succubus/brnwall.wav");
+ //Weapon 2
+-	precache_sound5 ("succubus/acidfire.wav");
+-	precache_sound5 ("succubus/acidpfir.wav");
+-	precache_sound5 ("succubus/acidhit.wav");
+-	precache_sound5 ("succubus/blobexpl.wav");
+-	precache_sound5 ("succubus/dropfizz.wav");
++//	precache_sound5 ("succubus/acidfire.wav");
++//	precache_sound5 ("succubus/acidpfir.wav");
++//	precache_sound5 ("succubus/acidhit.wav");
++//	precache_sound5 ("succubus/blobexpl.wav");
++//	precache_sound5 ("succubus/dropfizz.wav");
+ //Weapon 3
+ 	//precache_sound ("mummy/mislfire.wav");
+ 	//precache_sound ("eidolon/flamend.wav");
+ 	//precache_sound ("misc/fburn_bg.wav");
+ 	//precache_sound ("death/fout.wav");
+ //	precache_sound5 ("succubus/firecirc.wav");
+-	precache_sound5 ("succubus/flamend.wav");
+-	precache_sound5 ("succubus/flamstrt.wav");
+-	precache_sound5 ("succubus/flampow.wav");
++//	precache_sound5 ("succubus/flamend.wav");
++//	precache_sound5 ("succubus/flamstrt.wav");
++//	precache_sound5 ("succubus/flampow.wav");
+ 	
+ //Weapon 4
+-	precache_sound5 ("succubus/firelght.wav");
+-	precache_sound5 ("succubus/firelbal.wav");
+-	precache_sound5 ("succubus/firelpow.wav");
++//	precache_sound5 ("succubus/firelght.wav");
++//	precache_sound5 ("succubus/firelbal.wav");
++//	precache_sound5 ("succubus/firelpow.wav");
+ 	precache_sound5 ("crusader/lghtn2.wav");
+-	precache_sound5 ("succubus/buzz.wav");
+-	precache_sound5 ("succubus/buzz2.wav");
++//	precache_sound5 ("succubus/buzz.wav");
++//	precache_sound5 ("succubus/buzz2.wav");
+ //Glyph
+-	precache_sound5 ("succubus/gasss.wav");
+-	precache_sound5 ("succubus/hisss.wav");
+-	precache_sound5 ("succubus/endhisss.wav");
++//	precache_sound5 ("succubus/gasss.wav");
++//	precache_sound5 ("succubus/hisss.wav");
++//	precache_sound5 ("succubus/endhisss.wav");
+ 
+ }
+ 
+@@ -879,8 +891,8 @@ void Precache_Id_mdl (void)
+ void Precache_mdl (void)
+ {
+ //REMOVE!!!
+-	precache_model("models/akarrow.mdl");//Mummy, archer, pstboar
+-	precache_model("models/dthball.mdl");//Goes in dthfire.hc
++//	precache_model("models/akarrow.mdl");//Mummy, archer, pstboar
++//	precache_model("models/dthball.mdl");//Goes in dthfire.hc
+ 
+ //MISC
+ 	precache_model ("models/teleport.mdl");	//Teleport model
+@@ -920,18 +932,18 @@ void Precache_mdl (void)
+ 	precache_model("models/shard.mdl");	//shard model for ice, rock, ashes
+ 
+ //ARTIFACTS
+-	precache_model("models/a_shbost.mdl");
+-	precache_model("models/a_hboost.mdl");
++//	precache_model("models/a_shbost.mdl");
++//	precache_model("models/a_hboost.mdl");
+ 	precache_model("models/a_torch.mdl");
+-	precache_model("models/a_blast.mdl");
+-	precache_model("models/a_mboost.mdl");
++//	precache_model("models/a_blast.mdl");
++//	precache_model("models/a_mboost.mdl");
+ 	precache_model("models/a_telprt.mdl");
+-	precache_model("models/a_tome.mdl");
+-	precache_model("models/a_summon.mdl");
++//	precache_model("models/a_tome.mdl");
++//	precache_model("models/a_summon.mdl");
+ //	precache_model("models/a_mine.mdl");
+ 	precache_model("models/a_glyph.mdl");
+-	precache_model("models/a_haste.mdl");
+-	precache_model("models/a_poly.mdl");
++//	precache_model("models/a_haste.mdl");
++//	precache_model("models/a_poly.mdl");
+ //	precache_model("models/a_mirror.mdl");
+ 	precache_model("models/a_cube.mdl");
+ 	precache_model("models/a_invinc.mdl");
+@@ -939,7 +951,7 @@ void Precache_mdl (void)
+ //	precache_model("models/a_xray.mdl");
+ 	precache_model("models/a_invis.mdl");
+ 	precache_model("models/cube.mdl");
+-	precache_model("models/ringft.mdl");
++//	precache_model("models/ringft.mdl");
+ 
+ 	//Lambinator
+ 	precache_model("models/sheep.mdl");
+@@ -955,31 +967,31 @@ void Precache_mdl (void)
+ 	precache_model("models/i_bplate.mdl");
+ 	precache_model("models/i_helmet.mdl");
+ 	precache_model("models/i_amulet.mdl");
+-	precache_model ("models/i_gmana.mdl");	// Instant Mana
+-	precache_model ("models/i_bmana.mdl");
+-	precache_model ("models/i_btmana.mdl");
+-	precache_model ("models/i_hboost.mdl");	// Instant Health
++//	precache_model ("models/i_gmana.mdl");	// Instant Mana
++//	precache_model ("models/i_bmana.mdl");
++//	precache_model ("models/i_btmana.mdl");
++//	precache_model ("models/i_hboost.mdl");	// Instant Health
+ 	precache_model ("models/bag.mdl");	// Our version of a backpack
+ 
+ //TE_STREAM models
+ 	// TE_STREAM_SUNSTAFF1 / TE_STREAM_SUNSTAFF2
+-	precache_model("models/stsunsf1.mdl");	//Sunbeam and ball models
+-	precache_model("models/stsunsf2.mdl");
+-	precache_model("models/stsunsf3.mdl");
+-	precache_model("models/stsunsf4.mdl");
+-	precache_model("models/stsunsf5.mdl");
++//	precache_model("models/stsunsf1.mdl");	//Sunbeam and ball models
++//	precache_model("models/stsunsf2.mdl");
++//	precache_model("models/stsunsf3.mdl");
++//	precache_model("models/stsunsf4.mdl");
++//	precache_model("models/stsunsf5.mdl");
+ 	// TE_STREAM_LIGHNING
+ 	precache_model	("models/stlghtng.mdl");	//Lightning- also warhammer
+ 	// TE_STREAM_CHAIN
+ 	precache_model("models/stchain.mdl");	//Chain- also for Scarab staff
+ 	// TE_STREAM_COLORBEAM
+-	precache_model("models/stclrbm.mdl");	//Colored beams of light
++//	precache_model("models/stclrbm.mdl");	//Colored beams of light
+ 	// TE_STREAM_ICECHUNKS
+-	precache_model("models/stice.mdl");		//For blizzard
++//	precache_model("models/stice.mdl");		//For blizzard
+ 	// TE_STREAM_GAZE
+-	precache_model("models/stmedgaz.mdl");	//Medusa's gaze
++//	precache_model("models/stmedgaz.mdl");	//Medusa's gaze
+ 	// TE_STREAM_FAMINE
+-	precache_model("models/fambeam.mdl");	//Famine's beam attack
++//	precache_model("models/fambeam.mdl");	//Famine's beam attack
+ 
+ //GLYPHS
+ 	precache_model("models/glyph.mdl");		//Non-artifact flagged glyph
+@@ -1005,10 +1017,10 @@ void Precache_mdl (void)
+ 	precache_model("models/vorpshok.mdl");	//Vorpal sword & lightning hit
+ 	precache_model("models/vorpshk2.mdl");
+ 	//Purifier
+-	precache_model("models/purifier.mdl");
+-	precache_model("models/purfir1.mdl");	//Purifier flame
+-	precache_model("models/drgnball.mdl");	//Purifier fireball, take 2
+-	precache_model("models/ring.mdl");		//Smoke ring
++//	precache_model("models/purifier.mdl");
++//	precache_model("models/purfir1.mdl");	//Purifier flame
++//	precache_model("models/drgnball.mdl");	//Purifier fireball, take 2
++//	precache_model("models/ring.mdl");		//Smoke ring
+ 
+ //ASSASSIN
+ 	precache_model ("models/assassin.mdl");
+@@ -1018,7 +1030,7 @@ void Precache_mdl (void)
+ 	precache_model("models/punchdgr.mdl");
+ 	//Crossbow
+ 	precache_model("models/xbow2.mdl");
+-	precache_model("models/w_l3_c4.mdl");
++//	precache_model("models/w_l3_c4.mdl");
+ 	precache_model("models/arrows.mdl");
+ 	precache_model("models/crossbow.mdl");
+ 	precache_model ("models/arrow.mdl");
+@@ -1029,10 +1041,10 @@ void Precache_mdl (void)
+ 	precache_model("models/v_assgr.mdl");
+ //	precache_model("models/assgren.mdl");
+ 	//Scarab Staff
+-	precache_model("models/scarabst.mdl");
+-	precache_model("models/scrbstp1.mdl");
+-	precache_model("models/scrbpbdy.mdl");
+-	precache_model("models/scrbpwng.mdl");
++//	precache_model("models/scarabst.mdl");
++//	precache_model("models/scrbstp1.mdl");
++//	precache_model("models/scrbpbdy.mdl");
++//	precache_model("models/scrbpwng.mdl");
+ 
+ 
+ //REGISTERED=======================================================
+@@ -1046,15 +1058,15 @@ void Precache_mdl (void)
+ 	precache_model("models/spllbook.mdl");
+ 	precache_model("models/handfx.mdl");
+ 	//Bone Shards
+-	precache_model("models/bonefx.mdl");
+-	precache_model("models/boneshot.mdl");
+-	precache_model("models/boneshrd.mdl");
+-	precache_model("models/bonelump.mdl");
++//	precache_model("models/bonefx.mdl");
++//	precache_model("models/boneshot.mdl");
++//	precache_model("models/boneshrd.mdl");
++//	precache_model("models/bonelump.mdl");
+ 	//Raven Staff
+-	precache_model("models/ravenstf.mdl");
+-	precache_model("models/vindsht1.mdl");
+-	precache_model("models/ravproj.mdl");
+-	precache_model("models/birdmsl2.mdl");
++//	precache_model("models/ravenstf.mdl");
++//	precache_model("models/vindsht1.mdl");
++//	precache_model("models/ravproj.mdl");
++//	precache_model("models/birdmsl2.mdl");
+ 
+ //CRUSADER
+ 	precache_model("models/crusader.mdl");
+@@ -1064,15 +1076,15 @@ void Precache_mdl (void)
+ 	precache_model("models/hamthrow.mdl");
+ 	//Ice Staff
+ 	precache_model("models/icestaff.mdl");
+-	precache_model("models/iceshot1.mdl");
+-	precache_model("models/iceshot2.mdl");
++//	precache_model("models/iceshot1.mdl");
++//	precache_model("models/iceshot2.mdl");
+ 	//Meteor Staff
+-	precache_model("models/meteor.mdl");
+-	precache_model("models/tempmetr.mdl");//temp- meteor projectile
+-	precache_model("models/tornato.mdl");
+-	precache_model("models/funnal.mdl");
++//	precache_model("models/meteor.mdl");
++//	precache_model("models/tempmetr.mdl");//temp- meteor projectile
++//	precache_model("models/tornato.mdl");
++//	precache_model("models/funnal.mdl");
+ 	//Sunstaff
+-	precache_model("models/sunstaff.mdl");
++//	precache_model("models/sunstaff.mdl");
+ 
+ //SPECIAL ABILITIES
+ 	//Necromancer
+@@ -1082,9 +1094,8 @@ void Precache_mdl (void)
+ 	precache_model ("models/goodsphr.mdl");//Smiting Sphere
+ 	precache_model ("models/cross.mdl");
+ 
+-	precache_model ("models/birdmisl.mdl");
++//	precache_model ("models/birdmisl.mdl");
+ //Miscellaneous Shared
+-	precache_model ("models/fireball.mdl");//Fireball traps, imps
+ 	precache_model ("models/test.mdl");	//For testing
+ 
+ //SIEGE
+@@ -1094,15 +1105,7 @@ void Precache_mdl (void)
+ 	precache_sound("misc/combust.wav");
+ //Become beast
+ 	precache_model2 ("models/yakman.mdl");
+-	precache_sound2 ("eidolon/roar.wav");
+-	precache_sound2 ("eidolon/pain.wav");
+-	precache_sound2 ("eidolon/death.wav");
+-	precache_sound2 ("eidolon/growl.wav");
+-	precache_sound2 ("yakman/slam.wav");
+-	precache_sound2 ("yakman/grunt.wav");
+-	precache_sound2 ("eidolon/stomp.wav");
+-//WIN
+-	precache_sound2 ("misc/victory.wav");
++	precache_model ("models/god.mdl");		//The big guy
+ }
+ 
+ 
+@@ -1122,22 +1125,22 @@ void Precache_spr (void)
+ 	precache_model("models/bspark.spr");
+ 	precache_model("models/rcloud.spr");
+ 
+-	precache_model ("models/eidoflam.spr");
++//	precache_model ("models/eidoflam.spr");
+ 
+ 	precache_model("models/fcircle.spr");
+ 	precache_model("models/fl_expld.spr");
+ 
+ 	precache_model("models/gen_expl.spr");
+-	precache_model ("models/ghost.spr");
++//	precache_model ("models/ghost.spr");
+ 	precache_model ("gfx/glass.spr");
+ 	precache_model("models/grnsmk1.spr");
+ 	precache_model ("models/gryspt.spr");
+ 	precache_model("models/grysmk1.spr");
+ 	precache_model ("models/gspark.spr");
+ 
+-	precache_model("models/icehit.spr");	//Ice mace shot impact
++//	precache_model("models/icehit.spr");	//Ice mace shot impact
+ 	
+-	precache_model ("models/medhit.spr");
++//	precache_model ("models/medhit.spr");
+ 	precache_model ("models/mezzoref.spr");
+ 	precache_model ("models/mm_expld.spr");
+ 
+@@ -1169,7 +1172,7 @@ void Precache_spr (void)
+ 	precache_model("models/wsplash.spr");
+ 
+ 	precache_model("models/xbowexpl.spr");	//Crossbow explosion
+-	precache_model("models/xplod29.spr");	//old Eidolon flames
++//	precache_model("models/xplod29.spr");	//old Eidolon flames
+ 	precache_model("models/xpspblue.spr");
+ 
+ 	precache_model("models/yr_flsh.spr");
+@@ -1217,11 +1220,11 @@ void Precache_hw(void)
+ 	precache_file5("maps/hwdm4.bsp");
+ 	precache_file5("maps/hwdm5.bsp");
+ 
+-	precache_sound5 ("crusader/sunhuml.wav");		//Looping sunhum
+-	precache_sound5 ("misc/cubehum.wav");			//force cube
+-	precache_sound5 ("misc/Beep1.wav");				//force cube
+-	precache_sound5 ("misc/pulsel.wav");			//Fully charged staff- loops
+-	precache_sound5 ("golem/gbfire.wav");
++//	precache_sound5 ("crusader/sunhuml.wav");		//Looping sunhum
++//	precache_sound5 ("misc/cubehum.wav");			//force cube
++//	precache_sound5 ("misc/Beep1.wav");				//force cube
++//	precache_sound5 ("misc/pulsel.wav");			//Fully charged staff- loops
++//	precache_sound5 ("golem/gbfire.wav");
+ 
+ 	// Models
+ 	precache_model5("models/assgren.mdl");
+diff -urNp siege-0.14/progs.src siege-0.15/progs.src
+--- siege-0.14/progs.src	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/progs.src	1998-05-16 15:15:34.000000000 +0300
+@@ -25,7 +25,7 @@ subs.hc
+ fight.hc
+ path.hc
+ ai.hc
+-spawner.hc
++//spawner.hc
+ projbhvr.hc		// Miscellaneous Projectile Behaviour(homing, spiral, spread, etc)
+ ravenai.hc
+ MG_AI.hc		//New AI routines
+@@ -57,27 +57,27 @@ explode.hc		//explosions, weapons.hc was
+ gauntlet.hc		// Paladin Weapons
+ vorpal.hc
+ axe.hc
+-purifier.hc
++//purifier.hc
+ 
+ warhamer.hc		// Crusader weapons
+ icemace.hc
+-meteor.hc
+-sunstaff.hc
++//meteor.hc
++//sunstaff.hc
+ 
+ sickle.hc		// Necromancer weapons
+ magicmis.hc
+-boner.hc
+-ravenstf.hc
++//boner.hc
++//ravenstf.hc
+ 
+ punchdgr.hc		// Assassin weapons
+ assgren.hc
+ crossbow.hc
+-setstaff.hc
++//setstaff.hc
+ 
+ bldrain.hc
+-acidorb.hc
++//acidorb.hc
+ flameorb.hc
+-lightwp.hc		// Succubus Weapons
++//lightwp.hc		// Succubus Weapons
+ 
+ weapons.hc
+ tripmine.hc		// UQ tripmines
+@@ -110,26 +110,26 @@ setmodth.hc
+ 
+ fish.hc
+ sheep.hc
+-raven.hc
++//raven.hc
+ rat.hc
+-snake.hc
++//snake.hc
+ 
+ fireball.hc		// Imp stuff
+ shardice.hc
+-mummy.hc
++//mummy.hc
+ imp.hc
+-spider.hc
+-scorpion.hc
+-golem.hc
+-skullwiz.hc
+-medusa.hc
++//spider.hc
++//scorpion.hc
++//golem.hc
++//skullwiz.hc
++//medusa.hc
+ mezzoman.hc
+-archer.hc
++//archer.hc
+ spit.hc			// Hydra stuff
+-hydra.hc
+-faspell.hc      // Fallen angel stuff
+-fablade.hc
+-fangel.hc
++//hydra.hc
++//faspell.hc      // Fallen angel stuff
++//fablade.hc
++//fangel.hc
+ 
+ eric.hc
+ 
+diff -urNp siege-0.14/proto.hc siege-0.15/proto.hc
+--- siege-0.14/proto.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/proto.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -97,3 +97,10 @@ void()catapult_fire;
+ void VictoryPic(float winpic);
+ void breakable_hurt_use(entity attacker,float total_damage);
+ void() NextLevel;
++void centerprint_all_clients (string victory_msg,entity ignore);
++void end_siege_game (float loserteam,float winpic);
++void puzzle_piece(void);
++float overlapped (entity ent1, entity ent2);
++void UnBeast (entity targ);
++void Ring_WaterBreathing (void);
++void WriteTeam (float svmsg,entity holder);
+diff -urNp siege-0.14/punchdgr.hc siege-0.15/punchdgr.hc
+--- siege-0.14/punchdgr.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/punchdgr.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -60,7 +60,7 @@ void fire_punchdagger ()
+ 	float damg, inertia;
+ 	float damage_mod;
+ 	float damage_base;
+-	float c_level;
++	float backstab;
+ 	
+ 	damage_mod = 10;
+ 
+@@ -89,53 +89,21 @@ void fire_punchdagger ()
+ 	{
+ 
+ 		//FIXME:Add multiplier for level and strength
+-		if (trace_ent.flags2&FL_ALIVE && !infront_of_ent(self,trace_ent) && self.playerclass==CLASS_ASSASSIN &&
+-              self.weapon==IT_WEAPON1 && self.level >5)
++		if(trace_ent.flags2&FL_ALIVE&&self.playerclass==CLASS_ASSASSIN)//!fov(self,trace_ent,90)
+ 		{
+-			c_level = self.level;
+-			if (c_level > 10)
+-				c_level = 10;
+-
+-			if (random(1,10)<=(c_level - 4))
++		vector t_vf,m_vf;
++			makevectors(trace_ent.angles);
++			t_vf = v_forward;
++			makevectors(self.angles);
++			m_vf = v_forward;
++			makevectors(self.v_angle);
++			if(t_vf*m_vf>0.5)//facing generally the same direction
+ 			{
+-				damage_base = trace_ent.health * 0.75;
+-				damage_mod = trace_ent.health * 0.5;
+ 				CreateRedFlash(trace_endpos);
+-				centerprint(self,"Critical Hit Backstab!\n");
++				damage_base=random(50,100);
++				backstab=TRUE;
+ 			}
+ 		}
+-
+-		else if (self.artifact_active & ART_TOMEOFPOWER)
+-		{
+-			damage_base = WEAPON1_PWR_BASE_DAMAGE+5;//can't use as often, so do more damage
+-			damage_mod = WEAPON1_PWR_ADD_DAMAGE;
+-
+-			punchdagger_swipeitem (self, trace_ent);
+-
+-			CreateWhiteFlash(org);
+-		
+-			if(trace_ent.mass<=10)
+-				inertia=1;
+-			else
+-				inertia=trace_ent.mass/10;
+-
+-			if ((trace_ent.hull != HULL_BIG) && (inertia<1000) && (trace_ent.classname != "breakable_brush"))
+-			{
+-				if (trace_ent.mass < 1000)
+-				{
+-					dir =  trace_ent.origin - self.origin;
+-					trace_ent.velocity = dir * WEAPON1_PUSH*(1/inertia);
+-					if(trace_ent.movetype==MOVETYPE_FLY)
+-					{
+-						if(trace_ent.flags&FL_ONGROUND)
+-							trace_ent.velocity_z=200/inertia;
+-					}
+-					else
+-						trace_ent.velocity_z = 200/inertia;
+-					trace_ent.flags(-)FL_ONGROUND;
+-				}
+-			}	
+-		}
+ 		else
+ 		{
+ 			damage_base = WEAPON1_BASE_DAMAGE;
+@@ -148,6 +116,18 @@ void fire_punchdagger ()
+ 
+ 		if (!MetalHitSound(trace_ent.thingtype))
+ 			sound (self, CHAN_WEAPON, "weapons/slash.wav", 1, ATTN_NORM);
++
++		if(backstab)
++		{
++			if(!trace_ent.flags2&FL_ALIVE)
++			{
++				centerprint(self,"Critical Hit Backstab!\n");
++			}
++			else
++			{
++				centerprint(self,"Backstab!\n");
++			}
++		}
+ 	}
+ 	else
+ 	{	// hit wall
+diff -urNp siege-0.14/rings.hc siege-0.15/rings.hc
+--- siege-0.14/rings.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/rings.hc	1998-05-19 16:49:30.000000000 +0300
+@@ -126,8 +126,16 @@ None
+ */
+ void Ring_WaterBreathing (void)
+ {
++	if(self.origin=='600 -2088 156')
++	{
++		self.classname=="Climbing Boots";
++		art_climb();
++	}
++	else
++	{
+ 		precache_model("models/ringwb.mdl");
+ 		Ring_Init("models/ringwb.mdl",STR_RINGWATERBREATHING);
++	}
+ }
+ 
+ /*QUAKED Ring_Flight (0 0 0) (-8 -8 -44) (8 8 20) FLOATING
+diff -urNp siege-0.14/sheep.hc siege-0.15/sheep.hc
+--- siege-0.14/sheep.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/sheep.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -402,6 +402,34 @@ void sheep_run_use()
+ 	self.speed=6;
+ }
+ 
++void player_sheep ();
++void sheep_die ()
++{
++entity newsheep;
++	if(self.enemy.flags&FL_CLIENT)
++	{
++		if(self.netname=="DR")
++			centerprint(self.enemy,"You killed D.R. the Sheep!\n");
++		else if(self.netname=="Sneaky")
++			centerprint(self.enemy,"You killed Sneaky the Sheep!\n");
++	}
++
++	if(self.trigger_field)
++		remove(self.trigger_field);
++
++	if(other.takedamage&&other.thingtype==THINGTYPE_FLESH)
++		T_Damage(other,self,self.enemy,1000);
++
++	newsheep = spawn();
++	setorigin(newsheep,self.wallspot);
++	newsheep.spawnflags=self.spawnflags;
++	newsheep.classname="player_sheep";
++	newsheep.think=player_sheep;
++	thinktime newsheep : 0.5;
++
++	chunk_death();
++}
++
+ void player_sheep (void)
+ {//fixme: sheeped monsters don't respawn
+ float r;
+@@ -415,7 +443,7 @@ float r;
+ 			self.health=25;
+ 	}
+ 
+-	CreateEntityNew(self,ENT_SHEEP,"models/sheep.mdl",chunk_death);
++	CreateEntityNew(self,ENT_SHEEP,"models/sheep.mdl",sheep_die);
+ 
+ 	if(world.target=="sheep"||dmMode==DM_SIEGE)
+ 	{
+@@ -427,6 +455,21 @@ float r;
+ 		self.health+=10*self.scale;
+ 		self.mins=self.mins*self.scale;
+ 		self.maxs=self.maxs*self.scale;
++
++		if(self.mins_x>-5)
++			self.mins_x=-5;
++		if(self.mins_y>-5)
++			self.mins_y=-5;
++		if(self.mins_z>-5)
++			self.mins_z=-5;
++
++		if(self.maxs_x<5)
++			self.maxs_x=5;
++		if(self.maxs_y<5)
++			self.maxs_y=5;
++		if(self.maxs_z<5)
++			self.maxs_z=5;
++
+ 		setsize(self,self.mins,self.maxs);
+ 	}
+ 	self.th_pain = sheep_pain;
+@@ -440,8 +483,10 @@ float r;
+ 	if(self.scale)
+ 		self.drawflags(+)SCALE_ORIGIN_BOTTOM;
+ //	if(self.spawnflags&SHEEP_RESPAWN)
++	self.wallspot=self.origin;
+ 
+ //FIXME: Don't allow trans, trot, etc, if stationary flag on
++	self.think=SUB_Null;
+ 	r=rint(random(1,3));
+ 	if(r==1)
+ 		self.noise="misc/sheep1.wav";
+@@ -477,9 +522,11 @@ float r;
+ 			self.think=sheep_tranA;
+ 		else if(!self.spawnflags&1)
+ 			self.think=sheep_tranB;
++		else
++			self.think=sheep_wait;
+ 	}
+ 
+-	if(!self.think)
++	if(self.think==SUB_Null)
+ 		self.think=sheep_wait;
+ 
+ 	self.th_walk=self.th_stand=self.think;
+@@ -494,7 +541,50 @@ float r;
+ 	if(self.th_stand==SUB_Null)
+ 		self.th_stand=sheep_wait;
+ 
+-	walkmonster_start();
++	self.takedamage=DAMAGE_YES;
++	self.flags2(+)FL_ALIVE;
++
++	if(self.scale<=0)
++		self.scale=1;
++
++	if(!self.touch)
++		self.touch=obj_push;
++
++	self.origin_z = self.origin_z + 1;	// raise off floor a bit
++	droptofloor();
++	if (!walkmove(0,0, FALSE))
++	{
++		if(self.flags2&FL_SUMMONED)
++			remove(self);
++		else
++		{
++			dprint ("walkmonster in wall at: ");
++			dprint (vtos(self.origin));
++			dprint ("\n");
++		}
++	}
++
++	self.ideal_yaw = self.angles * '0 1 0';
++	
++	if (!self.yaw_speed)
++		self.yaw_speed = 20;
++
++	if(self.view_ofs=='0 0 0')
++		self.view_ofs = '0 0 25';
++
++	if(self.proj_ofs=='0 0 0')
++		self.proj_ofs = '0 0 25';
++
++	if(!self.use)
++		self.use = monster_use;
++
++	self.flags(-)FL_MONSTER;
++
++	self.pausetime = 99999999;
++
++	spawn_push_trigger(3);
++	
++	self.th_stand ();
+ }
+ /*
+ void spawn_sheep (vector org)
+@@ -652,7 +742,7 @@ void Polymorph (entity loser)
+ {
+ 	stopSound(loser,0);//Stop all auto-looping sounds on removed monster
+ 	sound(loser,CHAN_VOICE,"misc/sheepfly.wav",1,ATTN_NORM);
+-	loser.sheep_time=time+30;
++	loser.sheep_time=999999999;//Siege- sheep perm.
+ 	GenerateTeleportEffect(loser.origin,1);
+ 
+ 	if(loser.classname=="player")
+@@ -679,6 +769,8 @@ void Polymorph (entity loser)
+ 		loser.th_pain=player_sheep_pain;
+ 		loser.th_jump=player_sheep_jump;
+ 
++		loser.oldskin=loser.skin;
++		loser.skin=0;
+ 		setmodel (loser, "models/sheep.mdl");
+ 		setsize (loser,'-16 -16 0','16 16 28');
+ 		loser.model="models/sheep.mdl";
+@@ -694,8 +786,6 @@ void Polymorph (entity loser)
+ 		loser.weaponmodel="models/snout.mdl";
+ 		loser.weaponframe=0;
+ 		loser.sheep_sound_time=FALSE;
+-		loser.oldskin=loser.skin;
+-		loser.skin=0;
+ 
+ 		loser.think=player_sheep_stand;
+ 		thinktime loser : 0;
+@@ -772,7 +862,7 @@ void poly_RemoveBoltFromList (void)
+ 	if (self == self.firstbolt)//i'm the first in the list--let everyone know that the the new head of the list is the one after me
+ 	{
+ 		curbolt = self.nextbolt;
+-		while (curbolt != world)
++		while ((curbolt != world)&&(curbolt != curbolt.nextbolt))
+ 		{
+ 			curbolt.firstbolt = self.nextbolt;
+ 			curbolt = curbolt.nextbolt;
+@@ -781,11 +871,12 @@ void poly_RemoveBoltFromList (void)
+ 	else
+ 	{
+ 		curbolt = self.firstbolt;
+-		while (curbolt.nextbolt != self)
++		while ((curbolt != world)&&(curbolt.nextbolt != self))
+ 		{
+ 			curbolt = curbolt.nextbolt;
+ 		}
+-		curbolt.nextbolt = self.nextbolt;
++		if(curbolt)
++			curbolt.nextbolt = self.nextbolt;
+ 	}
+ }
+ 
+@@ -827,7 +918,12 @@ void poly_touch ()
+ 	vector forward;
+ 	forward = vectoangles(self.velocity);
+ 
+-	if((other.monsterclass >= CLASS_BOSS&&other!=self.owner)||((dmMode == DM_CAPTURE_THE_TOKEN)&&(other.gameFlags & GF_HAS_TOKEN)))
++	if(other.beast_time>time)
++		UnBeast(other);
++
++	if(other.playerclass==CLASS_DWARF||
++		((other.monsterclass >= CLASS_BOSS&&other!=self.owner)||((dmMode == DM_CAPTURE_THE_TOKEN)&&(other.gameFlags & GF_HAS_TOKEN)))
++		)
+ 	{	// you can't sheep the token guy...
+ 		self.velocity=normalize((self.owner.absmin+self.owner.absmax)*0.5-self.origin)*700;
+ 		self.owner=other;
+diff -urNp siege-0.14/siege.hc siege-0.15/siege.hc
+--- siege-0.14/siege.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/siege.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -44,3 +44,139 @@ float mod_return;
+ 	return mod_return;
+ }
+ 
++/*
++class 1 - 5
++weapons 1 - 3
++rate of fire - seconds between shots
++accuracy - 0 to 1 * random vector
++*/
++
++float rate_and_acc_for_weap [36] =
++{
++	0.3,0,	0.2,0,	2,.33,	//paladin
++	0.2,0,	0,0,	0,0,	//crusader
++	0.3,0,	2.5,.2, 0,0,	//necro
++	0.1,0,	1,0,	3,0,	//assassin
++	0.1,0,	0.3,0,	1,0.1,	//succubus
++	0.2,0,	0.1,0,	0,0		//dwarf
++};
++
++/*
++class 1 - 6
++*/
++
++float player_swim_mod [6] =
++{
++	1,		//paladin- has free action - already ok
++	.9,		//crusader
++	.82,	//necro
++	1.2,	//assassin
++	.75,	//succubus
++	1		//dwarf - fucked in C code already
++};
++/*
++class 1 - 6
++*/
++
++float player_jump_mod [6] =
++{
++	1.2,//paladin
++	0.9,//crusader
++	0.8,//necro
++	1.5,//assassin
++	2,//succubus
++	0.65//dwarf 
++};
++
++void WriteTeam (float svmsg,entity holder)
++{
++	entity found;
++	found=find(world,classname,"player");
++	while(found)
++	{
++		if(found.flags&FL_CLIENT)
++		{
++			msg_entity = found;
++			switch(svmsg)
++			{
++			case SVC_HASKEY://send to all- in case need to clear out previous owner on any team
++				WriteByte(MSG_ONE,svmsg);
++				if(found.siege_team==other.siege_team)
++					WriteEntity(MSG_ONE,holder);//tell team
++				else
++					WriteEntity(MSG_ONE,world);//clear opposite team
++				break;
++			case SVC_NONEHASKEY://just send to team of last holder
++				if(found.siege_team==holder.siege_team)
++					WriteByte(MSG_ONE,svmsg);
++				break;
++			case SVC_ISDOC://only send to def.
++				if(found.siege_team==ST_DEFENDER)
++				{
++					WriteByte(MSG_ONE,svmsg);
++					WriteEntity(MSG_ONE,holder);
++				}
++				break;
++			case SVC_NODOC://only to def.
++				if(found.siege_team==ST_DEFENDER)
++					WriteByte(MSG_ONE,svmsg);
++				break;
++			}
++		}
++		found=find(found,classname,"player");
++	}
++}
++ 
++//Teleport Triggers call this
++void become_defender (entity defent)
++{
++	if(defent.classname!="player"||defent.siege_team==ST_DEFENDER)
++		return;
++	defent.siege_team=ST_DEFENDER;
++	defent.skin=0;
++	defent.last_time=time;
++	defent.health=defent.max_health;
++	setsiegeteam(defent,ST_DEFENDER);//update C and clients
++	bprintname(PRINT_HIGH,defent);
++	bprint(PRINT_HIGH," becomes a Defender!\n");
++	self.target="defender";
++}
++
++void become_attacker (entity attent)
++{
++	if(attent.classname!="player"||attent.siege_team==ST_ATTACKER)
++		return;
++	attent.siege_team=ST_ATTACKER;
++	attent.skin=1;
++	attent.last_time=time;
++	attent.health=attent.max_health;
++	setsiegeteam(attent,ST_ATTACKER);//update C and clients
++	bprintname(PRINT_HIGH,attent);
++	bprint(PRINT_HIGH," becomes an Attacker!\n");
++	self.target="attacker";
++}
++
++void become_either (entity eitherent)
++{
++entity found;
++float num_att,num_def;
++	num_att=num_def=0;
++	found=find(world,classname,"player");
++	while(found)
++	{
++		if(found.siege_team==ST_ATTACKER)
++			num_att+=1;
++		else if(found.siege_team==ST_DEFENDER)
++			num_def+=1;
++		found=find(found,classname,"player");
++	}
++	if(num_att>num_def)
++		become_defender(eitherent);
++	else if(num_def>num_att)
++		become_attacker(eitherent);
++	else if(random()<0.5)
++		become_defender(eitherent);
++	else
++		become_attacker(eitherent);
++}
++
+diff -urNp siege-0.14/specials.hc siege-0.15/specials.hc
+--- siege-0.14/specials.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/specials.hc	1998-05-17 02:51:54.000000000 +0300
+@@ -8,7 +8,7 @@ void CheckAbilities ()
+ 		trans_limit=10 - self.level;
+ 		if(trans_limit<1)
+ 			trans_limit=1;
+-		if(self.velocity=='0 0 0'&&self.last_attack<time - 2&&self.light_level<100)
++		if((self.climbing||(self.velocity=='0 0 0'&&self.last_attack<time - 2))&&self.light_level<100)
+ 		{
+ 			if(self.still_time==-1)
+ 				self.still_time=time + 10 - self.level;
+diff -urNp siege-0.14/spells.hc siege-0.15/spells.hc
+--- siege-0.14/spells.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/spells.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -71,7 +71,7 @@ void poison_spell_touch ()
+ 
+ 	if(other.flags&FL_CLIENT)
+ 	{
+-		spawn_poison(other,self.owner,10);
++		spawn_poison(other,self.owner,60);//poisoned for a whole minute!
+ 		PlayerSpeed_Calc (other);
+ 		centerprint(other,"You have been poisoned!\n");
+ 	}
+@@ -120,9 +120,9 @@ void speed_spell_touch ()
+ void mercury_speed ()
+ {
+ entity targ_ent,speed_spell;
+-	if(self.bluemana<20)
++	if(self.bluemana<70)
+ 	{
+-		centerprint(self,"Not enough mana for this spell (need 20)");
++		centerprint(self,"Not enough mana for this spell (need 70)");
+ 		return;
+ 	}
+ 
+@@ -154,7 +154,7 @@ entity targ_ent,speed_spell;
+ 		setorigin(speed_spell,self.origin+self.proj_ofs+v_forward*8);
+ 	}
+ 	self.attack_finished=time+1;
+-	self.bluemana-=20;
++	self.bluemana-=70;
+ }
+ 
+ void berzerker_spell_touch ()
+@@ -179,9 +179,9 @@ void berzerker_spell_touch ()
+ void berzerker ()
+ {
+ entity targ_ent,berzerker_spell;
+-	if(self.bluemana<30)
++	if(self.bluemana<50)
+ 	{
+-		centerprint(self,"Not enough mana for this spell(30)");
++		centerprint(self,"Not enough mana for this spell(50)");
+ 		return;
+ 	}
+ 
+@@ -215,7 +215,7 @@ entity targ_ent,berzerker_spell;
+ 		setorigin(berzerker_spell,self.origin+self.proj_ofs+v_forward*8);
+ 	}
+ 	self.attack_finished=time+1;
+-	self.bluemana-=30;
++	self.bluemana-=50;
+ }
+ 
+ void invis_spell_touch ()
+@@ -234,7 +234,11 @@ void invis_spell_touch ()
+ 		}
+ 		else
+ 		{
++			other.invisible_time = time + 999;
+ 			other.effects(+)EF_NODRAW|EF_DIMLIGHT;
++			other.oldskin=other.skin;
++			other.skin=101;
++			other.drawflags(+)DRF_TRANSLUCENT;
+ 		}
+ 	}
+ 	CreateBSpark(self.origin);
+@@ -244,9 +248,9 @@ void invis_spell_touch ()
+ void Invisibility ()
+ {
+ entity targ_ent,invis_spell;
+-	if(self.bluemana<40)
++	if(self.bluemana<80)
+ 	{
+-		centerprint(self,"Not enough mana for this spell (need 40)");
++		centerprint(self,"Not enough mana for this spell (need 80)");
+ 		return;
+ 	}
+ 
+@@ -278,7 +282,7 @@ entity targ_ent,invis_spell;
+ 		setorigin(invis_spell,self.origin+self.proj_ofs+v_forward*8);
+ 	}
+ 	self.attack_finished=time+1;
+-	self.bluemana-=40;
++	self.bluemana-=80;
+ }
+ 
+ void Wrath_Of_God ()
+@@ -290,6 +294,7 @@ entity found;
+ 		centerprint(self,"You must have full mana to cast this spell\n");
+ 		return;
+ 	}
++	self.bluemana=0;
+ 	found=findradius(self.origin,1024);
+ 	while(found!=world&&num_strikes<16)
+ 	{	
+@@ -320,16 +325,17 @@ void beast_charge ()
+ 
+ void UnBeast (entity targ)
+ {
++entity oself;
+ 	setmodel(targ,targ.init_model);
+ 	targ.frame=0;
+ 	targ.act_state=ACT_STAND;
+ 	targ.beast_time=0;
+-	targ.scale=0;
++	targ.scale=1;
++	self.drawflags(-)SCALE_ORIGIN_CENTER;
+ 	targ.greenmana=0;
+ 	if(targ.health>targ.max_health)
+ 		targ.health=targ.max_health;
+ 
+-	targ.view_ofs='0 0 100';
+ 	sound(targ,CHAN_VOICE,"eidolon/growl.wav",1,ATTN_NORM);
+ 	particleexplosion((targ.absmin+targ.absmax)*0.5,random(144,159),targ.absmax_z-targ.absmin_z,50);
+ 	GenerateTeleportEffect(targ.origin,1);
+@@ -337,42 +343,75 @@ void UnBeast (entity targ)
+ 	targ.oldweapon = FALSE;
+ 	targ.weapon = IT_WEAPON1;
+ 
++	oself=self;
++	self=targ;
+ 	restore_weapon();
+ 	SetModelAndThinks();
++	self=oself;
+ 
+ 	if(targ.playerclass!=CLASS_DWARF)
+ 	{
+ 		setsize (targ, '-16 -16 0', '16 16 56');	
++		targ.view_ofs='0 0 50';
+ 		targ.hull=HULL_PLAYER;
+ 	}
+ 	else
+ 	{
+ 		setsize (targ, '-16 -16 0', '16 16 28');	
++		targ.view_ofs='0 0 22';
+ 		targ.hull=HULL_CROUCH;
+ 	}
+ 	PlayerSpeed_Calc(targ);
+ }
+ 
+-void BecomeBeast ()
++float cant_fit (vector bmins,vector bmaxs)
+ {
++float	o_hull;
++vector	o_origin,o_mins,o_maxs;
++	o_hull=self.hull;
++	o_origin = self.origin;
++	o_mins = self.mins;
++	o_maxs=self.maxs;
+ 	setmodel(self,"models/yakman.mdl");
+-	setsize(self,'-40 -40 0','40 40 120');
++	setorigin(self,self.origin + '0 0 -1' * bmins_z);//pop up 50
++	setsize(self,bmins,bmaxs);
++	self.hull=HULL_GOLEM;
++	tracearea(self.origin,self.origin+'0 0 2',bmins,bmaxs,FALSE,self);
++	if(trace_fraction<1||trace_startsolid||trace_allsolid)
++	{
++		setorigin(self,o_origin);
++		setmodel(self,self.init_model);
++		setsize(self,o_mins,o_maxs);
++		self.hull=o_hull;
++		return TRUE;
++	}
++
++	return FALSE;
++}
++
++void BecomeBeast ()
++{
++	if(cant_fit('-48 -48 -50','48 48 50'))
++	{
++		self.attack_finished = time + 1;
++		centerprint(self,"Not enough room to Become Beast here!\n");
++		return;
++	}
+ 	self.frame=0;
+ 	self.act_state=ACT_YAK_HOWL;
+ 	self.weaponmodel = string_null;
+ 	self.teleport_time=time+2;
+ 	sound(self,CHAN_VOICE,"eidolon/roar.wav",1,ATTN_NONE);
+ 	self.pain_finished=time+3;
+-	self.beast_time=time+180;
+-	self.hull=HULL_GOLEM;
+-	self.drawflags(+)SCALE_ORIGIN_BOTTOM;
+-	self.scale=2;
++	self.beast_time=time+120;
++	self.drawflags(+)SCALE_ORIGIN_CENTER;
++	self.scale=1.33;
+ 	self.th_weapon=beast_charge;
+-	self.greenmana=0;
+-	self.health=999;
+-	self.view_ofs='0 0 100';
++	self.greenmana-=200;
++	self.health=self.health/self.max_health * 999;
++	self.view_ofs='0 0 80';
+ 	self.mass=500;
+-	self.hasted = 1.8;
++	self.hasted = 1.666;
+ 	self.think=player_frames;
+ 	thinktime self : 0;
+ 	self.attack_finished=time+2;
+@@ -380,3 +419,98 @@ void BecomeBeast ()
+ //	if(dmMode==DM_SIEGE&&self.siege_team==ST_ATTACKER)
+ //		self.skin=2;
+ }	
++
++void dispel_spell_touch ()
++{
++	if(other.playerclass==CLASS_DWARF)
++		return;
++
++	if(other.classname=="monster_imp_lord")
++	{
++		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
++		WriteByte (MSG_BROADCAST, TE_TELEPORT_LINGER);
++		WriteCoord (MSG_BROADCAST, other.origin_x);
++		WriteCoord (MSG_BROADCAST, other.origin_y);
++		WriteCoord (MSG_BROADCAST, other.origin_z);
++		WriteCoord (MSG_BROADCAST, 3.0);
++		stopSound(other,0);
++		remove(other);
++		return;
++	}
++
++	if(other.flags2&FL_ALIVE)
++	{
++		if(other.flags2&FL2_POISONED)
++			other.flags2(-)FL2_POISONED;
++		other.sheep_time =
++		other.beast_time =
++		other.super_damage_time =
++		other.haste_time =
++		other.tome_time =
++		other.ring_regen_time =
++		other.ring_water_time =
++		other.ring_flight_time = 0;
++		if(other.invisible_time)
++		{
++			other.invisible_time = 0;
++			other.flags(-)EF_NODRAW|EF_LIGHT;
++			other.drawflags(-)DRF_TRANSLUCENT;
++			other.skin=self.oldskin;
++		}
++		if(other.flags2&FL_CLIENT)
++			centerprint(other,"You have been cleansed of magic!\n");
++	}
++	CreateBSpark(self.origin);
++	remove(self);
++}
++
++void DispelMagic ()
++{
++entity targ_ent,dispel_spell;
++	if(self.bluemana<30)
++	{
++		centerprint(self,"Not enough mana for this spell (need 30)");
++		return;
++	}
++
++	targ_ent=check_legal_spell_target_infront();
++	makevectors(self.v_angle);
++	if(targ_ent==self)
++	{
++		if(self.flags2&FL2_POISONED)
++			self.flags2(-)FL2_POISONED;
++		self.sheep_time =
++		self.beast_time =
++		self.super_damage_time =
++		self.haste_time =
++		self.tome_time =
++		self.ring_regen_time =
++		self.ring_water_time =
++		self.ring_flight_time = 0;
++		if(self.invisible_time)
++		{
++			self.invisible_time = 0;
++			self.flags(-)EF_NODRAW|EF_LIGHT;
++			self.drawflags(-)DRF_TRANSLUCENT;
++			self.skin=self.oldskin;
++		}
++
++		centerprint(self,"You are cleansed of magic!\n");
++		return;
++	}
++	else
++	{
++		dispel_spell=spawn();
++		dispel_spell.solid=SOLID_BBOX;
++		dispel_spell.movetype=MOVETYPE_FLYMISSILE;
++		dispel_spell.touch=dispel_spell_touch;
++		dispel_spell.owner=self;
++		dispel_spell.velocity=v_forward*700;
++		dispel_spell.angles=vectoangles(v_forward);
++		setmodel(dispel_spell,"models/shardice.mdl");
++		setsize(dispel_spell,'0 0 0','0 0 0');
++		setorigin(dispel_spell,self.origin+self.proj_ofs+v_forward*8);
++	}
++	self.attack_finished=time+1;
++	self.bluemana-=30;
++}
+diff -urNp siege-0.14/stats.hc siege-0.15/stats.hc
+--- siege-0.14/stats.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/stats.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -112,22 +112,22 @@ float mana_table[30] =
+ {
+ //    Startup    Per Level     Past
+ //  min    max    min		max     10th Level
+-	84,		94,		6,		9, 		1,		// Paladin
+-	100,		110,		7,		10, 	2, 	// Crusader
+-    100,	   150,		10,		12, 	4,     // Necromancer
+-	92,	   102,		9,		11, 	3,		// Assassin
+-	100,	   110,		8,		11, 	3,		// Succubus
+-	84,		94,		6,		9,		1		// Dwarf
++	0,		0,		0,		0, 		0,		// Paladin
++	100,	100,	0,		0,	 	0, 		// Crusader
++    100,	200,	10,		12, 		4,     // Necromancer
++	0,		0,		0,		0,	 	0,		// Assassin
++	100,	100,	0,		0,	 	0,		// Succubus
++	0,		0,		0,		0, 		0		// Dwarf
+ };
+ 
+ 
+ float strength_table[12] =
+ {
+ 	17,		21,		// Paladin
+-	12,		15,		// Crusader
++	11,		14,		// Crusader
+ 	6,		10,		// Necromancer
+ 	10,		13,		// Assassin
+-	11,		14,		// Succubus
++	12,		15,		// Succubus
+ 	15,		20		// Dwarf
+ };
+ 
+@@ -163,13 +163,19 @@ float dexterity_table[12] =
+ 
+ void PlayerSpeed_Calc (entity who)
+ {
++	if(who.beast_time>time)
++	{
++		who.hasted = 1.666;
++		return;
++	}
++
+ 	switch (who.playerclass)
+ 	{
+ 	case CLASS_ASSASSIN:
+-		who.hasted=.95;
++		who.hasted=1;
+ 	break;
+ 	case CLASS_SUCCUBUS:
+-		who.hasted=1.1;
++		who.hasted=.95;
+ 	break;
+ 	case CLASS_PALADIN:
+ 		who.hasted=.9;
+@@ -186,9 +192,9 @@ void PlayerSpeed_Calc (entity who)
+ 	}
+ 
+ 	if (who.artifact_active & ART_HASTE)
+-		who.hasted *= 2.9;
++		who.hasted *= 2.5;
+ 	else if(who.flags2&FL2_EXCALIBUR)
+-		who.hasted *=2;
++		who.hasted *=1.8;
+ 
+ 
+ 	if (who.hull==HULL_CROUCH)   // Player crouched
+@@ -202,11 +208,16 @@ void PlayerSpeed_Calc (entity who)
+ 			else	
+ 				who.hasted *= .7;
+ 		}
++		if(who.sheep_time>time)
++			who.hasted *= 2;//sheep were too slow
+ 	}
+ 
+ 	if (who.flags2&FL2_POISONED)   // Player poisoned
+ 		who.hasted *= .8;
+ 
++	if(who.puzzle_inv1==g_keyname)//key carrier a bit slower
++			who.hasted *= .75;
++
+ //	if(who.waterlevel==3)//swimming mod
+ //		who.hasted*=player_swim_mod[who.playerclass - 1];
+ }
+@@ -370,7 +381,7 @@ void PlayerAdvanceLevel(float NewLevel)
+ 		case CLASS_CRUSADER:
+ 			centerprint(self,"Crusader gained a level\n");
+ 			// Special ability #1, full mana at level advancement
+-			self.bluemana = self.greenmana = self.max_mana;
++			//self.bluemana = self.greenmana = self.max_mana;
+ 		break;
+ 		case CLASS_NECROMANCER:
+ 		   centerprint(self,"Necromancer gained a level\n");
+@@ -418,8 +429,8 @@ void PlayerAdvanceLevel(float NewLevel)
+ 			self.max_health = 150;
+ 
+ 
+-		self.greenmana += ManaInc;
+-		self.bluemana += ManaInc;
++//		self.greenmana += ManaInc;
++//		self.bluemana += ManaInc;
+ 		self.max_mana += ManaInc;
+ 		
+ 		if(!deathmatch)
+diff -urNp siege-0.14/strings.hc siege-0.15/strings.hc
+--- siege-0.14/strings.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/strings.hc	1998-05-18 17:09:04.000000000 +0300
+@@ -215,6 +215,7 @@ float STR_SKEWERED			= 598;//" was skewe
+ float STR_BALLISTA			= 599;//"'s well-aimed ballista bolt!^"
+ 
+ float STR_NULL				= 600;//""
++float STR_CLIMB				= 601;//""
+ 
+ 
+ 
+diff -urNp siege-0.14/torch.hc siege-0.15/torch.hc
+--- siege-0.14/torch.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/torch.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -26,6 +26,11 @@ void fire_hurt_field_touch ()
+ 	{
+ 		return;
+ 	}
++	
++	if(other.thingtype==THINGTYPE_METAL)
++	{
++		return;
++	}
+ 
+ 	self.attack_finished=time+HX_FRAME_TIME;
+ 	T_Damage(other,self,self,self.dmg);
+diff -urNp siege-0.14/triggers.hc siege-0.15/triggers.hc
+--- siege-0.14/triggers.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/triggers.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -426,6 +426,7 @@ float temp_flags;
+ 	else if (temp_flags & 2) 
+ 		self.use = SUB_UseTargets;
+ 	else trigger_multiple();
++	self.touch=SUB_Null;
+ };
+ 
+ /*QUAKED trigger_deactivate (.5 .5 .5) ? ONCE RELAY x deactivated
+@@ -1044,6 +1045,9 @@ void teleport_effect_delay ()
+ 	}
+ }
+ 
++float DEFENDER = 32;
++float ATTACKER = 64;
++float AUTOTEAM = 128;
+ void() teleport_touch =
+ {
+ entity	t,arrivedeffect;
+@@ -1054,7 +1058,7 @@ float no_throw;
+ //	dprint("Teleporter touched ");
+ //	dprint(other.classname);
+ //	dprint("\n");
+-	if(dmMode==DM_SIEGE)
++/*	if(dmMode==DM_SIEGE)
+ 		if(self.siege_team)
+ 		{
+ 			countPlayers();
+@@ -1067,7 +1071,7 @@ float no_throw;
+ 				bprint(PRINT_HIGH," to start\n");
+ 				return;//Everyone must be in before you can begin
+ 			}
+-		}
++		}*/
+ 
+ 	if (other.classname == "tripwire")//no teleport tripmines!
+ 	{
+@@ -1097,6 +1101,13 @@ float no_throw;
+ 	if (other.solid == SOLID_BSP||other.solid==SOLID_TRIGGER||other.teleport_time>time)
+ 		return;
+ 
++	if(self.spawnflags&DEFENDER)
++		become_defender(other);
++	else if(self.spawnflags&ATTACKER)
++		become_attacker(other);
++	else if(self.spawnflags&AUTOTEAM)
++		become_either(other);
++
+ 	SUB_UseTargets ();
+ 
+ // put a tfog where the player was UNLESS silent is checked (jweier)
+@@ -1170,6 +1181,8 @@ float no_throw;
+ 			arrivedeffect.think=teleport_effect_delay;
+ 			thinktime arrivedeffect : 0.05;
+ 			arrivedeffect.classname="teleportcoin2";
++			thinktime self : 0;
++			self.think=SUB_Remove;
+ 		}
+ 	}
+ 	other.teleport_time = time + 0.7;
+@@ -1777,7 +1790,7 @@ void puzzle_touch(void)
+ 	local entity	stemp;
+ 	local float		amount;
+ 
+-	if(self.t_width>time)
++	if(self.t_width>time&&other==self.enemy)
+ 		return;//last owner can't pick up again for 5 seconds
+ 
+ 	if (other.classname != "player")
+@@ -1796,6 +1809,9 @@ void puzzle_touch(void)
+ 		other.puzzle_inv8 == self.puzzle_id)
+ 		return;
+ 
++	thinktime self : 0;
++	self.think = SUB_Remove;
++
+ 	amount = random();
+ 	if (amount < 0.5)
+ 	{
+@@ -1811,6 +1827,9 @@ void puzzle_touch(void)
+ 
+ 	sprint (other,PRINT_MEDIUM, "\n");
+ 
++	other.flags2(+)FL2_HASKEY;
++	WriteTeam (SVC_HASKEY,other);
++    
+ 	GetPuzzle(self, other);
+ 
+ 	sound (other, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+@@ -1893,8 +1912,11 @@ void puzzle_piece(void)
+ 		return;
+ 	}
+ 
+-	precache_sound("items/artpkup.wav");
+-	precache_puzzle_model(self.puzzle_id);
++	if(!self.flags2&FL2_REPLACEMENT)
++	{
++		precache_sound("items/artpkup.wav");
++		precache_puzzle_model(self.puzzle_id);
++	}
+ 	setpuzzlemodel(self,self.puzzle_id);
+ 	if(self.spawnflags&8||self.puzzle_id=="cskey")//temp fix
+ 	{
+@@ -1906,7 +1928,8 @@ void puzzle_piece(void)
+ 
+ 	if (self.spawnflags & 1)
+ 	{
+-		setsize (self, '-8 -8 -8', '8 8 16');
++		setsize (self, '-4 -4 -16', '4 4 0');
++//		setsize (self, '-8 -8 -8', '8 8 16');
+ 		self.spawnflags(-)1;
+ 		self.solid = SOLID_NOT;
+ 		self.effects(+)EF_NODRAW;
+@@ -1926,6 +1949,9 @@ void puzzle_piece(void)
+ 
+ 	if ((self.puzzle_id == "glass") || (self.puzzle_id == "lens"))
+ 		self.drawflags (+) DRF_TRANSLUCENT; 
++	
++	if(!self.flags2&FL2_REPLACEMENT)
++		spawn_key_tracker();
+ }
+ 
+ void DropPuzzlePiece(void)
+@@ -1940,18 +1966,21 @@ entity newpuzz;
+ 	newpuzz.solid = SOLID_BBOX;
+ 	newpuzz.touch = puzzle_touch;
+ 	newpuzz.t_width=time+5;
++	newpuzz.enemy=self;
+ 	newpuzz.think=StartItem;
+ 	thinktime newpuzz : 0;
+ 
+ 	if ((self.puzzle_id == "glass") || (self.puzzle_id == "lens"))
+ 		newpuzz.drawflags (+) DRF_TRANSLUCENT; 
+ 
+-	setorigin(newpuzz,self.origin+'0 0 1'*self.maxs_z);
++	setorigin(newpuzz,self.origin+'0 0 18');
+ 	newpuzz.wallspot=newpuzz.origin;
+ 	newpuzz.classname="puzzle_piece";
+ 	newpuzz.netname = self.pain_target;
+ 	newpuzz.puzzle_id=self.puzzle_id;
+ 	self.puzzle_id="";
++	self.flags2(-)FL2_HASKEY;
++	WriteTeam(SVC_NONEHASKEY,self);
+ }
+ 
+ void puzzle_static_use(void)
+@@ -2027,6 +2056,9 @@ float fire_range;
+ 	if (other.classname != "player")
+ 		return;
+ 
++	if(other.beast_time>time)
++		return;
++
+ 	if (self.enemy != world && other != self.enemy) 
+ 		return;
+ 
+@@ -2201,52 +2233,27 @@ void trigger_message_transfer ()
+ }
+ 
+ 
+-void trigger_become_defender_touch ()
+-{
+-	if(other.classname!="player"||other.siege_team==ST_DEFENDER)
+-		return;
+-	other.siege_team=ST_DEFENDER;
+-	other.skin=0;
+-	setsiegeteam(other,ST_DEFENDER);
+-	bprintname(PRINT_HIGH, other);
+-	bprint(PRINT_HIGH, " becomes a Defender!\n");
+-}
+-
+-/*QUAKED trigger_become_defender (.5 .5 .5) ?
+-Makes a player choose the defender's side in siege
+-*/
+-void trigger_become_defender ()
+-{
+-	InitTrigger();
+-	self.touch=trigger_become_defender_touch;
+-}
+-
+-void trigger_become_attacker_touch ()
+-{
+-	if(other.classname!="player"||other.siege_team==ST_ATTACKER)
+-		return;
+-	other.siege_team=ST_ATTACKER;
+-	other.skin=1;
+-	setsiegeteam(other,ST_ATTACKER);
+-	bprintname(PRINT_HIGH, other);
+-	bprint(PRINT_HIGH, " becomes an Attacker!\n");
+-}
+-
+-/*QUAKED trigger_become_attacker (.5 .5 .5) ?
+-Makes a player choose the attacker's side in siege
+-*/
+-void trigger_become_attacker ()
+-{
+-	InitTrigger();
+-	self.touch=trigger_become_attacker_touch;
+-}
+-
+ float PUSH_SCALAR = 100;//push triggers' multiplier on dist from.
+ void push_trigger_touch ()
+ {
+ vector push_vec,save_vel;
+ entity oself;
+ float o_spd;
++	if(!self.owner)
++	{
++		self.touch=SUB_Null;
++		self.think=SUB_Remove;
++		thinktime self: 0;
++		return;
++	}
++	else if(self.owner.health<=0)
++	{
++		self.touch=SUB_Null;
++		self.think=SUB_Remove;
++		thinktime self: 0;
++		return;
++	}
++
+ 	if(other.classname!="player")
+ 		return;
+ 
+@@ -2288,7 +2295,7 @@ vector add_mins,add_maxs;
+ 	add_mins_x=add_mins_y=self.level*-1;
+ 	add_mins_z=2;
+ 	add_maxs=add_maxs*-1;
+-	setsize(self,self.owner.mins+'-3 -3 2',self.owner.maxs+'3 3 -2');
++	setsize(self,self.owner.mins+'-3 -3 1',self.owner.maxs+'3 3 -1');
+ 	setorigin(self,self.owner.origin);
+ 	self.touch=push_trigger_touch;
+ 	self.think=push_trigger_think;
+@@ -2311,6 +2318,7 @@ void start_timer ()
+ {
+ float timelimit;
+ string printnum;
++entity found,oself;
+ 	g_init_timelimit = cvar("timelimit");
+ 	timelimit =g_init_timelimit * 60;
+ 	if(timelimit)
+@@ -2323,6 +2331,24 @@ string printnum;
+ 		dprintf("%s\n",time);
+ 	}
+ 	updateSiegeInfo();
++	found = find(world,classname,"ambient_lightfader");//start fading lights
++	if(found)
++		if(found.use!=SUB_Null)
++		{
++			oself=self;
++			self=found;
++			self.use();
++			self=oself;
++		}
++	
++	//start mana gen
++	found=find(world,classname,"player");
++	while(found)
++	{
++		found.last_time=time;
++		found=find(found,classname,"player");
++	}
++	gamestarted = TRUE;
+ 
+ 	remove(self);
+ }
+@@ -2354,3 +2380,44 @@ void trigger_hardfall ()
+ 	trigger_multiple();
+ }
+ 
++void trigger_become_defender_touch ()
++{
++	if(other.classname!="player"||other.siege_team==ST_DEFENDER)
++		return;
++	other.siege_team=ST_DEFENDER;
++	setsiegeteam(other,ST_DEFENDER);
++	other.last_time = time;
++	other.skin=0;
++	other.health=other.max_health;
++	other.bluemana=other.greenmana=0;
++}
++
++/*QUAKED trigger_become_defender (.5 .5 .5) ?
++Makes a player choose the defender's side in siege
++*/
++void trigger_become_defender ()
++{
++	InitTrigger();
++	self.touch=trigger_become_defender_touch;
++}
++
++void trigger_become_attacker_touch ()
++{
++	if(other.classname!="player"||other.siege_team==ST_ATTACKER)
++		return;
++	other.siege_team=ST_ATTACKER;
++	setsiegeteam(other,ST_ATTACKER);
++	other.last_time = time;
++	other.health=other.max_health;
++	other.skin=1;
++	other.bluemana=other.greenmana=0;
++}
++/*QUAKED trigger_become_attacker (.5 .5 .5) ?
++Makes a player choose the attacker's side in siege
++*/
++void trigger_become_attacker ()
++{
++	InitTrigger();
++	self.touch=trigger_become_attacker_touch;
++}
++
+diff -urNp siege-0.14/tripmine.hc siege-0.15/tripmine.hc
+--- siege-0.14/tripmine.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/tripmine.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -114,7 +114,7 @@ void() LaserThink =
+         else 
+ 			self.think=LaserThink;
+         self.nextthink=time;
+-		if(self.lifetime<time||self.tripwire_cnt<self.controller.tripwire_cnt - 3)
++		if((!self.controller.flags2&FL_ALIVE)||self.tripwire_cnt<self.controller.tripwire_cnt - 3)
+ 			self.think=self.th_die;
+ };
+ 
+@@ -229,7 +229,6 @@ void TripArmed ()
+ 	FireChain();
+     self.think=LaserThink;
+ 	thinktime self : 0;
+-	self.lifetime=time+60;
+ }
+ 
+ void() TripTouch =
+diff -urNp siege-0.14/vorpal.hc siege-0.15/vorpal.hc
+--- siege-0.14/vorpal.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/vorpal.hc	1998-05-22 18:39:46.000000000 +0300
+@@ -48,129 +48,6 @@ float VORP_PWR_ADD_DAMAGE		= 30;
+ float VORP_RADIUS				= 150;
+ 
+ float VORP_PUSH					= 5;
+-
+-/*
+-============
+-vorpmissile_touch - vorpmissile hit something. Death to the infidel!
+-============
+-*/
+-void vorpmissile_touch (void)
+-{
+-	float	damg;
+-
+-	if (other == self.owner)
+-		return;		// don't explode on owner
+-
+-	if (pointcontents(self.origin) == CONTENT_SKY)
+-	{
+-		stopSound(self,0);
+-		remove(self);
+-		return;
+-	}
+-
+-	damg = random(20,40);
+-
+-	if (self.classname == "halfvorpmissile")
+-	{
+-		damg = damg * .5;
+-	}
+-
+-	if (other.health)
+-		T_Damage (other, self, self.owner, damg );
+-
+-	T_RadiusDamage (self, self.owner, 80.0, self.owner);
+-
+-	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
+-	WriteByte (MSG_MULTICAST, TE_SWORD_EXPLOSION);
+-	WriteCoord(MSG_MULTICAST, self.origin_x - self.movedir_x * -8);
+-	WriteCoord(MSG_MULTICAST, self.origin_y - self.movedir_y * -8);
+-	WriteCoord(MSG_MULTICAST, self.origin_z - self.movedir_z * -8);
+-	WriteEntity(MSG_MULTICAST, self.owner);
+-	multicast(self.origin,MULTICAST_PHS_R);
+-
+-	stopSound(self,0);
+-	remove(self);
+-}
+-
+-void vorpMissileThink(void)
+-{
+-	self.movedir = normalize(self.velocity);
+-
+-	self.angles = vectoangles(self.movedir);
+-
+-	traceline(self.origin, self.origin + self.movedir * 360.0, FALSE, self);
+-
+-	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
+-	WriteByte (MSG_MULTICAST, TE_SWORD_SHOT);
+-	WriteCoord (MSG_MULTICAST, self.origin_x);
+-	WriteCoord (MSG_MULTICAST, self.origin_y);
+-	WriteCoord (MSG_MULTICAST, self.origin_z);
+-	WriteByte (MSG_MULTICAST, self.angles_y*256.0/360.0);
+-	WriteByte (MSG_MULTICAST, self.angles_x*256.0/360.0);
+-	WriteByte (MSG_MULTICAST, trace_fraction * 100);
+-	multicast(self.origin,MULTICAST_PVS);
+-
+-	thinktime self : 0.3;
+-
+-	if (self.lifetime < time)
+-		SUB_Remove();
+-}
+-
+-
+-/*
+-============
+-launch_vorpal_missile - create and launch vorpal missile
+-============
+-*/
+-void launch_vorpal_missile(void)
+-{
+-	entity missile;
+-
+-	missile = spawn ();
+-
+-	CreateEntityNew(missile,ENT_VORP_MISSILE,"models/vorpshot.mdl",SUB_Null);
+-
+-	missile.owner = self;
+-	missile.classname = "vorpalmissile";
+-			
+-	// set missile speed	
+-	makevectors (self.v_angle);
+-	missile.velocity = normalize(v_forward);
+-	missile.velocity = missile.velocity * 1200;
+-	missile.movedir = normalize(missile.velocity);
+-	
+-	missile.frags=TRUE;
+-	missile.touch = vorpmissile_touch;
+-	missile.angles = vectoangles(missile.velocity);
+-	missile.angles_x += 180;
+-	//missile.drawflags=MLS_ABSLIGHT;
+-	//missile.abslight=0.5;
+-
+-	//missile.effects (+) EF_SWORD_EFFECT;
+-	missile.effects (+) EF_NODRAW;
+-
+-	setorigin (missile, self.origin + v_up * 40);
+-	//missile.scale = .5;
+-	missile.scale = 1;
+-
+-	if (self.bluemana < 4)
+-		missile.classname = "halfvorpmissile";
+-
+-//	thinktime missile : HX_FRAME_TIME;
+-
+-	missile.think = vorpMissileThink;
+-	missile.lifetime = time + 2;
+-	thinktime missile : .3;
+-
+-	entity oldself;
+-	oldself = self;
+-	self = missile;
+-
+-	missile.think();
+-
+-	self = oldself;
+-}
+-
+ /*
+ ============
+ Smite that which is directly in front of you
+@@ -181,7 +58,7 @@ void vorpal_melee (void)
+ 	vector	source;
+ 	vector	org,dir;
+ 	float damg;
+-	float no_flash,inertia;
++	float inertia;
+ 
+ 	makevectors (self.v_angle);
+ 	source = self.origin+self.proj_ofs;
+@@ -216,28 +93,15 @@ void vorpal_melee (void)
+ 		else
+ 			inertia=trace_ent.mass/10;
+ 
+-		no_flash = 0;
+-		if ((self.bluemana >= 4) && (self.artifact_active & ART_TOMEOFPOWER)) // Tome of power melee damage
+-		{
+-			damg = 40 + random(30);
+-			damg += damg * .25;
+-		}
+-		else if (self.bluemana >= 2)
+-		{
+-			damg = 30 + random(20);
+-			if (trace_ent.flags & FL_MONSTER)  // Only monsters make it use mana
+-				self.bluemana -= 2;
+-		}
+-		else 
+-		{
+-			no_flash =1;
+-			damg = 20 + random(10);
+-		}
++		damg = (18 + random(7))*melee_dmg_mod_for_strength(self.strength);
+ 
+-		org = trace_endpos + (v_forward * -1);
++		if(self.flags2&FL2_EXCALIBUR)
++			damg*=random(2) + 3;//owch!
+ 
+-		if (!no_flash)
+-			CreateLittleWhiteFlash(org);
++		if(trace_ent.thingtype!=THINGTYPE_FLESH)
++			damg/=2;
++
++		org = trace_endpos + (v_forward * -1);
+ 
+ 		if (!MetalHitSound(trace_ent.thingtype))
+ 			sound (self, CHAN_WEAPON, "weapons/vorpht1.wav", 1, ATTN_NORM);
+@@ -319,16 +183,15 @@ void vorpal_normal_fire (void)
+ 
+ 	vorpal_melee ();
+ 
+-	if (self.bluemana<2)   // Not enough mana to fire it
+-		return;
++	return;
+ 
+ 	damage_flg = 0;
+ 	victim = findradius( self.origin, 100);
+ 	while(victim)
+ 	{	// Enemy would be the one that took direct melee damage so don't hurt him twice
+-		if ((victim.health) && (victim!=self) && (victim!=self.enemy))
++		if ((victim.health) && (victim!=self) && infront(victim))
+ 		{
+-			traceline (self.origin + self.owner.view_ofs, victim.origin, FALSE, self);  // 30 up
++			traceline (self.origin + self.proj_ofs, (victim.absmin+victim.absmax)*0.5, FALSE, self);  // 30 up
+ 
+ 			if (trace_ent == victim)
+ 			{
+@@ -337,35 +200,15 @@ void vorpal_normal_fire (void)
+ 				//sound (self, CHAN_WEAPON, "weapons/vorpblst.wav", 1, ATTN_NORM);
+ 				weapon_sound(self, "weapons/vorpblst.wav");
+ 
+-				CreateWhiteSmoke(victim.origin + '0 0 30','0 0 8',HX_FRAME_TIME);
+-
+-				damg = VORP_BASE_DAMAGE + random(VORP_ADD_DAMAGE);
++				damg = (15 + random(10))*melee_dmg_mod_for_strength(self.strength);
++				if(victim.thingtype!=THINGTYPE_FLESH)
++					damg/=2;
+ 				T_Damage (victim, self, self, damg);
+ 			}
+ 		}
+ 
+ 		victim = victim.chain;
+ 	}
+-
+-	if (trace_ent.flags & FL_MONSTER)  // Only monsters make it use mana
+-		self.bluemana -= 2;
+-
+-}
+-
+-/*
+-============
+-Fire Vorpal sword in Power Up mode
+-============
+-*/
+-void vorpal_tome_fire (void)
+-{
+-	vorpal_melee ();
+-	
+-	if (self.bluemana>=4)
+-	{
+-		launch_vorpal_missile();
+-		self.bluemana -=4;
+-	}
+ }
+ 
+ /*
+@@ -375,10 +218,7 @@ Decide if vorpal sword is in Normal or P
+ */
+ void vorpal_fire (void)
+ {
+-	if (self.artifact_active & ART_TOMEOFPOWER)
+-		vorpal_tome_fire();
+-	else
+-		vorpal_normal_fire();
++	vorpal_normal_fire();
+ }
+ 
+ /*
+@@ -518,7 +358,6 @@ void vorpal_deselect (void)
+ {
+ 	self.wfs = advanceweaponframe($6thSwd13,$6thSwd17);
+ 	self.th_weapon=vorpal_deselect;
+-	self.oldweapon = IT_WEAPON1;
+ 
+ 	if (self.wfs == WF_LAST_FRAME)
+ 		W_SetCurrentAmmo();
+diff -urNp siege-0.14/weapons.hc siege-0.15/weapons.hc
+--- siege-0.14/weapons.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/weapons.hc	1998-05-26 03:00:00.000000000 +0300
+@@ -323,7 +323,7 @@ void W_SetCurrentAmmo (void)
+ 			crossbow_select();
+ 			break;
+ 		case CLASS_CRUSADER:
+-			centerprint(self,"Enchant Hammer (10)\n");
++			centerprint(self,"Enchant Hammer (20)\n");
+ 			icestaff_select();
+ 			break;
+ 		case CLASS_NECROMANCER:
+@@ -345,7 +345,7 @@ void W_SetCurrentAmmo (void)
+ 		switch(self.playerclass)
+ 		{
+ 		case CLASS_CRUSADER:
+-			centerprint(self,"Turn Undead (15)\n");
++			centerprint(self,"Dispel Magic (30)\n");
+ 			icestaff_select();
+ 			break;
+ 		case CLASS_NECROMANCER:
+@@ -367,7 +367,7 @@ void W_SetCurrentAmmo (void)
+ 		switch(self.playerclass)
+ 		{
+ 		case CLASS_CRUSADER:
+-			centerprint(self,"Mercurial Speed (20)\n");
++			centerprint(self,"Berzerker (50)\n");
+ 			icestaff_select();
+ 			break;
+ 		case CLASS_NECROMANCER:
+@@ -387,7 +387,7 @@ void W_SetCurrentAmmo (void)
+ 		switch(self.playerclass)
+ 		{
+ 		case CLASS_CRUSADER:
+-			centerprint(self,"Berzerker (30)\n");
++			centerprint(self,"Mercurial Speed (70)\n");
+ 			icestaff_select();
+ 			break;
+ 		case CLASS_NECROMANCER:
+@@ -407,7 +407,7 @@ void W_SetCurrentAmmo (void)
+ 		switch(self.playerclass)
+ 		{
+ 		case CLASS_CRUSADER:
+-			centerprint(self,"Cloak of Perseus (40)\n");
++			centerprint(self,"Cloak of Perseus (80)\n");
+ 			icestaff_select();
+ 			break;
+ 		case CLASS_NECROMANCER:
+@@ -431,7 +431,7 @@ void W_SetCurrentAmmo (void)
+ 			icestaff_select();
+ 			break;
+ 		case CLASS_NECROMANCER:
+-			centerprint(self,"Become Beast (100)\n");
++			centerprint(self,"Become Beast (200)\n");
+ 			magicmis_select();
+ 			break;
+ 		case CLASS_SUCCUBUS:
+@@ -561,23 +561,23 @@ float W_CheckNoAmmo (float check_weapon)
+ 				return TRUE;
+ 		break;
+ 		case IT_WEAPON7:
+-			if(self.bluemana >= 60)
++			if(self.bluemana >= 80)
+ 				return TRUE;
+ 		break;
+ 		case IT_WEAPON6:
+-			if(self.bluemana >= 50)
++			if(self.bluemana >= 70)
+ 				return TRUE;
+ 		break;
+ 		case IT_WEAPON5:
+-			if(self.bluemana >= 30)
++			if(self.bluemana >= 50)
+ 				return TRUE;
+ 		break;
+ 		case IT_WEAPON4:
+-			if(self.bluemana >= 20)
++			if(self.bluemana >= 30)
+ 				return TRUE;
+ 		break;
+ 		case IT_WEAPON3:
+-			if(self.bluemana >= 10)
++			if(self.bluemana >= 20)
+ 				return TRUE;
+ 		break;
+ 		case IT_WEAPON2:
+@@ -663,6 +663,81 @@ void() W_BestWeapon =
+ 		self.weapon = IT_WEAPON1;
+ };
+ 
++void Beast_Front_Hit_Check ()
++{//not just a 
++float inertia,do_damage;
++vector punchdir,meat_spot,throwdir,test_vel;
++	if(self.attack_finished>time)
++		return;
++
++	if(self.act_state!=ACT_ATTACK&&self.act_state!=ACT_RUN&&self.act_state!=ACT_JUMP)
++		return;
++	else
++	{
++		if(self.velocity=='0 0 0')
++		{
++			makevectors(self.angles);
++			test_vel = v_forward*16;//fudge it
++			self.attack_finished=time+1;
++		}
++		else
++		{
++			self.attack_finished=time+0.1;
++			test_vel=normalize(self.velocity);
++			test_vel*=16;
++		}
++		tracearea(self.origin,self.origin+test_vel,self.mins,self.maxs,FALSE,self);
++		if(!trace_ent)
++			return;
++		if(!trace_ent.takedamage)
++			return;
++		if(trace_ent.safe_time>time)
++			return;
++		if(trace_ent.absmin_z>self.absmax_z - 6||trace_ent.absmax_z<self.origin_z - 24)//lets you jump on things
++			return;
++
++		sound(self,CHAN_BODY,"yakman/slam.wav",1,ATTN_NORM);
++		sound(self,CHAN_VOICE,"yakman/grunt.wav",1,ATTN_NORM);
++
++/*		if(self.act_state==ACT_RUN)
++			do_damage=150+random(150);
++		else if(self.act_state==ACT_ATTACK)*/
++		{
++			do_damage=400+random(300);
++			self.attack_finished=time+0.1;
++			self.act_state=ACT_YAK_HIT;
++		}
++
++		if(trace_ent.mass<10)
++			inertia=1;
++		else
++			inertia=trace_ent.mass/10;
++
++		makevectors(self.angles);
++		punchdir=v_forward*300+'0 0 300';
++		if(trace_ent.thingtype==THINGTYPE_FLESH)
++		{
++			meat_spot=trace_ent.origin;
++			meat_spot_z=trace_ent.origin_z+50;
++			MeatChunks (meat_spot,v_right*random(-200,200)+'0 0 200',3,trace_ent);
++			MeatChunks (meat_spot,v_right*random(-200,200)+'0 0 200',3,trace_ent);
++			MeatChunks (meat_spot,v_right*random(-200,200)+'0 0 200',3,trace_ent);
++			SpawnPuff (meat_spot, '0 0 0', 20,trace_ent);
++		}
++		if(trace_ent.solid!=SOLID_BSP&&trace_ent.movetype)
++		{
++			throwdir=punchdir*(1/inertia);
++			if(trace_ent.velocity_z<throwdir_z)
++				trace_ent.velocity_z=throwdir_z;//so you don't throw them too high
++			trace_ent.velocity_x+=throwdir_x;
++			trace_ent.velocity_y+=throwdir_y;
++			trace_ent.flags(-)FL_ONGROUND;
++		}
++		trace_ent.safe_time=time+.1;//So can't kill them instantly if they're moving against him or pinned on a wall
++		T_Damage(trace_ent,self,self,do_damage);
++	}
++}
++
+ /*
+ ============
+ W_Attack
+@@ -673,6 +748,12 @@ An attack impulse can be triggered now
+ void()player_sheep_baa;
+ void() W_Attack =
+ {
++	if(self.beast_time>time)
++	{
++		Beast_Front_Hit_Check();
++		return;
++	}
++	
+ 	if (!W_CheckNoAmmo (self.weapon))
+ 	{
+ 		W_BestWeapon ();
+@@ -692,6 +773,9 @@ void() W_Attack =
+ 	if(self.climbing)
+ 		return;
+ 
++	if(!self.siege_team)
++		return;
++
+ 	if(self.viewentity!=self&&self.viewentity.classname!="chasecam")
+ 		return;
+ 
+@@ -789,15 +873,16 @@ void() W_Attack =
+ 				crossbow_fire();
+ 		break;
+ 		case CLASS_CRUSADER:
+-			if(self.bluemana<10)
+-				centerprint(self,"Not enough mana (10)\n");
++			if(self.bluemana<20)
++				centerprint(self,"Not enough mana (20)\n");
+ 			else
+ 			{
+ 				self.cnt_tome+=1;
+ 				Use_TomeofPower();		
+ 				self.flags (+) FL_ARTIFACTUSED;
++				self.weapon=IT_WEAPON1;
+ 				Cru_Wham_Fire();
+-				self.bluemana-=10;
++				self.bluemana-=20;
+ 			}
+ 		break;
+ 		case CLASS_NECROMANCER:
+@@ -830,10 +915,10 @@ void() W_Attack =
+ 			}
+ 		break;
+ 		case CLASS_CRUSADER:
+-			if(self.bluemana<15)
+-				centerprint(self,"Not enough mana (15)\n");
++			if(self.bluemana<30)
++				centerprint(self,"Not enough mana (30)\n");
+ 			else
+-				centerprint(self, "Not Implemented\n");
++				DispelMagic();
+ 		break;
+ 		case CLASS_NECROMANCER:
+ 			if(self.greenmana<15)
+@@ -859,12 +944,12 @@ void() W_Attack =
+ 			return;
+ 		break;
+ 		case CLASS_CRUSADER:
+-			if(self.bluemana<20)
+-				centerprint(self,"Not enough mana (20)\n");
++			if(self.bluemana<50)
++				centerprint(self,"Not enough mana (50)\n");
+ 			else
+ 			{
+ 				self.attack_finished=time+0.5;
+-				mercury_speed();
++				berzerker();
+ 			}
+ 		break;
+ 		case CLASS_NECROMANCER:
+@@ -901,12 +986,12 @@ void() W_Attack =
+ 			return;
+ 		break;
+ 		case CLASS_CRUSADER:
+-			if(self.bluemana<30)
+-				centerprint(self,"Not enough mana (30)\n");
++			if(self.bluemana<70)
++				centerprint(self,"Not enough mana (70)\n");
+ 			else
+ 			{
+ 				self.attack_finished=time+0.5;
+-				berzerker();
++				mercury_speed();
+ 			}
+ 		break;
+ 		case CLASS_NECROMANCER:
+@@ -979,8 +1064,8 @@ void() W_Attack =
+ 			Wrath_Of_God();
+ 		break;
+ 		case CLASS_NECROMANCER:
+-			if(self.greenmana<100)
+-				centerprint(self,"Not enough mana (100)\n");
++			if(self.greenmana<200)
++				centerprint(self,"Not enough mana (200)\n");
+ 			else
+ 			{
+ 				self.attack_finished=time+0.5;
+@@ -1001,6 +1086,13 @@ void() W_Attack =
+ 		}
+ 	break;
+ 	}
++	if(self.bluemana<0)
++		self.bluemana=0;
++	if(self.greenmana<0)
++		self.greenmana=0;
++
++	if(self.puzzle_inv1==g_keyname)//key carrier now swing as fast
++			self.attack_finished = (self.attack_finished - time) * 2 + time;
+ };
+ 
+ 
+@@ -1195,9 +1287,9 @@ float	it, am, fl;
+ CheatCommand
+ ============
+ */
+-void() CheatCommand =
++void(float override) CheatCommand =
+ {
+-	if(deathmatch||coop||skill>2)
++	if((deathmatch||coop||skill>2)&&!override)
+ 		return;
+ 
+ 	self.items(+)IT_WEAPON1|IT_WEAPON2|IT_WEAPON3|IT_WEAPON4|IT_WEAPON4_1|IT_WEAPON4_2;
+diff -urNp siege-0.14/world.hc siege-0.15/world.hc
+--- siege-0.14/world.hc	1998-05-11 04:00:00.000000000 +0300
++++ siege-0.15/world.hc	1998-05-25 16:39:20.000000000 +0300
+@@ -134,6 +134,9 @@ void() worldspawn =
+ 
+ 	if(self.spawnflags&WSF_SIEGE)
+ 		dmMode=DM_SIEGE;
++	newsiege = TRUE;
++//	newsiege = FALSE;
++	gamestarted = FALSE;
+ 
+ //	InitBodyQue ();
+ 

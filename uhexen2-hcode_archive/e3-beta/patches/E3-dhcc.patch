@@ -1,0 +1,146 @@
+Initial patch so that dcc decompiles progs.dat from hexen2 E3-beta
+version, and makes it build hcode without Raven calling convention.
+
+Compile with -DE3BETA
+
+diff --git a/utils/dcc/dcc.c b/utils/dcc/dcc.c
+index 5a98801..d4ca479 100644
+--- a/utils/dcc/dcc.c
++++ b/utils/dcc/dcc.c
+@@ -378,18 +378,25 @@ static void DccStatement (dstatement_t *s)
+ 	{
+ 		nargs = s->op - OP_CALL0;
+ 
++		#ifndef E3BETA
+ 		arg1 = PR_PrintStringAtOfs(s->a, typ1);
++		#else
++		arg1 = PR_PrintStringAtOfs(s->a, NULL);
++		#endif
+ 		if (arg1)
+ 			strcpy(a1, arg1);
+ 	//	printf("fname: %s %s\n", a1, arg1);
+ 
++		#ifndef E3BETA
+ 		arg2 = PR_PrintStringAtOfs(s->b, typ2);
+ 		if (arg2)
+ 			strcpy(a2, arg2);
+ 
+ 		arg3 = PR_PrintStringAtOfs(s->c, typ3);
++		#endif
+ 		q_snprintf(dsline, sizeof(dsline), "%s (", a1);
+ 		q_snprintf(funcname, sizeof(funcname), "%s", a1);
++		#ifndef E3BETA
+ 		if (arg2)
+ 		{
+ 			strcat(dsline, " ");
+@@ -416,13 +423,24 @@ static void DccStatement (dstatement_t *s)
+ 			}
+ 		}
+ 
+-		for (i = 2; i < nargs; i++)
++		i = 2;
++		#else
++		i = 0;
++		#endif
++		for ( ; i < nargs; i++)
+ 		{
++			#ifndef E3BETA
+ 			strcat(dsline, ", ");
+ 			arg2 = Get_Immediate(OFS_PARM0 + (i * 3));
++			#else
++			arg2 = PR_PrintStringAtOfs(OFS_PARM0 + (i * 3), NULL);
++			#endif
+ 			if (!arg2)
+ 				continue;
+ 			strcat(dsline, arg2);
++			#ifdef E3BETA
++			if (i < nargs - 1) strcat(dsline, ", ");
++			#endif
+ 		}
+ 
+ 		strcat(dsline, ")");
+diff --git a/utils/dcc/pr_comp.c b/utils/dcc/pr_comp.c
+index b85a19c..5b4d1e9 100644
+--- a/utils/dcc/pr_comp.c
++++ b/utils/dcc/pr_comp.c
+@@ -370,10 +370,13 @@ PR_ParseFunctionCall
+ */
+ static def_t *PR_ParseFunctionCall (def_t *func)
+ {
+-	def_t		*e, *a1 = NULL, *a2 = NULL;
+ 	int			arg;
+ 	type_t		*t;
++	def_t		*e;
++	#ifndef E3BETA
++	def_t		*a1 = NULL, *a2 = NULL;
+ 	dstatement_t	*statement = NULL;
++	#endif
+ 
+ 	t = func->type;
+ 
+@@ -404,6 +407,9 @@ static def_t *PR_ParseFunctionCall (def_t *func)
+ 				PR_ParseError ("type mismatch on parm %i", arg);
+ 		// a vector copy will copy everything
+ 			def_parms[arg].type = t->parm_types[arg];
++			#ifdef E3BETA
++			PR_Statement (&pr_opcodes[OP_STORE_V], e, &def_parms[arg]);
++			#else
+ 			if (arg == 0)
+ 			{
+ 				a1 = e;
+@@ -419,6 +425,7 @@ static def_t *PR_ParseFunctionCall (def_t *func)
+ 				else
+ 					PR_Statement (&pr_opcodes[OP_STORE_F], e, &def_parms[arg]);
+ 			}
++			#endif
+ 			arg++;
+ 		} while (PR_Check (","));
+ 
+@@ -430,6 +437,7 @@ static def_t *PR_ParseFunctionCall (def_t *func)
+ 	if (arg > 8)
+ 		PR_ParseError ("More than eight parameters");
+ 
++	#ifndef E3BETA
+ 	statement = &statements[numstatements];
+ 	numstatements++;
+ 
+@@ -438,8 +446,9 @@ static def_t *PR_ParseFunctionCall (def_t *func)
+ 	statement->a = func ? func->ofs : 0;
+ 	statement->b = a1 ? a1->ofs : 0;
+ 	statement->c = a2 ? a2->ofs : 0;
+-
+-//	PR_Statement (&pr_opcodes[OP_CALL0+arg], func, NULL);
++	#else
++	PR_Statement (&pr_opcodes[OP_CALL0+arg], func, NULL);
++	#endif
+ 
+ 	def_ret.type = t->aux_type;
+ 	return &def_ret;
+@@ -450,6 +459,7 @@ static def_t *PR_ParseFunctionCall (def_t *func)
+ PR_ParseRandom
+ =============
+ */
++#ifndef E3BETA
+ static def_t *PR_ParseRandom (void)
+ {
+ 	def_t		*e = NULL, *e2 = NULL;
+@@ -494,6 +504,7 @@ static def_t *PR_ParseRandom (void)
+ 	PR_ParseError ("type mismatch on random");
+ 	return NULL; /* silence compiler */
+ }
++#endif /**/
+ 
+ /*
+ ============
+@@ -575,8 +586,10 @@ static def_t *PR_Expression (int priority)
+ 
+ 	if (priority == 0)
+ 		return PR_Term ();
++#ifndef E3BETA
+ 	if (priority == 1 && PR_Check ("random"))
+ 		return PR_ParseRandom();
++#endif
+ 
+ 	e = PR_Expression (priority-1);
+ 
+

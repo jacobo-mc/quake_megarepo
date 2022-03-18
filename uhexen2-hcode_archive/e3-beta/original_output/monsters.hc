@@ -1,0 +1,335 @@
+
+void  ()monster_use =  {
+   if ( self.enemy ) {
+
+      return ;
+
+   }
+   if ( (self.health <= 0.00000) ) {
+
+      return ;
+
+   }
+   if ( (activator.items & IT_INVISIBILITY) ) {
+
+      return ;
+
+   }
+   if ( (activator.flags & FL_NOTARGET) ) {
+
+      return ;
+
+   }
+   if ( (activator.classname != "player") ) {
+
+      return ;
+
+   }
+   self.enemy = activator;
+   self.nextthink = (time + 0.10000);
+   self.think = FoundTarget;
+};
+
+
+void  ()monster_death_use =  {
+local entity ent;
+local entity otemp;
+local entity stemp;
+   if ( (self.flags & FL_FLY) ) {
+
+      self.flags = (self.flags - FL_FLY);
+
+   }
+   if ( (self.flags & FL_SWIM) ) {
+
+      self.flags = (self.flags - FL_SWIM);
+
+   }
+   if ( !self.target ) {
+
+      return ;
+
+   }
+   activator = self.enemy;
+   SUB_UseTargets ();
+};
+
+
+void  ()walkmonster_start_go =  {
+local string stemp;
+local entity etemp;
+   if ( !self.touch ) {
+
+      self.touch = obj_push;
+
+   }
+   if ( !(self.spawnflags & NO_DROP) ) {
+
+      self.origin_z = (self.origin_z + 1.00000);
+      droptofloor ();
+      if ( !walkmove (0.00000, 0.00000, FALSE) ) {
+
+         if ( (self.flags2 & FL_SUMMONED) ) {
+
+            remove (self);
+         } else {
+
+            dprint ("walkmonster in wall at: ");
+            dprint (vtos (self.origin));
+            dprint ("\n");
+
+         }
+
+      }
+
+   }
+   if ( !self.ideal_yaw ) {
+
+      self.ideal_yaw = (self.angles * '0.00000 1.00000 0.00000');
+
+   }
+   if ( !self.yaw_speed ) {
+
+      self.yaw_speed = 20.00000;
+
+   }
+   if ( (self.view_ofs == '0.00000 0.00000 0.00000') ) {
+
+      self.view_ofs = '0.00000 0.00000 25.00000';
+
+   }
+   if ( (self.proj_ofs == '0.00000 0.00000 0.00000') ) {
+
+      self.proj_ofs = '0.00000 0.00000 25.00000';
+
+   }
+   if ( (self.use == SUB_Null) ) {
+
+      self.use = monster_use;
+
+   }
+   if ( !(self.flags & FL_MONSTER) ) {
+
+      self.flags = (self.flags | FL_MONSTER);
+
+   }
+   if ( ((self.flags & FL_MONSTER) && (self.classname == "player_sheep")) ) {
+
+      self.flags -= FL_MONSTER;
+
+   }
+   if ( self.target ) {
+
+      self.pathentity = find (world, targetname, self.target);
+      self.goalentity = find (world, targetname, self.target);
+      self.ideal_yaw = vectoyaw ((self.goalentity.origin - self.origin));
+      if ( !self.pathentity ) {
+
+         dprint ("Monster can't find target at ");
+         dprint (vtos (self.origin));
+         dprint ("\n");
+
+      }
+      if ( ((self.spawnflags & PLAY_DEAD) && (self.th_possum != SUB_Null)) ) {
+
+         self.think = self.th_possum;
+         self.nextthink = time;
+      } else {
+
+         if ( (self.pathentity.classname == "path_corner") ) {
+
+            self.th_walk ();
+         } else {
+
+            self.pausetime = 100000000.00000;
+
+         }
+
+      }
+      self.th_stand ();
+   } else {
+
+      if ( ((self.spawnflags & PLAY_DEAD) && (self.th_possum != SUB_Null)) ) {
+
+         self.think = self.th_possum;
+         self.nextthink = time;
+      } else {
+
+         self.pausetime = 100000000.00000;
+         self.th_stand ();
+
+      }
+
+   }
+   self.nextthink += (random () * 0.50000);
+};
+
+
+void  ()walkmonster_start =  {
+   self.takedamage = DAMAGE_YES;
+   if ( !(self.flags2 & FL_ALIVE) ) {
+
+      self.flags2 += FL_ALIVE;
+
+   }
+   if ( (self.scale <= 0.00000) ) {
+
+      self.scale = 1.00000;
+
+   }
+   self.nextthink = (self.nextthink + (random () * 0.50000));
+   self.think = walkmonster_start_go;
+   total_monsters = (total_monsters + 1.00000);
+};
+
+
+void  ()flymonster_start_go =  {
+   self.takedamage = DAMAGE_YES;
+   self.ideal_yaw = (self.angles * '0.00000 1.00000 0.00000');
+   if ( !self.yaw_speed ) {
+
+      self.yaw_speed = 10.00000;
+
+   }
+   if ( (self.view_ofs == '0.00000 0.00000 0.00000') ) {
+
+
+   }
+   self.view_ofs = '0.00000 0.00000 24.00000';
+   if ( (self.proj_ofs == '0.00000 0.00000 0.00000') ) {
+
+
+   }
+   self.proj_ofs = '0.00000 0.00000 24.00000';
+   self.use = monster_use;
+   self.flags = (self.flags | FL_FLY);
+   self.flags = (self.flags | FL_MONSTER);
+   if ( !self.touch ) {
+
+      self.touch = obj_push;
+
+   }
+   if ( !walkmove (0.00000, 0.00000, FALSE) ) {
+
+      dprint ("flymonster in wall at: ");
+      dprint (vtos (self.origin));
+      dprint ("\n");
+
+   }
+   if ( self.target ) {
+
+      self.pathentity = find (world, targetname, self.target);
+      self.goalentity = find (world, targetname, self.target);
+      if ( !self.pathentity ) {
+
+         dprint ("Monster can't find target at ");
+         dprint (vtos (self.origin));
+         dprint ("\n");
+
+      }
+      if ( ((self.spawnflags & PLAY_DEAD) && (self.th_possum != SUB_Null)) ) {
+
+         self.think = self.th_possum;
+         self.nextthink = time;
+      } else {
+
+         if ( (self.pathentity.classname == "path_corner") ) {
+
+            self.th_walk ();
+         } else {
+
+            self.pausetime = 100000000.00000;
+
+         }
+
+      }
+      self.th_stand ();
+   } else {
+
+      if ( ((self.spawnflags & PLAY_DEAD) && (self.th_possum != SUB_Null)) ) {
+
+         self.think = self.th_possum;
+         self.nextthink = time;
+      } else {
+
+         self.pausetime = 100000000.00000;
+         self.th_stand ();
+
+      }
+
+   }
+};
+
+
+void  ()flymonster_start =  {
+   self.takedamage = DAMAGE_YES;
+   self.flags2 += FL_ALIVE;
+   self.nextthink = (self.nextthink + (random () * 0.50000));
+   self.think = flymonster_start_go;
+   total_monsters = (total_monsters + 1.00000);
+};
+
+
+void  ()swimmonster_start_go =  {
+   if ( deathmatch ) {
+
+      return ;
+
+   }
+   if ( !self.touch ) {
+
+      self.touch = obj_push;
+
+   }
+   self.takedamage = DAMAGE_YES;
+   total_monsters = (total_monsters + 1.00000);
+   self.ideal_yaw = (self.angles * '0.00000 1.00000 0.00000');
+   if ( !self.yaw_speed ) {
+
+      self.yaw_speed = 10.00000;
+
+   }
+   if ( (self.view_ofs == '0.00000 0.00000 0.00000') ) {
+
+
+   }
+   self.view_ofs = '0.00000 0.00000 10.00000';
+   if ( (self.proj_ofs == '0.00000 0.00000 0.00000') ) {
+
+
+   }
+   self.proj_ofs = '0.00000 0.00000 10.00000';
+   self.use = monster_use;
+   self.flags = (self.flags | FL_SWIM);
+   self.flags = (self.flags | FL_MONSTER);
+   if ( self.target ) {
+
+      self.pathentity = find (world, targetname, self.target);
+      self.goalentity = find (world, targetname, self.target);
+      if ( !self.pathentity ) {
+
+         dprint ("Monster can't find target at ");
+         dprint (vtos (self.origin));
+         dprint ("\n");
+
+      }
+      self.ideal_yaw = vectoyaw ((self.goalentity.origin - self.origin));
+      self.th_walk ();
+   } else {
+
+      self.pausetime = 100000000.00000;
+      self.th_stand ();
+
+   }
+   self.nextthink = (self.nextthink + (random () * 0.50000));
+};
+
+
+void  ()swimmonster_start =  {
+   self.takedamage = DAMAGE_YES;
+   self.flags2 += FL_ALIVE;
+   self.nextthink = (self.nextthink + (random () * 0.50000));
+   self.think = swimmonster_start_go;
+   total_monsters = (total_monsters + 1.00000);
+};
+

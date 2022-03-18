@@ -1,0 +1,502 @@
+diff -urNp h2-1.11/ai.hc h2-1.11-demo/ai.hc
+--- h2-1.11/ai.hc	1997-09-25 14:17:02.000000000 +0300
++++ h2-1.11-demo/ai.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -790,17 +790,17 @@ float monster_spawn_precache (void)
+ float have_monsters;
+ 	if (self.spawnflags & IMP)
+ 	{
+-		precache_model3 ("models/imp.mdl");
+-		precache_model3 ("models/h_imp.mdl");//empty for now
+-		precache_sound3("imp/up.wav");
+-		precache_sound3("imp/die.wav");
+-		precache_sound3("imp/swoop.wav");
+-		precache_sound3("imp/fly.wav");
+-		precache_model3 ("models/shardice.mdl");
++		precache_model ("models/imp.mdl");
++		precache_model ("models/h_imp.mdl");//empty for now
++		precache_sound ("imp/up.wav");
++		precache_sound ("imp/die.wav");
++		precache_sound ("imp/swoop.wav");
++		precache_sound ("imp/fly.wav");
++		precache_model ("models/shardice.mdl");
+ 		precache_model ("models/fireball.mdl");
+-		precache_sound3("imp/swoophit.wav");
+-		precache_sound3("imp/fireball.wav");
+-		precache_sound3("imp/shard.wav");
++		precache_sound ("imp/swoophit.wav");
++		precache_sound ("imp/fireball.wav");
++		precache_sound ("imp/shard.wav");
+ 		precache_sound("hydra/turn-s.wav");
+ 		have_monsters=TRUE;
+ 	}
+diff -urNp h2-1.11/imp.hc h2-1.11-demo/imp.hc
+--- h2-1.11/imp.hc	1997-09-11 11:36:54.000000000 +0300
++++ h2-1.11-demo/imp.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -1460,31 +1460,31 @@ void init_imp (float which_skin)
+ 
+ 	if(!self.flags2&FL_SUMMONED)
+ 	{
+-		precache_model3 ("models/imp.mdl");
+-		precache_model3 ("models/h_imp.mdl");//empty for now
++		precache_model ("models/imp.mdl");
++		precache_model ("models/h_imp.mdl");//empty for now
+ 		if (self.classname == "monster_imp_lord")
+ 		{
+-			precache_model3 ("models/shardice.mdl");
++			precache_model ("models/shardice.mdl");
+ 			precache_model ("models/fireball.mdl");
+-			precache_sound3("imp/upbig.wav");
+-			precache_sound3("imp/diebig.wav");
+-			precache_sound3("imp/swoopbig.wav");
+-			precache_sound3("imp/flybig.wav");
++			precache_sound ("imp/upbig.wav");
++			precache_sound ("imp/diebig.wav");
++			precache_sound ("imp/swoopbig.wav");
++			precache_sound ("imp/flybig.wav");
+ 		}
+ 		else
+ 		{
+-			precache_sound3("imp/up.wav");
+-			precache_sound3("imp/die.wav");
+-			precache_sound3("imp/swoop.wav");
+-			precache_sound3("imp/fly.wav");
++			precache_sound ("imp/up.wav");
++			precache_sound ("imp/die.wav");
++			precache_sound ("imp/swoop.wav");
++			precache_sound ("imp/fly.wav");
+ 			if (self.classname == "monster_imp_ice")
+-				precache_model3 ("models/shardice.mdl");
++				precache_model ("models/shardice.mdl");
+ 			else
+ 				precache_model ("models/fireball.mdl");
+ 		}
+-		precache_sound3("imp/swoophit.wav");
+-		precache_sound3("imp/fireball.wav");
+-		precache_sound3("imp/shard.wav");
++		precache_sound ("imp/swoophit.wav");
++		precache_sound ("imp/fireball.wav");
++		precache_sound ("imp/shard.wav");
+ 		precache_sound("hydra/turn-s.wav");
+ 	}
+ 
+diff -urNp h2-1.11/lightning.hc h2-1.11-demo/lightning.hc
+--- h2-1.11/lightning.hc	1997-09-12 13:46:06.000000000 +0300
++++ h2-1.11-demo/lightning.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -401,8 +401,8 @@ void light_thunderstorm()
+ 			return;
+ 		}
+ 		precache_sound3("ambience/thunder1.wav");
+-		precache_sound3("crusader/lghtn1.wav");
+-		precache_sound3("crusader/lghtn2.wav");
++		precache_sound ("crusader/lghtn1.wav");
++		precache_sound ("crusader/lghtn2.wav");
+ 		
+ 		if(!self.frags)
+ 			self.frags=1000;
+diff -urNp h2-1.11/object.hc h2-1.11-demo/object.hc
+--- h2-1.11/object.hc	1997-10-08 11:54:34.000000000 +0300
++++ h2-1.11-demo/object.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -1503,7 +1503,7 @@ skin = determines the skin of the model
+ */
+ void obj_corpse1 (void)
+ {
+-	precache_model3("models/corps1.mdl");
++	precache_model ("models/corps1.mdl");
+ 	CreateEntityNew(self,ENT_CORPSE1,"models/corps1.mdl",chunk_death);
+ 	self.use = chunk_death;
+ }
+@@ -1863,7 +1863,7 @@ health = 20
+ */
+ void obj_playerhead_necromancer (void)
+ {
+-	precache_model3("models/h_nec.mdl");
++	precache_model ("models/h_nec.mdl");
+ 	CreateEntityNew(self,ENT_PLAYERHEAD,"models/h_nec.mdl",chunk_death);
+ 	self.use=chunk_death;
+ }
+@@ -1876,7 +1876,7 @@ health = 20
+ */
+ void obj_playerhead_crusader (void)
+ {
+-	precache_model3("models/h_cru.mdl");
++	precache_model ("models/h_cru.mdl");
+ 	CreateEntityNew(self,ENT_PLAYERHEAD,"models/h_cru.mdl",chunk_death);
+ 	self.use=chunk_death;
+ }
+@@ -1904,7 +1904,7 @@ health = 20
+ */
+ void obj_plant_generic (void)
+ {
+-	precache_model3("models/plantgen.mdl");
++	precache_model ("models/plantgen.mdl");
+ 	CreateEntityNew(self,ENT_PLANT_GENERIC,"models/plantgen.mdl",chunk_death);
+ }
+ 
+diff -urNp h2-1.11/precache.hc h2-1.11-demo/precache.hc
+--- h2-1.11/precache.hc	1997-10-01 20:14:16.000000000 +0300
++++ h2-1.11-demo/precache.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -107,13 +107,13 @@ void Precache_lmp (void)
+ 	precache_file ("gfx/box_br.lmp");
+ 
+ 	precache_file ("gfx/cport1.lmp");
+-	precache_file3 ("gfx/cport2.lmp");
+-	precache_file3 ("gfx/cport3.lmp");
++	precache_file ("gfx/cport2.lmp");
++	precache_file ("gfx/cport3.lmp");
+ 	precache_file ("gfx/cport4.lmp");
+ 
+ 	precache_file ("gfx/menu/netp1.lmp");
+-	precache_file3 ("gfx/menu/netp2.lmp");
+-	precache_file3 ("gfx/menu/netp3.lmp");
++	precache_file ("gfx/menu/netp2.lmp");
++	precache_file ("gfx/menu/netp3.lmp");
+ 	precache_file ("gfx/menu/netp4.lmp");
+ 	precache_file ("gfx/menu/frame.lmp");
+ 
+@@ -616,13 +616,13 @@ void Precache_wav (void)
+ 	precache_sound ("items/armrpkup.wav");
+ 	precache_sound ("misc/warning.wav");   //glyph about to explode
+ 	//Summoning Stone
+-	precache_sound3 ("imp/upbig.wav");
+-	precache_sound3 ("imp/diebig.wav");
+-	precache_sound3 ("imp/swoophit.wav");
+-	precache_sound3 ("imp/swoopbig.wav");
+-	precache_sound3 ("imp/flybig.wav");
+-	precache_sound3 ("imp/fireball.wav");
+-	precache_sound3 ("imp/shard.wav");
++	precache_sound ("imp/upbig.wav");
++	precache_sound ("imp/diebig.wav");
++	precache_sound ("imp/swoophit.wav");
++	precache_sound ("imp/swoopbig.wav");
++	precache_sound ("imp/flybig.wav");
++	precache_sound ("imp/fireball.wav");
++	precache_sound ("imp/shard.wav");
+ 
+ //SHARED PLAYER SOUNDS
+ 	//General body/physics sounds
+@@ -731,53 +731,53 @@ void Precache_wav (void)
+ //REGISTERED======================================================
+ 
+ //Shared sounds
+-	precache_sound3 ("raven/soul.wav");			// noise the soul sphere makes
++	precache_sound ("raven/soul.wav");			// noise the soul sphere makes
+ 
+ //FX
+ 	precache_sound ("fx/quake.wav");	
+ 
+ //CRUSADER
+ 	//Warhammer
+-	precache_sound3 ("crusader/lghtn1.wav");	
+-	precache_sound3 ("crusader/lghtn2.wav");	
+-	precache_sound3 ("raven/lightng1.wav");
++	precache_sound ("crusader/lghtn1.wav");
++	precache_sound ("crusader/lghtn2.wav");
++	precache_sound ("raven/lightng1.wav");
+ 	//Ice Staff
+-	precache_sound3 ("crusader/icehit.wav");	
+-	precache_sound3 ("crusader/icewall.wav");	
+-	precache_sound3 ("crusader/icefire.wav");	
+-	precache_sound3 ("misc/tink.wav");				//Ice shots bounce
+-	precache_sound3 ("crusader/blizfire.wav");	
+-	precache_sound3 ("crusader/blizzard.wav");	
+-	precache_sound3 ("crusader/frozen.wav");	
+-	precache_sound3 ("misc/icestatx.wav");	//Ice statue breaking
++	precache_sound ("crusader/icehit.wav");
++	precache_sound ("crusader/icewall.wav");
++	precache_sound ("crusader/icefire.wav");
++	precache_sound ("misc/tink.wav");				//Ice shots bounce
++	precache_sound ("crusader/blizfire.wav");
++	precache_sound ("crusader/blizzard.wav");
++	precache_sound ("crusader/frozen.wav");
++	precache_sound ("misc/icestatx.wav");	//Ice statue breaking
+ 	//Meteor Staff
+-	precache_sound3 ("crusader/metfire.wav");	
+-	precache_sound3 ("misc/rubble.wav");			//Meteor bits fall, stoned player bits fall (from Medusa)
+-	precache_sound3 ("crusader/torngo.wav");	
+-	precache_sound3 ("crusader/tornado.wav");	
++	precache_sound ("crusader/metfire.wav");
++	precache_sound ("misc/rubble.wav");			//Meteor bits fall, stoned player bits fall (from Medusa)
++	precache_sound ("crusader/torngo.wav");
++	precache_sound ("crusader/tornado.wav");
+ 	//Sunstaff
+-	precache_sound3 ("crusader/sunstart.wav");	
+-	precache_sound3 ("crusader/sunhum.wav");	
+-	precache_sound3 ("crusader/sunhit.wav");	
++	precache_sound ("crusader/sunstart.wav");
++	precache_sound ("crusader/sunhum.wav");
++	precache_sound ("crusader/sunhit.wav");
+ 
+ //NECROMANCER
+ 	//Sickle
+-	precache_sound3 ("weapons/drain.wav");
++	precache_sound ("weapons/drain.wav");
+ 	//Magic Missiles
+-	precache_sound3 ("necro/mmfire.wav");	
++	precache_sound ("necro/mmfire.wav");
+ 	//Bone Shards
+-	precache_sound3 ("necro/bonefpow.wav");	
+-	precache_sound3 ("necro/bonefnrm.wav");	
+-	precache_sound3 ("necro/bonephit.wav");	
+-	precache_sound3 ("necro/bonenhit.wav");	
+-	precache_sound3 ("necro/bonenwal.wav");	
++	precache_sound ("necro/bonefpow.wav");
++	precache_sound ("necro/bonefnrm.wav");
++	precache_sound ("necro/bonephit.wav");
++	precache_sound ("necro/bonenhit.wav");
++	precache_sound ("necro/bonenwal.wav");
+ 	//Raven Staff
+-	precache_sound3 ("raven/ravengo.wav");		
+-	precache_sound3 ("raven/squawk2.wav");		
+-	precache_sound3 ("raven/death.wav");
+-	precache_sound3 ("raven/rfire1.wav");
+-	precache_sound3 ("raven/rfire2.wav");
+-	precache_sound3 ("raven/split.wav");
++	precache_sound ("raven/ravengo.wav");
++	precache_sound ("raven/squawk2.wav");
++	precache_sound ("raven/death.wav");
++	precache_sound ("raven/rfire1.wav");
++	precache_sound ("raven/rfire2.wav");
++	precache_sound ("raven/split.wav");
+ }
+ 
+ //**********************************************
+@@ -862,9 +862,9 @@ void Precache_mdl (void)
+ 	precache_model("models/sheep.mdl");
+ 	precache_model("models/snout.mdl");
+ 	//Summoning Stone
+-	precache_model3 ("models/imp.mdl");
+-	precache_model3 ("models/h_imp.mdl");//empty for now
+-	precache_model3 ("models/shardice.mdl");
++	precache_model ("models/imp.mdl");
++	precache_model ("models/h_imp.mdl");//empty for now
++	precache_model ("models/shardice.mdl");
+ 	precache_model ("models/fireball.mdl");
+ 
+ //ITEMS
+@@ -880,23 +880,23 @@ void Precache_mdl (void)
+ 
+ //TE_STREAM models
+ 	// TE_STREAM_SUNSTAFF1 / TE_STREAM_SUNSTAFF2
+-	precache_model3("models/stsunsf1.mdl");	//Sunbeam and ball models
+-	precache_model3("models/stsunsf2.mdl");
+-	precache_model3("models/stsunsf3.mdl");
+-	precache_model3("models/stsunsf4.mdl");
+-	precache_model3("models/stsunsf5.mdl");
++	precache_model ("models/stsunsf1.mdl");	//Sunbeam and ball models
++	precache_model ("models/stsunsf2.mdl");
++	precache_model ("models/stsunsf3.mdl");
++	precache_model ("models/stsunsf4.mdl");
++	precache_model ("models/stsunsf5.mdl");
+ 	// TE_STREAM_LIGHNING
+-	precache_model3	("models/stlghtng.mdl");	//Lightning- also warhammer
++	precache_model ("models/stlghtng.mdl");	//Lightning- also warhammer
+ 	// TE_STREAM_CHAIN
+ 	precache_model("models/stchain.mdl");	//Chain- also for Scarab staff
+ 	// TE_STREAM_COLORBEAM
+-	precache_model3("models/stclrbm.mdl");	//Colored beams of light
++	precache_model ("models/stclrbm.mdl");	//Colored beams of light
+ 	// TE_STREAM_ICECHUNKS
+ 	precache_model("models/stice.mdl");		//For blizzard
+ 	// TE_STREAM_GAZE
+ 	precache_model("models/stmedgaz.mdl");	//Medusa's gaze
+ 	// TE_STREAM_FAMINE
+-	precache_model3("models/fambeam.mdl");	//Famine's beam attack
++	precache_model ("models/fambeam.mdl");	//Famine's beam attack
+ 
+ //GLYPHS
+ 	precache_model("models/glyph.mdl");		//Non-artifact flagged glyph
+@@ -952,54 +952,54 @@ void Precache_mdl (void)
+ //REGISTERED=======================================================
+ 
+ //NECROMANCER
+-	precache_model3("models/necro.mdl");
+-	precache_model3 ("models/h_nec.mdl");
++	precache_model ("models/necro.mdl");
++	precache_model ("models/h_nec.mdl");
+ 	//Sickle
+-	precache_model3("models/sickle.mdl");		// Necromancer Weapons
++	precache_model("models/sickle.mdl");		// Necromancer Weapons
+ 	//Magic Missiles
+-	precache_model3("models/spllbook.mdl");
+-	precache_model3("models/handfx.mdl");
++	precache_model ("models/spllbook.mdl");
++	precache_model ("models/handfx.mdl");
+ 	//Bone Shards
+-	precache_model3("models/bonefx.mdl");
+-	precache_model3("models/boneshot.mdl");
+-	precache_model3("models/boneshrd.mdl");
+-	precache_model3("models/bonelump.mdl");
++	precache_model ("models/bonefx.mdl");
++	precache_model ("models/boneshot.mdl");
++	precache_model ("models/boneshrd.mdl");
++	precache_model ("models/bonelump.mdl");
+ 	//Raven Staff
+-	precache_model3("models/ravenstf.mdl");
+-	precache_model3("models/vindsht1.mdl");
+-	precache_model3("models/ravproj.mdl");
+-	precache_model3("models/birdmsl2.mdl");
++	precache_model ("models/ravenstf.mdl");
++	precache_model ("models/vindsht1.mdl");
++	precache_model ("models/ravproj.mdl");
++	precache_model ("models/birdmsl2.mdl");
+ 
+ //CRUSADER
+-	precache_model3("models/crusader.mdl");
+-	precache_model3 ("models/h_cru.mdl");
++	precache_model ("models/crusader.mdl");
++	precache_model ("models/h_cru.mdl");
+ 	//Warhammer
+-	precache_model3("models/warhamer.mdl");
+-	precache_model3("models/hamthrow.mdl");
++	precache_model ("models/warhamer.mdl");
++	precache_model ("models/hamthrow.mdl");
+ 	//Ice Staff
+-	precache_model3("models/icestaff.mdl");
+-	precache_model3("models/iceshot1.mdl");
+-	precache_model3("models/iceshot2.mdl");
++	precache_model ("models/icestaff.mdl");
++	precache_model ("models/iceshot1.mdl");
++	precache_model ("models/iceshot2.mdl");
+ 	//Meteor Staff
+-	precache_model3("models/meteor.mdl");
+-	precache_model3("models/tempmetr.mdl");//temp- meteor projectile
+-	precache_model3("models/tornato.mdl");
+-	precache_model3("models/funnal.mdl");
++	precache_model ("models/meteor.mdl");
++	precache_model ("models/tempmetr.mdl");//temp- meteor projectile
++	precache_model ("models/tornato.mdl");
++	precache_model ("models/funnal.mdl");
+ 	//Sunstaff
+-	precache_model3("models/sunstaff.mdl");
++	precache_model ("models/sunstaff.mdl");
+ 
+ //SPECIAL ABILITIES
+ 	//Necromancer
+-	precache_model3 ("models/soulball.mdl");//Soul sphere
+-	precache_model3 ("models/soulskul.mdl");
++	precache_model ("models/soulball.mdl");//Soul sphere
++	precache_model ("models/soulskul.mdl");
+ 	//Crusader
+-	precache_model3 ("models/goodsphr.mdl");//Smiting Sphere
+-	precache_model3 ("models/cross.mdl");
++	precache_model ("models/goodsphr.mdl");//Smiting Sphere
++	precache_model ("models/cross.mdl");
+ 
+-	precache_model3 ("models/birdmisl.mdl");
++	precache_model ("models/birdmisl.mdl");
+ //Miscellaneous Shared
+ 	precache_model ("models/fireball.mdl");//Fireball traps, imps
+-	precache_model3 ("models/test.mdl");	//For testing
++	precache_model ("models/test.mdl");	//For testing
+ }
+ 
+ 
+diff -urNp h2-1.11/torch.hc h2-1.11-demo/torch.hc
+--- h2-1.11/torch.hc	1997-09-22 13:56:24.000000000 +0300
++++ h2-1.11-demo/torch.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -110,7 +110,7 @@ NOTE: IF YOU DON'T PLAN ON USING THE DEF
+ */
+ void light_torch_castle()
+ {
+-	precache_model3("models/castrch.mdl");
++	precache_model("models/castrch.mdl");
+ 	precache_model("models/cflmtrch.mdl");
+ 	precache_sound("raven/flame1.wav");
+ 
+diff -urNp h2-1.11/weather.hc h2-1.11-demo/weather.hc
+--- h2-1.11/weather.hc	1997-09-12 15:52:06.000000000 +0300
++++ h2-1.11-demo/weather.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -311,11 +311,11 @@ void () weather_lightning_start =
+ 
+ 	if(self.classname=="weather_lightning_start")
+ 	{
+-		precache_model3("models/stlghtng.mdl");
++		precache_model("models/stlghtng.mdl");
+ 		if (!self.noise)
+ 		{
+ 			self.noise = "raven/lightng1.wav"; 
+-			precache_sound3("raven/lightng1.wav");
++			precache_sound("raven/lightng1.wav");
+ 		}
+ 		if(self.spawnflags&2)
+ 		{
+@@ -327,7 +327,7 @@ void () weather_lightning_start =
+ 	{
+ 		dprint("Shazzaam!\n");
+ 		self.noise = "crusader/lghtn1.wav";
+-		precache_sound3("crusader/lghtn1.wav");
++		precache_sound("crusader/lghtn1.wav");
+ 	}
+ 	
+ 	self.use = lightning_init;		// For triggered lightning
+@@ -380,10 +380,10 @@ lifespan - amount of time sunbeam will e
+ */
+ void () weather_sunbeam_start =
+ {
+-	precache_model3("models/stsunsf1.mdl");
+-	precache_model3("models/stsunsf2.mdl");
+-	precache_model3("models/stsunsf3.mdl");
+-	precache_model3("models/stsunsf4.mdl");
++	precache_model ("models/stsunsf1.mdl");
++	precache_model ("models/stsunsf2.mdl");
++	precache_model ("models/stsunsf3.mdl");
++	precache_model ("models/stsunsf4.mdl");
+ 
+ 	self.noise = "crusader/lghtn1.wav";
+ 
+@@ -430,7 +430,7 @@ lifespan - amount of time beam will exis
+ /*
+ void () fx_colorbeam_start =
+ {
+-	precache_model2("models/stclrbm.mdl");
++	precache_model("models/stclrbm.mdl");
+ 	weather_lightning_start();
+ };
+ */
+diff -urNp h2-1.11/wp_art.hc h2-1.11-demo/wp_art.hc
+--- h2-1.11/wp_art.hc	1997-09-12 14:32:48.000000000 +0300
++++ h2-1.11-demo/wp_art.hc	1997-11-07 00:24:04.000000000 +0200
+@@ -46,8 +46,8 @@ none
+ void wp_weapon2 (void)
+ {
+ 	precache_model("models/w_l2_c1.mdl");
+-	precache_model3("models/w_l2_c2.mdl");
+-	precache_model3("models/w_l2_c3.mdl");
++	precache_model("models/w_l2_c2.mdl");
++	precache_model("models/w_l2_c3.mdl");
+ 	precache_model("models/w_l2_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON2_ART,"models/w_l2_c1.mdl",SUB_Null);
+@@ -71,8 +71,8 @@ none
+ void wp_weapon3 (void)
+ {
+ 	precache_model("models/w_l3_c1.mdl");
+-	precache_model3("models/w_l3_c2.mdl");
+-	precache_model3("models/w_l3_c3.mdl");
++	precache_model("models/w_l3_c2.mdl");
++	precache_model("models/w_l3_c3.mdl");
+ 	precache_model("models/w_l3_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON41_ART,"models/w_l3_c1.mdl",SUB_Null);
+@@ -95,8 +95,8 @@ none
+ void wp_weapon4_head (void)
+ {
+ 	precache_model("models/w_l41_c1.mdl");
+-	precache_model3("models/w_l41_c2.mdl");
+-	precache_model3("models/w_l41_c3.mdl");
++	precache_model("models/w_l41_c2.mdl");
++	precache_model("models/w_l41_c3.mdl");
+ 	precache_model("models/w_l41_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON41_ART,"models/w_l41_c1.mdl",SUB_Null);
+@@ -119,8 +119,8 @@ none
+ void wp_weapon4_staff (void)
+ {
+ 	precache_model("models/w_l42_c1.mdl");
+-	precache_model3("models/w_l42_c2.mdl");
+-	precache_model3("models/w_l42_c3.mdl");
++	precache_model("models/w_l42_c2.mdl");
++	precache_model("models/w_l42_c3.mdl");
+ 	precache_model("models/w_l42_c4.mdl");
+ 
+ 	CreateEntityNew(self,ENT_WEAPON42_ART,"models/w_l42_c1.mdl",SUB_Null);

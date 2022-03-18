@@ -1,0 +1,628 @@
+diff -urNp portals-1.12/artifact.hc portals-1.12a/artifact.hc
+--- portals-1.12/artifact.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/artifact.hc	1998-03-23 20:25:14.000000000 +0200
+@@ -228,11 +228,14 @@ void Artifact_Cheat(void)
+ void GenerateArtifactModel(string modelname,string art_name,float respawnflag) 
+ {
+ 	if (respawnflag)	// Should this thing respawn
++	{
+ 		self.artifact_respawn = deathmatch;
+-
++		
+ 		if((art_name==STR_TOME||art_name==STR_MANABOOST)&&mapname=="tibet10")
+ 			self.artifact_respawn = TRUE;
+-
++		else if((art_name==STR_HEALTHBOOST||art_name==STR_MANABOOST)&&skill>3)
++			self.artifact_respawn = TRUE;	//jfm: this should help out a bit...
++	}
+ 	setmodel(self, modelname);
+ 	self.netname = art_name;
+ 
+@@ -241,7 +244,7 @@ void GenerateArtifactModel(string modeln
+ 		self.netname = "Ring of Flight";
+ 		self.touch	 = ring_touch;
+ 	}
+-	else if (modelname != "models/a_xray.mdl")
++	else //if (modelname != "models/a_xray.mdl")
+ 		self.touch	 = artifact_touch;
+ 	setsize (self, '0 0 0', '0 0 0');
+ 
+diff -urNp portals-1.12/axe.hc portals-1.12a/axe.hc
+--- portals-1.12/axe.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/axe.hc	1998-03-23 14:15:16.000000000 +0200
+@@ -58,11 +58,16 @@ void axeblade_run (void) [ ++ 0 .. 5]
+ 
+ void axetail_run (void)
+ {
++	if(!self.owner)
++		remove(self);
++	else
++	{
+ 		self.origin = self.owner.origin;
+ 		self.velocity = self.owner.velocity;
+ 		self.owner.angles = vectoangles(self.velocity);
+ 		self.angles = self.owner.angles;
+ 		self.origin = self.owner.origin;
++	}
+ }
+ 
+ 
+diff -urNp portals-1.12/camera.hc portals-1.12a/camera.hc
+--- portals-1.12/camera.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/camera.hc	1998-03-27 15:14:34.000000000 +0200
+@@ -141,6 +141,12 @@ void CameraUse (void)
+ 	if(deathmatch)
+ 		other.view_ofs='0 0 0';
+ 
++	if(world.target=="sheep")
++	{
++		string printnum;
++		printnum=ftos(other.experience);
++		centerprint(other,printnum);
++	}
+ 	other.cameramode = self;
+ 	other.camera_time = time + self.wait;
+ 	other.attack_finished = other.camera_time;
+diff -urNp portals-1.12/client.hc portals-1.12a/client.hc
+--- portals-1.12/client.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/client.hc	1998-03-23 14:08:34.000000000 +0200
+@@ -318,6 +318,8 @@ void FindDMLevel(void)
+ 		else if (mapname == "tibet8")
+ 			nextmap = "tibet9";
+ 		else if (mapname == "tibet9")
++			nextmap = "tibet10";
++		else if (mapname == "tibet10")
+ 			nextmap = "tibet1";
+ 	}
+ 	else
+@@ -1155,8 +1157,7 @@ void() NextLevel =
+ 	entity o;
+ 
+ 	FindDMLevel();
+-	o = spawn();
+-	o.map = nextmap;
++
+ 	if (nextmap == "")
+ 	{
+ 		// find a trigger changelevel
+@@ -1165,10 +1166,16 @@ void() NextLevel =
+ 		// go back to start if no trigger_changelevel
+ 		if (!o)
+ 		{
++			o = spawn();
+ 			mapname = "demo1";
+ 			o.map = mapname;
+ 		}
+ 	}
++	else
++	{
++		o = spawn();
++		o.map = nextmap;
++	}
+ 
+ 	gameover = TRUE;
+ 	
+diff -urNp portals-1.12/constant.hc portals-1.12a/constant.hc
+--- portals-1.12/constant.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/constant.hc	1998-03-23 18:48:44.000000000 +0200
+@@ -666,3 +666,4 @@ float ACT_DEAD			= 8;
+ float ACT_DECAP			= 9;
+ 
+ float MISSIONPACK		= 1;	//Spawnflag for world, telling us it's a Mission Pack map- used so certain code is used only for new levels
++float SHEEPHUNT			= 2;	//Spawnflag for world, enables special sheep hunter code...
+diff -urNp portals-1.12/damage.hc portals-1.12a/damage.hc
+--- portals-1.12/damage.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/damage.hc	1998-03-27 15:14:36.000000000 +0200
+@@ -7,7 +7,7 @@ void() info_player_start;
+ void necromancer_sphere(entity ent);
+ void crusader_sphere(entity ent);
+ 
+-void() monster_death_use;
++void(float force_respawn) monster_death_use;
+ void(entity attacker,float total_damage)player_pain;
+ void()PlayerDie;
+ void MonsterDropStuff(void);
+@@ -54,6 +54,51 @@ entity lastleader,newking;
+ 		return FALSE;
+ 	}
+ 
++	if(world.target=="sheep")
++	{
++		if(fatality&&targ.classname=="player_sheep")
++		{
++			if(attacker.flags&FL_CLIENT)
++			{
++			string sheep_pointer;
++				sound (attacker, CHAN_BODY, "misc/comm.wav", 1, ATTN_NORM);
++				exp_base=random();
++				if(!targ.scale)
++					targ.scale=1;
++				sprint(attacker,"Got me a ");
++				sheep_pointer=ftos(targ.experience_value);
++				sprint(attacker,sheep_pointer);
++				sprint(attacker,"-pointer!\n");
++				if(targ.scale<0.5)
++				{
++					sprint(attacker,"Slippery sucker! ");
++					exp_bonus=rint((0.6-targ.scale)*10);
++					sheep_pointer=ftos(exp_bonus);
++					sprint(attacker,sheep_pointer);
++					sprint(attacker,"-point bonus!\n");
++					attacker.experience+=exp_bonus;
++				}
++/*				if(fatality==2)
++				{
++					sprint(attacker,"Non-scope bonus point!");
++					attacker.experience+=1;
++				}*/
++
++				if(exp_base<0.2)
++					centerprint(attacker,"Bullseye!\n");
++				else if(exp_base<0.4)
++					centerprint(attacker,"Got one!\n");
++				else if(exp_base<0.6)
++					centerprint(attacker,"Right in the kill zone!\n");
++				else if(exp_base<0.8)
++					centerprint(attacker,"Boo-yah!\n");
++				else
++					centerprint(attacker,"Nee-hahhh!\n");
++			}
++			attacker.experience+=targ.experience_value;
++		}
++		return FALSE;
++	}
+ 	//NOTE: exp_mult is for DM only
+ 	health_mod=1;
+ 	if(deathmatch)
+@@ -450,8 +495,15 @@ entity oself;
+ 	if (self.classname == "player")
+ 		ClientObituary(self, attacker, inflictor);
+ 
+-	CheckExpAward(attacker,self,TRUE,damage);
+-
++	if(world.target=="sheep")
++	{
++		if(inflictor.scoped)
++			CheckExpAward(attacker,self,TRUE,damage);
++		else
++			CheckExpAward(attacker,self,2,damage);
++	}
++	else
++		CheckExpAward(attacker,self,TRUE,damage);
+ /*
+ 	if(attacker.deadflag<DEAD_DYING)
+ 	{
+@@ -508,6 +560,10 @@ entity oself;
+ */
+ 	self.enemy = attacker;
+ 
++// bump the monster counter
++	if(self.model=="models/sheep.mdl"&&world.target=="sheep")
++		monster_death_use(TRUE);
++
+ 	if (self.flags & FL_MONSTER)
+ 	{
+ 		self.experience_value= self.init_exp_val = 0;
+@@ -517,7 +573,8 @@ entity oself;
+ 			MonsterDropStuff();
+ 		killed_monsters = killed_monsters + 1;
+ 		WriteByte (MSG_ALL, SVC_KILLEDMONSTER);
+-		monster_death_use();
++		if(self.classname!="monster_imp_lord"&&self.classname!="monster_fish")
++			monster_death_use(FALSE);
+ 		pitch_roll_for_slope('0 0 0',self);
+ 	}
+ 	else if(self.th_die==SUB_Null)
+@@ -818,9 +875,7 @@ entity holdent,lastleader,newking;
+ 	//NOTE: EXPERIMENTAL, FIXME?
+ 	if(skill>=4)
+ 	{//NOTE: respawn monster when it dies after 10 seconds?
+-		if(targ.flags&FL_MONSTER)
+-			damage/=2;
+-		else if (targ.flags&FL_CLIENT)
++		if(targ.flags&FL_CLIENT)
+ 			damage*=2;
+ 	}
+ 
+diff -urNp portals-1.12/entity.hc portals-1.12a/entity.hc
+--- portals-1.12/entity.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/entity.hc	1998-03-23 18:48:46.000000000 +0200
+@@ -317,6 +317,7 @@ void end_sys_fields;
+ 		float act_state;		// Anim info
+ 		float raven_cnt;		// Number of raven's this guys has in the world
+ 		float newclass;			// If doing a quick class change
++		float sheep_call;
+ 	};
+ /*	struct // Talking heads
+ 	{		
+@@ -761,4 +762,5 @@ entity	sight_entity;	//So monsters wake 
+ .vector init_org;
+ 
+ .float fire_damage;
++.float scoped;
+ 
+diff -urNp portals-1.12/impulse.hc portals-1.12a/impulse.hc
+--- portals-1.12/impulse.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/impulse.hc	1998-03-27 15:14:36.000000000 +0200
+@@ -6,8 +6,38 @@ void PlayerAdvanceLevel(float NewLevel);
+ void player_level_cheat(void);
+ void player_experience_cheat(void);
+ void Polymorph (entity loser);
++void()sheep_look;
+ //void create_swarm (void);
+ 
++void wake_sheep ()
++{
++entity found;
++float r;
++	if(self.attack_finished>time)
++		return;
++
++	if(self.sheep_call>time)
++		return;
++	
++	self.sheep_call=time+2;
++
++	sheep_sound(1);
++	found=find(world,classname,"player_sheep");
++	while(found)
++	{
++		if(infront(found))
++			r=random();
++		else
++			r=random(5);
++		if(r<0.5)
++		{
++			found.think=sheep_look;
++			thinktime found : 0;
++		}
++		found=find(found,classname,"player_sheep");
++	}
++}
++
+ void restore_weapon ()
+ {//FIXME: use idle, not select
+ 	self.weaponframe = 0;
+@@ -713,7 +743,9 @@ void() ImpulseCommands =
+ 		HeaveHo();
+ 	break;
+ 	case 14:
+-		if(skill<3)
++		if(world.target=="sheep")
++			wake_sheep();
++		else if(skill<3)
+ 			Polymorph(self);
+ 		break;
+ 	case 22:
+diff -urNp portals-1.12/items.hc portals-1.12a/items.hc
+--- portals-1.12/items.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/items.hc	1998-03-27 15:14:38.000000000 +0200
+@@ -700,13 +700,14 @@ void mana_touch(void)
+ 
+ 	self.model = string_null;
+ 	self.solid = SOLID_NOT;
+-
+-	if (deathmatch == 1)
+-		self.nextthink = time + RESPAWN_TIME;
+-
+ 	self.think = SUB_regen;
++
+ 	activator = other;
+ 	SUB_UseTargets();				// fire all targets / killtargets
++	if (!self.owner && deathmatch == 1||world.target=="sheep")
++		self.nextthink = time + RESPAWN_TIME;
++	else
++		remove(self);	//test this!
+ }
+ 
+ void spawn_item_mana_green(float amount)
+@@ -1640,10 +1641,12 @@ float total;
+ 		{
+ 			spawn_artifact (ARTIFACT_INVINCIBILITY,NO_RESPAWN);
+ 		}
+-		else if ((item.bluemana) && (item.greenmana))
++		//this could never happen
++		/*else if ((item.bluemana) && (item.greenmana))
+ 		{
+ 			spawn_item_mana_both(self.bluemana);
+ 		}
++		*/
+ 		//these items could respawn in dmatch!
+ 		else if (item.bluemana)
+ 		{
+diff -urNp portals-1.12/medusa.hc portals-1.12a/medusa.hc
+--- portals-1.12/medusa.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/medusa.hc	1998-03-23 20:48:54.000000000 +0200
+@@ -422,6 +422,7 @@ void MedusaSwipe () [++ $swipe1 .. $swip
+ 	{
+ 		makevectors(self.angles);
+ 		traceline(self.origin+'0 0 23',self.origin+'0 0 23'-v_forward*72+v_right*($swipe7 - self.frame)*10,FALSE,self);
++		if(trace_ent)
+ 			if(trace_ent.takedamage)
+ 			{
+ 				T_Damage(trace_ent,self,self,7);
+diff -urNp portals-1.12/monsters.hc portals-1.12a/monsters.hc
+--- portals-1.12/monsters.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/monsters.hc	1998-03-27 15:14:40.000000000 +0200
+@@ -149,44 +149,55 @@ void monster_respawn_init ()
+ 	thinktime self : 0.5;
+ }
+ 
+-void() monster_death_use =
++void(float force_respawn) monster_death_use =
+ {
+ // fall to ground
+-	if(skill>=4)
++	if((!deathmatch&&skill>=4)||force_respawn)
+ 	{
+-		if(self.th_init)
++		if(self.th_init!=SUB_Null||force_respawn)
+ 		{
+-			if(self.monsterclass<CLASS_BOSS&&!self.flags2&FL_SUMMONED)
++			if((self.monsterclass<CLASS_BOSS&&!self.flags2&FL_SUMMONED)||force_respawn)
+ 			{
+ 				entity newmonster;
+ 				newmonster=spawn();
+ 				if(self.classname=="monster_mezzoman")
+ 				{
+-					switch (self.strength)
++					if(self.model=="models/snowleopard.mdl")
+ 					{
+-					case 0:
+-						newmonster.classname="monster_werejaguar";
+-					case 1:
+-						newmonster.classname="monster_werepanther";
+-					case 2:
+-						newmonster.classname="monster_weresnowleopard";
+-					default:
+-						newmonster.classname="monster_weretiger";
++						if(self.strength>=3)
++							newmonster.classname="monster_weretiger";
++						else
++							newmonster.classname="monster_weresnowleopard";
+ 					}
++					else if(self.strength)
++						newmonster.classname="monster_werepanther";
++					else
++						newmonster.classname="monster_werejaguar";
+ 				}
+ 				else if(self.netname=="monster_archer_ice")
+ 					newmonster.classname=self.netname;
+ 				else
+ 					newmonster.classname=self.classname;
++				
++				if(self.classname=="monster_pentacles")
++					newmonster.target=self.target;
++				else if(self.model=="models/sheep.mdl"&&world.target=="sheep")
++				{
++					newmonster.target=self.target;
++					newmonster.targetname=self.targetname;
++				}
+ 				newmonster.spawnflags=self.spawnflags;
+ 				setorigin(newmonster,self.init_org);
+ 				newmonster.init_org=self.init_org;
+ 				newmonster.th_init=self.th_init;
+ 				newmonster.flags2(+)FL2_RESPAWN;
+-				newmonster.skin=self.skin;
++				if(self.skin>=100)
++					newmonster.skin=self.oldskin;
++				else
++					newmonster.skin=self.skin;
+ 				setsize(newmonster,self.mins,self.maxs);
+ 				newmonster.think=monster_respawn_init;
+-				thinktime newmonster : 10;
++				thinktime newmonster : 5+random(10);
+ 			}
+ 		}
+ 	}
+diff -urNp portals-1.12/object.hc portals-1.12a/object.hc
+--- portals-1.12/object.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/object.hc	1998-03-27 15:14:40.000000000 +0200
+@@ -473,6 +473,9 @@ void obj_tree2()
+ 	precache_model("models/tree2.mdl");
+ 	CreateEntityNew(self,ENT_TREE,"models/tree2.mdl",tree2_death);
+ 
++	if(world.target=="sheep")
++		setsize(self,'-12  -12  -16','12  12 210');
++
+ 	top = spawn();
+ 	top.scale = self.scale;
+ 
+diff -urNp portals-1.12/pentacles.hc portals-1.12a/pentacles.hc
+--- portals-1.12/pentacles.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/pentacles.hc	1998-03-23 20:39:02.000000000 +0200
+@@ -135,7 +135,10 @@ void() flymonster_start_go =
+ {
+ entity latch;
+ 	// spread think times so they don't all happen at same time
++	if(self.target!=string_null)
+ 		latch=find(world,targetname,self.target);
++	else
++		latch=world;
+ 
+ 	if(!latch)
+ 		setnewwalldir();//objerror("Pentacles: Target Me!!!\n");
+@@ -681,7 +684,7 @@ float dist;
+ 	}
+ 	else if(pointcontents(self.origin)==CONTENT_SOLID)
+ 	{
+-		dprint("ERROR: Pent in wall!!!\n");
++//		dprint("ERROR: Pent in wall!!!\n");
+ 		setorigin(self,self.oldorigin);
+ //		self.nextthink = -1;
+ //		self.think=SUB_Return;
+diff -urNp portals-1.12/plats_mp.hc portals-1.12a/plats_mp.hc
+--- portals-1.12/plats_mp.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/plats_mp.hc	1998-03-23 20:24:00.000000000 +0200
+@@ -473,6 +473,10 @@ entity targ;
+ 		return;
+ 	}
+ 
++	if(self.dmg==666)
++		if(mapname=="tibet9")
++			self.dmg=50;
++
+ 	self.decap = 0;
+ 
+ 	if (self.spawnflags & TRAIN_GLOW) 
+diff -urNp portals-1.12/sheep.hc portals-1.12a/sheep.hc
+--- portals-1.12/sheep.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/sheep.hc	1998-03-27 15:14:42.000000000 +0200
+@@ -182,8 +182,8 @@ void()sheep_tranA = [++ $tranA1 .. $tran
+ {
+ float r;
+ 	if(self.target)
+-		sheep_move(3);
+-	else if(!walkmove(self.angles_y,3,FALSE))
++		sheep_move(self.speed);
++	else if(!walkmove(self.angles_y,self.speed,FALSE))
+ 		sheep_turn();
+ 
+ 	sheep_think();
+@@ -202,8 +202,8 @@ float r;
+ void()sheep_tranB = [++ $tranB1 .. $tranB12]
+ {
+ 	if(self.target)
+-		sheep_move(3);
+-	else if(!walkmove(self.angles_y,3,FALSE))
++		sheep_move(self.speed);
++	else if(!walkmove(self.angles_y,self.speed,FALSE))
+ 		sheep_turn();
+ 
+ 	sheep_think();
+@@ -232,8 +232,8 @@ void () sheep_gstep_a = [++ $gstepA10 ..
+ float r;
+ 	sheep_think();
+ 	if(self.target)
+-		sheep_move(0.3);
+-	else if(!walkmove(self.angles_y,0.3,FALSE))
++		sheep_move(self.speed/10);
++	else if(!walkmove(self.angles_y,self.speed/10,FALSE))
+ 		sheep_turn();
+ 
+ 	if(cycle_wrapped)
+@@ -254,8 +254,8 @@ void () sheep_gstep_b = [++ $gstepB10 ..
+ float r;
+ 	sheep_think();
+ 	if(self.target)
+-		sheep_move(0.3);
+-	else if(!walkmove(self.angles_y,0.3,FALSE))
++		sheep_move(self.speed/10);
++	else if(!walkmove(self.angles_y,self.speed/10,FALSE))
+ 		sheep_turn();
+ 
+ 	if(cycle_wrapped)
+@@ -274,8 +274,8 @@ float r;
+ void()sheep_trot = [++ $trot1 .. $trot10]
+ {
+ 	if(self.target)
+-		sheep_move(3);
+-	else if(!walkmove(self.angles_y,3,FALSE))
++		sheep_move(self.speed);
++	else if(!walkmove(self.angles_y,self.speed,FALSE))
+ 		sheep_turn();
+ 
+ 	sheep_think();
+@@ -394,6 +394,14 @@ void monster_sheep_run () [++ $trot1 .. 
+ 	}
+ }
+ 
++void sheep_run_use()
++{
++	if(random()<0.8||self.speed==6)
++		return;
++	self.yaw_speed=4;
++	self.speed=6;
++}
++
+ void player_sheep (void)
+ {
+ float r;
+@@ -409,11 +417,24 @@ float r;
+ 
+ 	CreateEntityNew(self,ENT_SHEEP,"models/sheep.mdl",chunk_death);
+ 
++	if(world.target=="sheep")
++	{
++		self.use=sheep_run_use;
++		self.scale=random(0.05,2.55);
++		self.experience_value=rint(3.5*self.scale);
++		self.init_org=self.origin;
++		self.th_init=player_sheep;
++		self.health+=10*self.scale;
++		self.mins=self.mins*self.scale;
++		self.maxs=self.maxs*self.scale;
++		setsize(self,self.mins,self.maxs);
++	}
+ 	self.th_pain = sheep_pain;
+ 	self.touch	= obj_push;
+ 	self.flags(+)FL_PUSH;	
+ 	self.flags2(+)FL_ALIVE;
+ 	self.yaw_speed=2;
++	self.speed=3;
+ 	self.th_run=sheep_wait;
+ 	
+ 	if(self.scale)
+diff -urNp portals-1.12/snake.hc portals-1.12a/snake.hc
+--- portals-1.12/snake.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/snake.hc	1998-03-24 16:42:58.000000000 +0200
+@@ -358,8 +358,6 @@ void snake_wake(void) [++ $wake1 .. $wak
+ }
+ 
+ 
+-float float_null;
+-
+ float snake_look(void)
+ {
+ 	entity client;
+@@ -440,7 +438,7 @@ void wake_effect (void)
+ 	setorigin(newent,self.origin);
+ 	sound (self, CHAN_BODY, "snake/life.wav", 1, ATTN_NORM);
+ 
+-	if (self.colormap != float_null)
++	if (self.colormap != 0)
+ 	{
+ 		CreateGreySmoke(self.origin + '0 0 60','0 0 12',HX_FRAME_TIME * 20);
+ 		CreateGreySmoke(self.origin + '16 16 55','0 0 12',HX_FRAME_TIME * 20);
+@@ -451,7 +449,7 @@ void wake_effect (void)
+ 		CreateGreySmoke(self.origin + '-64 -64 70','0 0 12',HX_FRAME_TIME * 20);
+ 
+ 		self.use = SUB_Null;
+-		self.colormap = float_null;
++		self.colormap = 0;
+ 		self.takedamage = DAMAGE_YES;
+ 		self.drawflags (+) MLS_ABSLIGHT;
+ 		snake_wake();
+diff -urNp portals-1.12/spider.hc portals-1.12a/spider.hc
+--- portals-1.12/spider.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/spider.hc	1998-03-22 19:27:26.000000000 +0200
+@@ -293,7 +293,7 @@ void SpiderInit(float type)
+ 		return;
+ 	}
+ 
+-	if (!self.flags2 & FL_SUMMONED)
++	if (!self.flags2 & FL_SUMMONED&&!self.flags2&FL2_RESPAWN)
+ 		precache_spider();
+ 
+ 	setmodel(self, "models/spider.mdl");
+diff -urNp portals-1.12/triggers.hc portals-1.12a/triggers.hc
+--- portals-1.12/triggers.hc	1998-03-20 18:15:26.000000000 +0200
++++ portals-1.12a/triggers.hc	1998-03-24 17:01:48.000000000 +0200
+@@ -10,8 +10,6 @@ float SPAWNFLAG_DODAMAGE = 1;
+ float SPAWNFLAG_QMULT = 2;
+ float COUNTER_ORDERED = 2;
+ 
+-entity stemp, otemp, s, old;
+-
+ void() trigger_reactivate =
+ {
+ 	self.solid = SOLID_TRIGGER;
+@@ -1094,6 +1092,8 @@ void() play_teleport =
+ 
+ void(vector org) spawn_tfog =
+ {
++	entity s;
++
+ 	s = spawn ();
+ 	s.origin = org;
+ 	thinktime s : 0.05;

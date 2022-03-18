@@ -1,0 +1,42 @@
+Hexen II Mission Pack Patch Version:  v.1.12a
+by Raven and Activision
+
+Release Notes
+
+This patch will upgrade the H2MP from v.1.12 to v.1.12a.  Patch v.1.12a
+is not a mandatory patch; patched and unpatched servers and clients can
+speak to each other without problems.
+
+This patch addresses the following issues:
+
+Game Crashed in Skill Level 4  -  If you managed to find the Easter egg
+allowing you to play the game at Skill Level 4 (hint: it's in the first
+level, keep1), you may have noticed that spiders and weretigers
+respawning caused both the server and the client to crash.
+
+Added Item Respawning in Skill 4  -  Just to help you out, we made some
+useful items respawn when in skill 4.
+
+Tibet10 Did Not Circulate - Tibet 10 (the final level) crashed in death-
+match after reaching the timelimit or fraglimit.  Now it cycles back to
+Tibet 1.
+
+Paladin's Axe Sometimes Crashed - The paladin's axe trail sometimes
+tried to read the axe after it was removed.  This caused the client to
+crash to the console.
+
+Tibet 9 Breaking Floor Was Rather Hard If You Didn't Jump Off In Time. -
+The breaking floor in Tibet 9 was set to instantly kill the player when
+it dropped.  Now it doesn't.
+
+Dropped Items on Tibet 10 Would Respawn  -  This was a bug in the code,
+which allowed certain items to respawn in Tibet 10.
+
+Some Pentacles Could Cause Error - Untargeted Pentacles could crash the
+world or the players weapons.
+
+Dropped Mana Would Always Respawn - You may have noticed a message
+saying that you have picked up Blue Mana, but did not see any.  This bug
+had been around a long time.
+
+[...]
