@@ -1,0 +1,49 @@
+==================================================
+Scourge of Armagon Impulse Commands
+Created by Mark Dochtermann 03/08/97
+Version 1.0
+Original Code written by Jim Dose and Mark Dochtermann
+Copyright (c) 1997 Hipnotic Interactive Inc.
+Scourge of Armagon (c) 1997 Id Software, Inc.
+Scourge of Armagon (tm) is a trademark of Id Software, Inc.
+Quake (r) is a registered trademark of Id Software, Inc.
+===================================================
+
+
+==========================================================================
+=                                                                        =
+= IMPULSES                                                               =
+=                                                                        =
+==========================================================================
+
+impulse 225 - select laser cannon
+impulse 226 - select mjolnir
+impulse 200 - wetsuit cheat
+impulse 201 - empathy shields cheat
+impulse 202 - Dump all entities (developer 1 must be on)
+impulse 203 - Dump all live entites (developer 1 must be on)
+impulse 205 - Genocide.  Kill all live enemies
+impulse 206 - Dump current position toggle. dumps the current player pos.
+
+==========================================================================
+=                                                                        =
+= GIVES                                                                  =
+=                                                                        =
+==========================================================================
+
+give 6a - give proximity bomb launcher
+give 9  - give laser cannon
+give 0  - give mjolnir
+
+==========================================================================
+=                                                                        =
+= MISCELLANEOUS                                                          =
+=                                                                        =
+==========================================================================
+
+crosshair - if you set this to '2' all clients will make footstep sounds.
+This must be set on the server when the level is spawned for this to take
+effect.  After the server has started that level, you can change crosshair
+back to your normal setting and the footsteps will remain active.  There
+is no way other than restarting the level to turn the footsteps off.
+-- "Fun in deathmatch!", says Mark Dochtermann.
