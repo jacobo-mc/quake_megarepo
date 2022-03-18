@@ -1,0 +1,71 @@
+--------------------Configuration: qbsp - Win32 Debug--------------------
+Begining build with project "I:\ID\h3\cr\source5.0\utils\qbsp.dsp", at root.
+Active configuration is Win32 (x86) Console Application (based on Win32 (x86) Console Application)
+
+Project's tools are:
+			"32-bit C/C++ Compiler for 80x86" with flags "/nologo /G5 /MTd /w /W0 /Gm /Gi /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /FR".\Debug/" /Fp".\Debug/qbsp.pch" /YX /Fo".\Debug/" /Fd".\Debug/" /FD /c "
+			"Win32 Resource Compiler" with flags "/l 0x409 "
+			"Browser Database Maker" with flags "/nologo /o".\Debug/qbsp.bsc" "
+			"COFF Linker for 80x86" with flags "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib /nologo /subsystem:console /incremental:yes /pdb:".\Debug/qbsp.pdb" /debug /machine:I386 /out:".\Debug/qbsp.exe" "
+			"Custom Build" with flags ""
+			"<Component 0xa>" with flags ""
+
+Creating temp file "C:\TEMP\RSP39.tmp" with contents </nologo /G5 /MTd /w /W0 /Gm /Gi /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /FR".\Debug/" /Fp".\Debug/qbsp.pch" /YX /Fo".\Debug/" /Fd".\Debug/" /FD /c 
+"I:\ID\h3\cr\source5.0\utils\brush.c"
+"I:\ID\h3\cr\source5.0\utils\bspfile.c"
+"I:\ID\h3\cr\source5.0\utils\cmdlib.c"
+"I:\ID\h3\cr\source5.0\utils\csg4.c"
+"I:\ID\h3\cr\source5.0\utils\map.c"
+"I:\ID\h3\cr\source5.0\utils\mathlib.c"
+"I:\ID\h3\cr\source5.0\utils\merge.c"
+"I:\ID\h3\cr\source5.0\utils\nodraw.c"
+"I:\ID\h3\cr\source5.0\utils\outside.c"
+"I:\ID\h3\cr\source5.0\utils\portals.c"
+"I:\ID\h3\cr\source5.0\utils\qbsp.c"
+"I:\ID\h3\cr\source5.0\utils\region.c"
+"I:\ID\h3\cr\source5.0\utils\solidbsp.c"
+"I:\ID\h3\cr\source5.0\utils\surfaces.c"
+"I:\ID\h3\cr\source5.0\utils\tjunc.c"
+"I:\ID\h3\cr\source5.0\utils\writebsp.c"
+>
+Creating command line "cl.exe @C:\TEMP\RSP39.tmp" 
+Creating temp file "C:\TEMP\RSP3A.tmp" with contents <kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib /nologo /subsystem:console /incremental:yes /pdb:".\Debug/qbsp.pdb" /debug /machine:I386 /out:".\Debug/qbsp.exe" 
+.\Debug\brush.obj
+.\Debug\bspfile.obj
+.\Debug\cmdlib.obj
+.\Debug\csg4.obj
+.\Debug\map.obj
+.\Debug\mathlib.obj
+.\Debug\merge.obj
+.\Debug\nodraw.obj
+.\Debug\outside.obj
+.\Debug\portals.obj
+.\Debug\qbsp.obj
+.\Debug\region.obj
+.\Debug\solidbsp.obj
+.\Debug\surfaces.obj
+.\Debug\tjunc.obj
+.\Debug\writebsp.obj>
+Creating command line "link.exe @C:\TEMP\RSP3A.tmp" 
+Compiling...
+brush.c
+bspfile.c
+cmdlib.c
+csg4.c
+map.c
+mathlib.c
+merge.c
+nodraw.c
+outside.c
+portals.c
+qbsp.c
+region.c
+solidbsp.c
+surfaces.c
+tjunc.c
+writebsp.c
+Linking...
+
+
+
+qbsp.exe - 0 error(s), 0 warning(s)

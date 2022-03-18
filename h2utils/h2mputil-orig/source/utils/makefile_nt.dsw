@@ -1,0 +1,117 @@
+Microsoft Developer Studio Workspace File, Format Version 5.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "HCC"=..\hcc\HCC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/H2 Mission Pack/Tools/hcc", HIEAAAAA
+    ..\hcc
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "genmodel"=..\genmodel\genmodel.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/H2 Mission Pack/Tools/genmodel", RCFAAAAA
+    ..\genmodel
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "light"=.\light.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/H2 Mission Pack/Tools/utils", BOEAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "qbsp"=.\qbsp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/H2 Mission Pack/Tools/utils", BOEAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "qfiles"=..\qfiles\qfiles.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/H2 Mission Pack/Tools/qfiles", EAHAAAAA
+    ..\qfiles
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "vis"=.\vis.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/H2 Mission Pack/Tools/utils", BOEAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+    begin source code control
+    "$/H2 Mission Pack/Tools/genmodel", RCFAAAAA
+    ..\genmodel
+    end source code control
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

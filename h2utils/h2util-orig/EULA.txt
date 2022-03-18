@@ -1,0 +1,163 @@
+Summary:  
+
+* These Utilities are for your sole, personal use
+* They are unsupported by Activision, Raven, and id 
+* Levels created by these tools may not be sold or used commercially 
+  as defied by the Software License Agreement below.
+
+
+The use of this software is subject to the terms of the Software 
+License Agreement below.  You must accept the Software License 
+Agreement before you can use Level Utilities.  The Level Utilities 
+are provided strictly for your personal use.  The use of the Level 
+Utilities is subject to additional license restrictions contained in 
+the Software License Agreement and may not be commercially exploited.
+
+SOFTWARE LICENSE AGREEMENT
+
+
+IMPORTANT - READ CAREFULLY: THE LEVEL PROCESSING UTILITIES (THE 
+"LEVEL UTILITIES") FOR USE WITH HEXEN II (THE "PROGRAM") ALLOWS YOU 
+TO CREATE CUSTOMIZED NEW GAME LEVELS AND OTHER RELATED GAME MATERIALS 
+FOR PERSONAL USE IN CONNECTION WITH THE PROGRAM ("NEW GAME 
+MATERIALS"). THE USE OF THE LEVEL UTILTIES IS SUBJECT TO THE SOFTWARE 
+LICENSE TERMS SET FORTH BELOW.  BY USING THE LEVEL UTILTIES, YOU ARE 
+CONSENTING TO BE BOUND BY AND ARE BECOMING A PARTY TO THIS AGREEMENT 
+WITH ACTIVISION, INC. ("ACTIVISION"). IF YOU DO NOT AGREE TO THE 
+TERMS OF THIS AGREEMENT, DO NOT USE THE UTILITIES AND COMPLETELY 
+REMOVE THEM FROM YOUR COMPUTER AND YOUR POSESSION.
+
+LIMITED USE LICENSE. Activision grants you the non-exclusive, non-
+transferable, limited right to use the Level Utilities for the 
+purpose of creating New Game Materials solely and exclusively for 
+personal use. For purposes of this Agreement, "New Game Materials" 
+represent computer data that modifies, substitutes for or adds new 
+materials to the materials currently contained in the Product, thus 
+modifying or replacing one or more existing game levels and other 
+constituent elements provided in the Product. You shall not create 
+New Game Materials, or tools that have no substantial purpose other 
+than to contribute to the creation of New Game Materials, except as 
+expressly permitted pursuant to this Agreement. All rights not 
+specifically granted under this Agreement are reserved by Activision 
+and, as applicable, its licensors. The Level Utilities are licensed, 
+not sold. Your license and the use of the Level Utilities confers no 
+title or ownership in the Level Utilities or the New Game Materials 
+created using the Level Utilities and should not be construed as a 
+sale of any rights in the Level Utilities or such New Game Materials.
+
+OWNERSHIP. All title, ownership rights and intellectual property 
+rights in and to the Level Utilities and the New Game Materials 
+created by you using the Construction Kit are owned by Activision 
+or its licensors and are protected by the copyright laws of the 
+United States, international copyright treaties and conventions 
+and other laws. In the event that you should, by operation of law, 
+be deemed to retain any rights in any New Game Materials created 
+by you, you, by using the Level Utilities,  hereby irrevocably 
+assign, without any further consideration and regardless of any 
+use by Activision of such New Game Materials, all of your rights 
+and interest, if any, in and to such New Game Materials to 
+Activision. You also hereby grant Activision an irrevocable, 
+perpetual, exclusive, fully paid and royalty-free license to 
+exercise any rights, including moral rights, to any and all 
+aspects of the New Game Materials. You agree that Activision shall 
+have the full and complete right to package, publish, print, copy, 
+promote, market, distribute, transfer and display the New Game 
+Materials created by you and prepare derivative works based upon 
+such New Game Materials, and any derivative works thereof, 
+anywhere throughout the world. 
+ 
+LICENSE CONDITIONS.  
+You agree that as a condition to Activision’s consent to allow you 
+to use the Level Utilities, you will not use or allow third 
+parties to use the Level Utilities and the New Game Materials 
+created by you for commercial purposes, including but not limited 
+to selling, renting, leasing, licensing, distributing, or 
+otherwise transferring the ownership of such New Game Materials, 
+whether on a stand alone basis or packaged in combination with the 
+New Game Materials created by others, through any and all 
+distribution channels, including, without limitation, retail sales 
+and on-line electronic distribution. You agree not to solicit, 
+initiate or encourage any proposal or offer from any person or 
+entity to create any New Game Materials for commercial 
+distribution. You agree to promptly inform Activision in writing 
+of any instances of your receipt of any such proposal or offer.
+
+If you decide to make available the use of the New Game Materials 
+created by you to your friends, family, co-workers and other 
+fellow gamers, you agree to do so solely without charge. 
+
+You shall create New Game Materials only if such New Game 
+Materials can be used exclusively in combination with the retail 
+version of the Product. The New Game Materials may not be designed 
+to be used as a stand-alone product.
+
+New Game Materials shall not contain modifications to any COM, EXE 
+or DLL files or to any other executable Product files.
+
+New Game Materials must not contain any illegal, obscene or 
+defamatory materials, materials that infringe rights of privacy 
+and publicity of third parties or (without appropriate irrevocable 
+licenses granted specifically for that purpose) any trademarks, 
+copyright-protected works or other properties of third parties.
+
+New Game Materials must contain prominent identification at least 
+in any on-line description and with reasonable duration on the 
+opening screen: (a) the name and E-mail address of the New Game 
+Materials’ creator(s) and (b) the words "THIS MATERIAL IS NOT MADE 
+OR SUPPORTED BY ACTIVISION."
+
+You will not use the Level Utilities to reverse engineer, extract 
+source code, modify, decompile or disassemble the Program, in 
+whole or in part. 
+
+TERMINATION. Without prejudice to any other rights of Activision, 
+this Agreement will terminate automatically if you fail to comply 
+with its terms and conditions. In such event, you must immediately 
+discontinue the use of the Level Utilities and any New Game Materials 
+created using the Level Utilities.
+
+INJUNCTION. Because Activision would be irreparably damaged if the 
+terms of this Agreement were not specifically enforced, you agree 
+that Activision shall be entitled, without bond, other security or 
+proof of damages, to appropriate equitable remedies with respect to 
+breaches of this Agreement, in addition to such other remedies as 
+Activision may otherwise have under applicable laws.
+
+INDEMNITY.  You agree to indemnify, defend and hold Activision, its 
+partners, licensors, affiliates, contractors, officers, directors, 
+employees and agents (specifically including, but not limited to, Id 
+Software, inc., and Raven Software, inc.) harmless from all damages, 
+losses and expenses arising directly or indirectly from your acts and 
+omissions to act in using the Level Utilities pursuant to the terms 
+of this Agreement 
+
+MISCELLANEOUS. This Agreement represents the complete agreement 
+concerning this license between the parties and supersedes all prior 
+agreements and representations between them. It may be amended only 
+by a writing executed by both parties. If any provision of this 
+Agreement is held to be unenforceable for any reason, such provision 
+shall be reformed only to the extent necessary to make it enforceable 
+and the remaining provisions of this Agreement shall not be affected. 
+This Agreement shall be construed under California law as such law is 
+applied to agreements between California residents entered into and 
+to be performed within California, except as governed by federal law 
+and you consent to the exclusive jurisdiction of the state and 
+federal courts in Los Angeles, California. 
+
+If you have any questions concerning this license, you may contact 
+Activision at 3100 Ocean Park Boulevard, Santa Monica, California 
+90405, (310) 255-2000, Attn. Business and Legal Affairs, 
+legal@activision.com
+
+
+
+Hexen II(tm) ©1997 Raven Software Corporation. All Rights Reserved. Id 
+Software, Inc. software code contained within Hexen II(tm) © 1996 Id 
+Software, Inc. All Rights Reserved. Developed by Raven Software 
+Corporation. Published by Id Software, Inc. Distributed by Activision, 
+Inc. under sublicense. Hexen® is a registered trademark and Hexen II(tm) 
+is a trademark of Raven Software Corporation. The Id Software name and 
+the id logo are trademarks of Id Software, Inc. Activision® is a 
+registered trademark of Activision, Inc. All other trademarks and trade 
+names are the properties of their respective companies. 
+

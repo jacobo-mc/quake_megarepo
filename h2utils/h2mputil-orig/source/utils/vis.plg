@@ -1,0 +1,31 @@
+--------------------Configuration: vis - Win32 Release--------------------
+Begining build with project "I:\ID\h3\cr\source5.0\utils\vis.dsp", at root.
+Active configuration is Win32 (x86) Console Application (based on Win32 (x86) Console Application)
+
+Project's tools are:
+			"32-bit C/C++ Compiler for 80x86" with flags "/nologo /G5 /MT /W3 /GX /O2 /Ob2 /D "__alpha" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FR".\Release/" /Fp".\Release/vis.pch" /YX /Fo".\Release/" /Fd".\Release/" /FD /c "
+			"Win32 Resource Compiler" with flags "/l 0x409 "
+			"Browser Database Maker" with flags "/nologo /o".\Release/vis.bsc" "
+			"COFF Linker for 80x86" with flags "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:console /profile /machine:I386 /out:".\Release/vis.exe" "
+			"Custom Build" with flags ""
+			"<Component 0xa>" with flags ""
+
+Creating temp file "C:\temp\RSP12B3.TMP" with contents </nologo /G5 /MT /W3 /GX /O2 /Ob2 /D "__alpha" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FR".\Release/" /Fp".\Release/vis.pch" /YX /Fo".\Release/" /Fd".\Release/" /FD /c 
+"I:\ID\h3\cr\source5.0\utils\vis.c"
+>
+Creating command line "cl.exe @C:\temp\RSP12B3.TMP" 
+Creating temp file "C:\temp\RSP12B4.TMP" with contents <kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:console /profile /machine:I386 /out:".\Release/vis.exe" 
+.\Release\vis.obj
+.\Release\soundpvs.obj
+.\Release\mathlib.obj
+.\Release\flow.obj
+.\Release\cmdlib.obj
+.\Release\bspfile.obj>
+Creating command line "link.exe @C:\temp\RSP12B4.TMP" 
+Compiling...
+vis.c
+Linking...
+
+
+
+vis.exe - 0 error(s), 0 warning(s)

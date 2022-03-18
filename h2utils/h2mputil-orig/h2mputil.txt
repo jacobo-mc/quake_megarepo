@@ -1,0 +1,12 @@
+Hexen II mission Pack Utilities
+
+HccMp is the script compiler.
+
+Some new features are:
+ - much more optimizations
+ - removing uneeded stuff from progs.dat (this is turned on with -oi and -on)
+ - switch statements were in but are also supported by the game now.
+ - vis and light are all the same as the hexen 2 release.
+ - qbsp has an increased max_planes limit. (The make files
+   are now for VC 5.0)
+ - genmodel has a new -opt option to cut redundant verts.
