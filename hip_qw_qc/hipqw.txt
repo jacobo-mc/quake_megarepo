@@ -1,0 +1,189 @@
+Title : QuakeWorld Mission Pack 1: Scourge of Armagon Server Patch
+	** this is for QW servers ONLY **
+
+Filename  : hipqw21s.zip
+Date      : 11-6-97
+Version   : 2.1
+
+Credits	  : ID Software for Quake
+	    Ritual Entertainment for Quake Mission Pack 1: Scourge of Armagon
+
+Special thanks to: Scott Lampert <fortunato@heavymetal.org>
+
+Conversion: Chris "Oskilla" Little
+Email     : chrislit@uclink4.berkeley.edu
+Web	  : http://www.planetquake.com/qcsource
+
+*  Type of Mod  *
+
+Quake C  : yes
+Sound    : not included -- buy the pack
+MDL      : not included -- buy the pack
+Maps	 : not included -- buy the pack
+
+*  Format of Quake C  *
+
+unified diff  : no
+context diff  : no
+.qc files     : yes
+progs.dat     : available separately
+
+
+*  Description of Mod  *
+
+Very simply this is a merger of the QW and Ritual QuakeC sources.
+Now people can start setting up QW servers with the Ritual pack.
+
+It's got rotating brushes, bobbing water, the laser cannon, the
+hammer <evil grin>, and all the rest.
+
+If you don't have Ritual's pack yet, get it.  Get it now.
+
+NOTE: This patch was NOT made by Ritual.  It just uses their code.
+      They may release their QW version of their patch, in which case
+      this will become obsolete.  If something is wrong with this patch
+      don't whine at Ritual as it is probably my fault. :)
+
+
+*  How to Install the Modification  *
+
+Beginning with QW 1.50, dynamic download of maps was disabled.  Download of
+art, sounds, etc. is still possible though.  Before doing anything, please
+put the line "allow_download 0" in your server.cfg file.  If nothing else
+it will prevent leeches from lagging your server out.
+
+Now put this qwprogs.dat into the c:\quake\hipnotic directory.
+
+You may (or may not) wish to add all the QW skins to a c:\quake\hipnotic
+directory.
+
+Now just run qwsv +gamedir hipnotic +setmaster xxx.xxx.xxx.xxx:xxxxx and your server
+will be up.  Of course, you may want to edit the server.cfg further, but you can
+consult others for help with that.
+
+A new serverinfokey has been added: "hip".  Add the following values to the value
+of "hip" to set these features.  ("hip" is a bitwise key.)
+
+add 1 to turn footsteps on, by default they are off
+add 2 to turn the bulletholes in walls on, by default they are off
+
+To turn on quad and ring dropping, you need to add "serverinfo dq 1" or "serverinfo
+dr 1" respectively to your server.cfg file.  Similarly, to enable dropping of
+the empathy shield, you would add "serverinfo de 1".
+
+*  Legal info  *
+
+The QuakeWorld conversion of Quake Mission Pack 1: Scourge of Armagon is
+copyright 1997 by Chris Little.  Portions are copyright by Ritual Entertainment
+and Id Software.
+
+This Quake patch is provided free of charge.  It may be used as the basis for
+other patches and you may modify it to your liking, provided that you credit
+the authors.
+
+The patch may be used on any free servers without notice or payment being given
+to the authors.  If you intend to charge a fee for playing on a server running
+this patch, you must contact and receive permission from Chris Little, the
+author of the QW conversion, as well as Ritual Entertainment.
+
+The patch may be freely distributed, provided that the contents of the distribution
+do not vary from their original form and provided that no fee is charged in any
+form.
+
+*  Version History  *
+
+2.1	Included support for dropping empathy shield
+
+2.0	Merge of QW 2.01 QC and version sync
+
+	fixed water sounds
+
+RC2     Variable gravity works.
+
+	Sped impulse checking by only doing impulse code if you've actually done
+	one.
+
+	FINALLY fixed the exploding walls so that their explosions appear in all
+	their lag inducing glory.  (For real this time.  Heh.)
+
+	Finally fixed those darned standing corpses.  And some attack and pain
+	frames too, in the process.			
+
+	Fixed particle fields a bit, though they'll all be red since blood is the
+	only particle effect in QW I think.  (This fix copied from CustEnts by
+	General WarT aka Carl Glave.)
+	
+	Fixed the particle fields more.  They tended to quadruple pings and
+	not even appear at all.
+
+	Got rid of a bunch of . fields and some globals that were unnecessary.
+
+	Got rid of all the spawning and horn of conjuring code.  In case you
+	hadn't noticed, there are no monster AIs, so even if there were a horn
+	in a DM level, there wouldn't be a monster to spawn. So it's gone.
+	
+	Tweaked the weapon pickup rankings yet again.  Last time, apparently I
+	made it so you never selected the Ritual weapons automatically upon
+	pickup.  Now the Proximity Gun and Grenade Launcher are equivalent and
+	the Laser Cannon and Super Nailgun are equivalent as far as the client's
+	b_switch and w_switch variables are concerned.  The Mjolnir is always
+	selected when you pick it up.  Rank respective to other weapons remains
+	the same.
+
+	Some new lag decreasers were implemented.  (I got to play my first game
+	of HipQW via modem and developed a LOT of empathy!)  All of these changes
+	are at the suggestion & endorsement of other players but may be changed
+	by the time of th final release. --
+
+		Bulletholes in walls remain for half as long and the maximum
+		number of bulletholes was decreased from 10 to 6.  Might help.
+
+		Bulletholes now have to be turned ON to appear, see above for
+		instructions.
+		
+		Proximity mines think just a bit less frequently, the maximum
+		number of proximity mines in the world was decreased from 15
+		to 10, and the lifetime of an untriggered proximity bomb was
+		decreased by about 1/3.
+
+	Also did miscellaneous optimization tweaks that ought to be done to the
+	regualar DM QC as well, but that's not my responsibility.
+
+RC1.1   Fixed megahealth failing to rot, thanks to Douglas Hart.
+	Fixed miscellaneous bugs, mostly relating to explosions not appearing.
+
+RC1     Minor bugs/code clean ups
+
+0.95    Misc. QW 1.50 compatability fixes.  Made footsteps toggleable from server.
+
+0.94    QW 1.50 happened.
+
+0.93	Fixed the weapon ranking system again.  I'd like to make a RFC on the
+	ranks/ranking system I used here.  I think it's right this time.
+
+	Made some efforts make the lag gun a little less powerful. (ie I tried
+	to decrease the number of packets sent out as a result of firing the
+	laser cannon.)  I decreased the number of beams per shot to 1 but
+	increased each beam's damage by 1/2.  I also increased the power per
+	beam to compensate.
+
+0.92	Fixed the weapon ranking system again.  I'd like to make a RFC on the
+	ranks/ranking system I used here.
+
+0.91	Removed use of the playham.mdl model since it tended to make things a
+	big funky in QW.  (ie. A person with the hammer selected has the base
+	player skin essentially with the base colors.  Thus a person who selects
+	the hammer would be VERY noticeable since their skin would change before
+	your eyes.)
+
+	Fixed the error that allowed you to select any weapon except the GL and Prox
+	Mine Launcher, whether you had it or not, so long as you had enough ammo.
+
+	Fixed the error in the weapon ranking procedure that never made it never
+	choose a full powered hammer as the best weapon.
+
+	Made it so that the footsteps play by default.  Comments welcome on this
+	decision but keep in mind that the default method for selecting whether
+	they are on or not (ie crosshairs 2) won't work in QWSV.
+
+0.9	Initial release

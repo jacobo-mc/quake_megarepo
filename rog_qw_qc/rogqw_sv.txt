@@ -1,0 +1,148 @@
+Title : QuakeWorld Mission Pack 2: Dissolution of Eternity Server Patch
+	** this is for QW servers ONLY **
+
+Filename  : rogqw21s.zip
+Date      : 11-6-97
+Version   : 2.1
+
+Credits	  : ID Software for Quake
+	    Rogue Entertainment for Quake MP2: Dissolution of Eternity
+
+Conversion: Chris Little (Oskilla in QW)
+Email     : chrislit@uclink4.berkeley.edu
+Web	  : http://www.planetquake.com/qcsource
+
+*  Type of Mod  *
+
+Quake C  : yes
+Sound    : not included -- buy the pack
+MDL      : not included -- some new models in RogueQW client pack
+Maps	 : not included -- buy the pack
+Other	 : also includes a sample server.cfg file
+
+*  Format of Quake C  *
+
+unified diff  : no
+context diff  : no
+.qc files     : yes
+progs.dat     : available separately
+
+
+*  Description of Mod  *
+
+Very simply this is a merger of the QW and Rogue DOE QuakeC sources.
+Now people can start setting up QW servers with the Rogue patch.
+
+It's got all of DOE's enhancements like the shield, vengence sphere,
+buzzsaws, lightning effects, multi-weapons, lava-weapons, 1 flag CTF,
+tag, 3 team CTF, etc.
+
+If you don't have Dissolution of Eternity yet, get it.  Get it now.
+
+NOTE: This patch was NOT made by Rogue.  It just uses their code.
+      If something is wrong with this patch don't whine at Rogue
+      as it is probably my fault. :)
+
+*  How to Install the Modification  *
+
+Beginning with QW 1.50, dynamic download of maps was disabled.  Download of
+art, sounds, etc. is still possible though.  Before doing anything, please
+put the line "allow_download 0" in your server.cfg file.  If nothing else
+it will prevent leeches from lagging your server out.
+
+If you allow dynamic download, people who have not downloaded the client
+pack will also be able to enter and will see incorrect models, so please
+set "allow_download 0".
+
+Now compile the source files with a QuakeC compiler and put the resulting
+qwprogs.dat file in your c:\quake\rogue directory.  (Use whichever drive
+you installed Quake on.)
+
+Now just run qwsv +gamedir rogue +setmaster xxx.xxx.xxx.xxx:xxxxx and your server
+will be up.  Of course, you may want to edit the server.cfg further, but you can
+consult others for help with that.
+
+*  Teamplay modes  *
+
+I haven't examined the teamplay modes very thoroughly, but there are basically 6
+different types of teamplay supported in RogueQW.  There are the regular teamplay
+1 and 2 settings and 4 new ones.  Teamplay 3 is tag.  Teamplay 4 is regular CTF.
+Teamplay 5 is 1 flag CTF, where a single flag spawns in the middle.  Teamplay 6 is
+3 team CTF with Red, Blue, and Grey (Rogue) teams.  The Rogue team has no base or
+flag of its own but can capture either Red or Blue flags.
+
+Set the teamplay setting by typeing "teamplay x", where x is the teamplay mode you
+want, into the server console or in your server.cfg file.
+
+*  Additional setup info *
+
+To turn on quad and ring dropping, you need to add "serverinfo dq 1" or "serverinfo
+dr 1" respectively to your server.cfg file.  Similarly, to enable dropping of
+the antigrav belt and shield, you would add "serverinfo da 1" and serverinfo ds 1"
+respectively.
+
+*  Problems  *
+
+Well, there are only a few problems in RogueQW that make it function differently
+from the Rogue pack played in Quake.
+
+Since the EF_FLAG1 and EF_FLAG2 flags are hardcoded to use the first 2 skins of
+flag.mdl, the file ctfmodel.mdl from DOE had to be copied to flag.mdl to allow
+client side flag drawing.  Also, since it only uses the first two skins, a player
+carrying the 1-flag CTF flag exhibits flag lag since the flag is not drawn client-
+side.
+
+Also the beam shot out by the grappling hook relies on the beam.mdl being copied
+to the file name bolt3.mdl.  This means that event_lightning would draw the beam
+graphic rather than the lightning when you kill Chthon in E1M7.  Luckily E1M7
+probably won't be played with the Rogue pack.
+
+*  Legal info  *
+
+The QuakeWorld conversion of Quake Mission Pack 2: Dissolution of Eternity is
+copyright 1997 by Chris Little.  Portions are copyright by Rogue Entertainment
+and Id Software.
+
+This Quake patch is provided free of charge.  It may be used as the basis for
+other patches and you may modify it to your liking, provided that you credit
+the authors.
+
+The patch may be used on any free servers without notice or payment being given
+to the authors.  If you intend to charge a fee for playing on a server running
+this patch, you must contact and receive permission from Chris Little, the
+author of the QW conversion, as well as Rogue Entertainment.
+
+The patch may be freely distributed, provided that the contents of the distribution
+do not vary from their original form and provided that no fee is charged in any
+form.
+
+*  Version History  *
+
+2.1	Fixed grav-belt bug
+	
+	Included support for dropping new powerups 
+
+2.0	Merged with QW 2.01 QC and version sync
+
+	Fixed water sound bug
+
+1.1	Fixed ammo not updating when you are using the standard Quake (non-Rogue)
+	weapons.
+
+	Fixed a bug in the jumping code that screwed up forward velocity when
+	jumping.
+
+	Fixed the anti-grav belt to actually act like low-grav instead of a
+	superjump.
+
+	Merged QW 1.64 QC
+
+	Added impulse 69 (previous weapon) thanks to Al "geezer" Harrington's
+	patch
+
+	Fixed some problems with Tag mode and the game thinking it should assign
+	you to a team during Tag mode.  The +showscores screen will still show
+	your team name and think you're on a team, but that is the only remaining
+	side effect.
+
+1.0	Initial release after in-house testing
